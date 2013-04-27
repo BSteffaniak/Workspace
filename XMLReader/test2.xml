@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Contacts>
+   <Contact>
+   <ContactId>1</ContactId> <ContactName>Aditya  Kothari</ContactName><MobilePhone1>NA</MobilePhone1> <MobilePhone2>NA</MobilePhone2> 
+      <OfficePhone1>NA</OfficePhone1>
+      <OfficePhone2>NA</OfficePhone2>
+      <OfficePhone3>NA</OfficePhone3>
+      <HomePhone1>999-367-3944</HomePhone1>
+      <HomePhone2>NA</HomePhone2> 
+      <TokenId>mtn</TokenId> 
+   </Contact>
+   <Contact> 
+      <ContactId>2</ContactId>
+      <ContactName>Jai  Mandloi</ContactName>
+      <MobilePhone1>NA</MobilePhone1>
+      <MobilePhone2>NA</MobilePhone2> 
+      <OfficePhone1>NA</OfficePhone1>
+      <OfficePhone2>NA</OfficePhone2>
+      <OfficePhone3>NA</OfficePhone3>
+      <HomePhone1>800-742-9678</HomePhone1>
+      <HomePhone2>NA</HomePhone2>
+      <TokenId>mtn</TokenId>
+   </Contact>
+</Contacts>
