@@ -571,6 +571,11 @@ public class Frame
 		return display.getY();
 	}
 	
+	public static void setLocation(int x, int y)
+	{
+		display.setLocation(x, y);
+	}
+	
 	/**
 	 * Get the horizontal size of the Frame in the Display.
 	 * 
