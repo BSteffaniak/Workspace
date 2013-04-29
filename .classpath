@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="ArrowIDE/src"/>
+	<classpathentry kind="src" path="GridWorld/src"/>
+	<classpathentry kind="src" path="GridWorldExample/src"/>
+	<classpathentry kind="src" path="JFoxyLib/src"/>
+	<classpathentry kind="src" path="JFoxyUtil/src"/>
+	<classpathentry kind="src" path="LWJGL/LWJGL/lwjgl-2.8.5/src/generated"/>
+	<classpathentry kind="src" path="LWJGL/LWJGL/lwjgl-2.8.5/src/java"/>
+	<classpathentry kind="src" path="LWJGL/LWJGL/lwjgl-2.8.5/src/templates"/>
+	<classpathentry kind="src" path="TheDiggingGame/src"/>
+	<classpathentry kind="src" path="TheDiggingGameInterface/src"/>
+	<classpathentry kind="src" path="TheDiggingGameLauncher/src"/>
+	<classpathentry kind="src" path="XMLReader/src"/>
+	<classpathentry kind="lib" path="ArrowIDE/Arrow.jar"/>
+	<classpathentry kind="lib" path="ArrowIDE/Arrow/Arrow.jar"/>
+	<classpathentry kind="lib" path="ArrowIDE/Arrow/lwjgl.jar"/>
+	<classpathentry kind="lib" path="ArrowIDE/Arrow/swt.jar"/>
+	<classpathentry kind="lib" path="JFoxyLib/JFoxyLib.jar"/>
+	<classpathentry kind="lib" path="JFoxyUtil/JFoxyUtil.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.3/jar/AppleJavaExtensions.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.3/jar/asm-debug-all.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.3/jar/jinput.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.3/jar/lwjgl_devil.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.3/jar/lwjgl_test.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.3/jar/lwjgl_util_applet.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.3/jar/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.3/jar/lwjgl-debug.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.3/jar/lwjgl.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.3/jar/lzma.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.4/lwjgl-2.8.4/jar/AppleJavaExtensions.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.4/lwjgl-2.8.4/jar/asm-debug-all.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.4/lwjgl-2.8.4/jar/jinput.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.4/lwjgl-2.8.4/jar/lwjgl_test.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.4/lwjgl-2.8.4/jar/lwjgl_util_applet.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.4/lwjgl-2.8.4/jar/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.4/lwjgl-2.8.4/jar/lwjgl-debug.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.4/lwjgl-2.8.4/jar/lwjgl.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.4/lwjgl-2.8.4/jar/lzma.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.5/jar/AppleJavaExtensions.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.5/jar/asm-debug-all.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.5/jar/jinput.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.5/jar/lwjgl_test.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.5/jar/lwjgl_util_applet.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.5/jar/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.5/jar/lwjgl-debug.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.5/jar/lwjgl.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.5/jar/lzma.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.5/platform_build/JLzma.jar"/>
+	<classpathentry kind="lib" path="LWJGL/LWJGL/lwjgl-2.8.5/platform_build/Pack200Task.jar"/>
+	<classpathentry kind="lib" path="org.eclipse.swt mac_64/swt-debug.jar"/>
+	<classpathentry kind="lib" path="org.eclipse.swt mac_64/swt.jar"/>
+	<classpathentry kind="lib" path="org.eclipse.swt win_32/swt-debug.jar"/>
+	<classpathentry kind="lib" path="org.eclipse.swt win_32/swt.jar"/>
+	<classpathentry kind="lib" path="org.eclipse.swt win_64/swt-debug.jar"/>
+	<classpathentry kind="lib" path="org.eclipse.swt win_64/swt.jar"/>
+	<classpathentry kind="lib" path="PNGDecoder.jar"/>
+	<classpathentry kind="lib" path="TheDiggingGame/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="TheDiggingGame/lwjgl.jar"/>
+	<classpathentry kind="lib" path="TheDiggingGame/TDG.jar"/>
+	<classpathentry kind="lib" path="TheDiggingGameLauncher/lwjgl_util.jar"/>
+	<classpathentry kind="lib" path="TheDiggingGameLauncher/lwjgl.jar"/>
+	<classpathentry kind="lib" path="TheDiggingGameLauncher/TDGLauncher.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="output" path="XMLReader/bin"/>
+</classpath>
