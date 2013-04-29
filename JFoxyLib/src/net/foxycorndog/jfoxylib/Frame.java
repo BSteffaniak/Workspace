@@ -101,8 +101,22 @@ public class Frame
 			{
 				String workingDirectory = null;
 				
-				// Maybe use canonical path instead.
-				workingDirectory = new File(classLoc.substring(9, classLoc.lastIndexOf('!'))).getParentFile().getAbsolutePath();
+				if (classLoc.startsWith("rsrc:"))
+				{
+					try
+					{
+						workingDirectory = new File(GL.class.getProtectionDomain().getCodeSource().getLocation().getFile()).getCanonicalPath();
+					}
+					catch (IOException e)
+					{
+						e.printStackTrace();
+					}
+				}
+				else
+				{
+					// Maybe use canonical path instead.
+					workingDirectory = new File(classLoc.substring(9, classLoc.lastIndexOf('!'))).getParentFile().getAbsolutePath();
+				}
 					
 				try
 				{

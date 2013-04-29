@@ -200,6 +200,30 @@ public abstract class Component
 	}
 	
 	/**
+	 * Get the horizontal location that this Component was last
+	 * displayed on the screen.
+	 * 
+	 * @return The horizontal location that this Component was last
+	 * 		displayed on the screen.
+	 */
+	public float getDisplayX()
+	{
+		return translatedX * scaleX;
+	}
+
+	/**
+	 * Get the vertical location that this Component was last
+	 * displayed on the screen.
+	 * 
+	 * @return The vertical location that this Component was last
+	 * 		displayed on the screen.
+	 */
+	public float getDisplayY()
+	{
+		return translatedY * scaleY;
+	}
+	
+	/**
 	 * Get the parent Panel of this Component.
 	 * 
 	 * @return The parent Panel of this Component.
