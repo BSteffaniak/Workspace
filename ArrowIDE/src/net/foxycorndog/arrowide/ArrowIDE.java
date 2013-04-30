@@ -182,7 +182,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	private HashMap<Integer, Integer>			tabTopPixels;
 	private HashMap<Integer, Point>				tabSelection;
 //	private HashMap<, Integer>					consoleTabIds;
-	private HashMap<Integer, Program>					consoleTabPrograms;
+	private HashMap<Integer, Program>			consoleTabPrograms;
 	
 	private ArrayList<Program>					programs;
 
