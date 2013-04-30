@@ -264,59 +264,48 @@ public class GitFoxy implements ActionListener, CommandListener
 		return loc;
 	}
 	
-	public static void main(String args[])
-	{
-		GitFoxy program = new GitFoxy();
-		
-		program.open();
-	}
-
 	public void actionPerformed(ActionEvent event)
 	{
 		Object source = event.getSource();
-		
+
 		if (source == pullButton)
 		{
 			Command command = new Command(new String[] { configData.get("git.location") + "/bin/git", "pull", "origin", "master" }, directoryBox.getSelectedItem().toString());
 			command.addCommandListener(this);
-			
 			command.execute();
 		}
 		else if (source == addButton)
 		{
 			Command command = new Command(new String[] { configData.get("git.location") + "/bin/git", "add", "." }, directoryBox.getSelectedItem().toString());
 			command.addCommandListener(this);
-			
 			command.execute();
 		}
 		else if (source == commitButton)
 		{
 			CommitMessageDialog dialog = new CommitMessageDialog();
-			
+
 			String message = dialog.open();
-			
+
 			if (message != null)
 			{
 				Command command = new Command(new String[] { configData.get("git.location") + "/bin/git", "commit", "-m", '"' + message + '"' }, directoryBox.getSelectedItem().toString());
 				command.addCommandListener(this);
-				
 				command.execute();
 			}
 		}
 		else if (source == pushButton)
 		{
 			AuthenticationDialog dialog = new AuthenticationDialog();
-			
+
 			String values[] = dialog.open();
-			
+
 			if (values != null)
 			{
 				username = values[0];
 				password = values[1];
-			
+
 				Command command = new Command(new String[] { configData.get("git.location") + "/bin/git", "push", "origin", "master", "--porcelain", "--progress" }, directoryBox.getSelectedItem().toString());
 				command.addCommandListener(this);
-				
 				command.execute();
 			}
 		}
@@ -330,9 +319,9 @@ public class GitFoxy implements ActionListener, CommandListener
 				directoryChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 				directoryChooser.setAcceptAllFileFilterUsed(false);
 			}
-			
+
 			directoryChooser.showOpenDialog(frame);
-			
+
 			if (directoryChooser.getSelectedFile() != null)
 			{
 				directoryBox.addItem(directoryChooser.getSelectedFile().getAbsolutePath());
@@ -342,13 +331,13 @@ public class GitFoxy implements ActionListener, CommandListener
 		else if (source == submitCommandButton || source == commandField)
 		{
 			String commands[] = commandField.getText().split(" ");
-			
+
 			commandField.setText("");
-			
+
 			if (commands[0].startsWith("git"))
 			{
 				commands[0] = '"' + configData.get("git.location") + "/bin/git\"";
-				
+
 				Command command = new Command(commands, directoryBox.getSelectedItem().toString());
 				command.addCommandListener(this);
 				command.execute();
@@ -360,11 +349,11 @@ public class GitFoxy implements ActionListener, CommandListener
 				command.execute();
 			}
 		}
-		
+
 		if (source == pullButton || source == submitCommandButton || source == commandField || source == pushButton || source == addButton || source == commitButton)
 		{
 			String dir = directoryBox.getSelectedItem().toString();
-			
+
 			if (new File(dir).isDirectory())
 			{
 				if (!configData.containsKey("recent.directories") || !configData.get("recent.directories").contains(dir + ";"))
@@ -380,36 +369,66 @@ public class GitFoxy implements ActionListener, CommandListener
 		System.out.println("done");
 		outputArea.setText(event.getOutput());
 	}
-	
+
 	public void onOutputReceived(CommandEvent event)
 	{
 		outputArea.append(event.getOutput() + "\n");
 	}
-	
+
 	public void onErrorReceived(CommandEvent event)
 	{
 		outputArea.append(event.getOutput() + "\n");
 	}
-	
+
 	public void onCommandStarted(CommandEvent event)
 	{
 		Command command = event.getCommand();
+
+		final PrintWriter writer = command.getWriter();
+
+		new Thread()
+		{
+			public void run()
+			{
+				try
+				{
+					Thread.sleep(5000);
+				}
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+				
+				writer.print(username);
+				writer.print(System.getProperty("line.separator"));
+				writer.flush();
+				
+				try
+				{
+					Thread.sleep(2000);
+				}
+				catch (InterruptedException e)
+				{
+					e.printStackTrace();
+				}
+
+				writer.print(password);
+				writer.print(System.getProperty("line.separator"));
+				writer.flush();
+
+//				System.out.println(writer.);
+//				writer.close();
+	
+				username = null;
+				password = null;
+			}
+		}.start();
+	}
+	
+	public static void main(String args[])
+	{
+		GitFoxy program = new GitFoxy();
 		
-		PrintWriter writer = command.getWriter();
-		
-		writer.print(username);
-		writer.print(System.getProperty("line.separator"));
-		writer.flush();
-		
-		writer.print(password);
-		writer.print(System.getProperty("line.separator"));
-		writer.flush();
-		
-		
-//		System.out.println(writer.);
-//		writer.close();
-		
-		username = null;
-		password = null;
+		program.open();
 	}
 }
