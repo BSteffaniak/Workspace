@@ -290,7 +290,7 @@ public class GitFoxy implements ActionListener, CommandListener
 
 		if (source == pullButton)
 		{
-			Command command = new Command(new String[] { configData.get("git.location") + "/bin/git", "pull", "origin", "master" }, directoryBox.getSelectedItem().toString());
+			Command command = new Command(new String[] { configData.get("git.location") + "/bin/sh", "pull", "origin", "master" }, directoryBox.getSelectedItem().toString());
 			command.addCommandListener(this);
 			command.execute();
 		}
