@@ -1,6 +1,7 @@
 package net.foxycorndog.gitfoxy.command;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +17,8 @@ import net.foxycorndog.gitfoxy.event.CommandListener;
 
 public class Command
 {
+	private	boolean		running;
+	
 	private	String		directory;
 	
 	private	PrintWriter	writer;
@@ -59,6 +62,8 @@ public class Command
 	{
 		final ProcessBuilder builder = new ProcessBuilder(commands);
 		
+//		builder.redirectErrorStream(true);
+		
 		if (directory != null)
 		{
 			File dir = new File(directory);
@@ -68,7 +73,7 @@ public class Command
 		
 		final Command thisCommand = this;
 		
-		new Thread()
+		new Thread("Command Thread")
 		{
 			public void run()
 			{
@@ -76,13 +81,15 @@ public class Command
 				{
 					process = builder.start();
 					
-					LogStreamReader input = new LogStreamReader(process.getInputStream(), false, thisCommand, listeners);
-					Thread thread = new Thread(input, "LogStreamReader-input");
-					thread.start();
+					running = true;
 					
 					LogStreamReader error = new LogStreamReader(process.getErrorStream(), true, thisCommand, listeners);
-					Thread thread2 = new Thread(error, "LogStreamReader-error");
-					thread2.start();
+					error.start();
+					
+					LogStreamReader input = new LogStreamReader(process.getInputStream(), false, thisCommand, listeners);
+					input.start();
+//					Thread thread = new Thread(input, "LogStreamReader-input");
+//					thread.start();
 					
 //					LogStreamWriter output2 = new LogStreamWriter(process.getOutputStream(), false, listeners);
 //					Thread thread3 = new Thread(output2, "LogStreamReader-output");
@@ -104,11 +111,11 @@ public class Command
 					{
 						int wait  = process.waitFor();
 						
-						int value = process.exitValue();
+//						int value = process.exitValue();
 						
 						String output = input.getOutput() + error.getOutput();
 						
-						event = new CommandEvent(output, value, thisCommand);
+						event = new CommandEvent(output, 4, thisCommand);
 						
 						for (int i = listeners.size() - 1; i >= 0; i--)
 						{
@@ -146,9 +153,16 @@ public class Command
 		return writer;
 	}
 	
-	public Process getProcess()
+	public void destroy()
 	{
-		return process;
+		process.destroy();
+		
+		running = false;
+	}
+	
+	public boolean isRunning()
+	{
+		return running;
 	}
 }
 
@@ -161,16 +175,18 @@ public class Command
  * @version Mar 24, 2013 at 1:35:58 AM
  * @version	v0.1
  */
-class LogStreamReader implements Runnable
+class LogStreamReader extends Thread
 {
-	private boolean			running;
 	private	boolean			error;
+	
+	private	int				offset;
 
 	private String			line;
 	
 	private	StringBuilder	output;
 
 	private BufferedReader	reader;
+	private	InputStream		input;
 	
 	private	Command			thisCommand;
 	
@@ -179,14 +195,13 @@ class LogStreamReader implements Runnable
     public LogStreamReader(InputStream is, boolean error, Command thisCommand, ArrayList<CommandListener> listeners)
     {
         this.reader      = new BufferedReader(new InputStreamReader(is));
+        this.input       = is;
         
         this.listeners   = listeners;
         
         this.error       = error;
         
         this.thisCommand = thisCommand;
-        
-        running          = true;
         
         output           = new StringBuilder();
     }
@@ -195,37 +210,37 @@ class LogStreamReader implements Runnable
     {
         try
         {
-            while ((line = reader.readLine()) != null)
+        	System.out.println("bef");
+//        	line = reader.readLine();
+
+            line = read();
+            System.out.println("aft");
+        	
+            while (thisCommand.isRunning() && line != null)
             {
 //            	line = line.replace(location, "");
             	
-            	if (running)
-            	{
-            		output.append(line + "\n");
-            		System.out.println(line);
-            		CommandEvent event = new CommandEvent(line, -1, thisCommand);
+        		output.append(line + "");
+        		System.out.println(line + "!");
+        		CommandEvent event = new CommandEvent(line, -1, thisCommand);
+				
+				for (int i = listeners.size() - 1; i >= 0; i--)
+				{
+					CommandListener listener = listeners.get(i);
 					
-					for (int i = listeners.size() - 1; i >= 0; i--)
+					if (error)
 					{
-						CommandListener listener = listeners.get(i);
-						
-						if (error)
-						{
-							listener.onErrorReceived(event);
-						}
-						else
-						{
-							listener.onOutputReceived(event);
-						}
+						listener.onErrorReceived(event);
 					}
-            	}
-            	else
-            	{
-//            		return;
-            	}
+					else
+					{
+						listener.onOutputReceived(event);
+					}
+				}
+            	
+            	line = read();
             }
-            
-            line = null;
+            System.out.println("finished");
             
             reader.close();
         }
@@ -235,9 +250,56 @@ class LogStreamReader implements Runnable
         }
     }
     
-    public void stop()
+    private String read()
     {
-    	running = false;
+//    	int    nRead = 0;
+//        byte[] data  = new byte[4 * 4 * 4 * 4 * 4 * 4 * 4];
+//            
+//        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+//
+//        try
+//		{
+//			while ((nRead = input.read(data, offset, data.length - offset)) != -1)
+//			{
+//				
+//				buffer.write(data, 0, nRead);
+//			}
+//			
+//			buffer.flush();
+//        
+//		}
+//		catch (IOException e)
+//		{
+//			e.printStackTrace();
+//		}
+//        
+//        String line = new String(buffer.toByteArray());
+//        
+//        if (line.length() == 0)
+//        {
+//        	return null;
+//        }
+//        
+//        offset += line.length();
+    	
+    	String line = null;
+		try
+		{
+			line = reader.readLine();
+			
+			if (line == null)
+			{
+				return null;
+			}
+			
+			line += "\n";
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+        
+        return line;
     }
     
     public String getOutput()
@@ -246,61 +308,61 @@ class LogStreamReader implements Runnable
     }
 }
 
-/**
- * 
- * 
- * @author	Braden Steffaniak
- * @since	Mar 24, 2013 at 1:35:58 AM
- * @since	v0.1
- * @version Mar 24, 2013 at 1:35:58 AM
- * @version	v0.1
- */
-class LogStreamWriter implements Runnable
-{
-	private boolean			running;
-	private	boolean			error;
-
-	private String			line;
-	
-	private	StringBuilder	output;
-
-	private PrintWriter		writer;
-	
-	private	ArrayList<CommandListener>	listeners;
-	
-    public LogStreamWriter(OutputStream os, boolean error, ArrayList<CommandListener> listeners)
-    {
-        this.writer    = new PrintWriter(new OutputStreamWriter(os));
-        
-        this.listeners = listeners;
-        
-        this.error     = error;
-        
-        running        = true;
-        
-        output         = new StringBuilder();
-    }
-
-    public void run()
-    {
-    	writer.print("asdf");
-		writer.print(System.getProperty("line.separator"));
-		writer.flush();
-		
-    	writer.print("asdf2");
-		writer.print(System.getProperty("line.separator"));
-		writer.flush();
-		
-        writer.close();
-    }
-    
-    public void stop()
-    {
-    	running = false;
-    }
-    
-    public String getOutput()
-    {
-    	return output.toString();
-    }
-}
+///**
+// * 
+// * 
+// * @author	Braden Steffaniak
+// * @since	Mar 24, 2013 at 1:35:58 AM
+// * @since	v0.1
+// * @version Mar 24, 2013 at 1:35:58 AM
+// * @version	v0.1
+// */
+//class LogStreamWriter implements Runnable
+//{
+//	private boolean			running;
+//	private	boolean			error;
+//
+//	private String			line;
+//	
+//	private	StringBuilder	output;
+//
+//	private PrintWriter		writer;
+//	
+//	private	ArrayList<CommandListener>	listeners;
+//	
+//    public LogStreamWriter(OutputStream os, boolean error, ArrayList<CommandListener> listeners)
+//    {
+//        this.writer    = new PrintWriter(new OutputStreamWriter(os));
+//        
+//        this.listeners = listeners;
+//        
+//        this.error     = error;
+//        
+//        running        = true;
+//        
+//        output         = new StringBuilder();
+//    }
+//
+//    public void run()
+//    {
+//    	writer.print("asdf");
+//		writer.print(System.getProperty("line.separator"));
+//		writer.flush();
+//		
+//    	writer.print("asdf2");
+//		writer.print(System.getProperty("line.separator"));
+//		writer.flush();
+//		
+//        writer.close();
+//    }
+//    
+//    public void stop()
+//    {
+//    	running = false;
+//    }
+//    
+//    public String getOutput()
+//    {
+//    	return output.toString();
+//    }
+//}

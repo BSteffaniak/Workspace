@@ -11,8 +11,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -28,17 +30,20 @@ import net.foxycorndog.gitfoxy.dialog.CommitMessageDialog;
 import net.foxycorndog.gitfoxy.event.CommandEvent;
 import net.foxycorndog.gitfoxy.event.CommandListener;
 import net.foxycorndog.gitfoxy.util.ConfigReader;
+import net.foxycorndog.jfoxyutil.Queue;
 
 public class GitFoxy implements ActionListener, CommandListener
 {
 	private	String			configLocation;
 	private	String			username, password;
 	
+	private	ImageIcon		destroyImage, destroyLightImage;
+	
 	private File			configFile;
 	
 	private	JLabel			directoryLabel;
 	
-	private JButton			pullButton, addButton, commitButton, pushButton, directoryBrowseButton, submitCommandButton;
+	private JButton			pullButton, addButton, commitButton, pushButton, directoryBrowseButton, submitCommandButton, destroyButton;
 	
 	private JTextField		commandField;
 	
@@ -50,10 +55,14 @@ public class GitFoxy implements ActionListener, CommandListener
 	
 	private JFrame			frame;
 	
+	private	ArrayList<Command>		commands;
+	
 	private	HashMap<String, String>	configData;
 	
 	public GitFoxy()
 	{
+		commands = new ArrayList<Command>();
+		
 		configLocation = "gitfoxy.config";
 		
 		configFile     = new File(configLocation);
@@ -173,6 +182,17 @@ public class GitFoxy implements ActionListener, CommandListener
 		submitCommandButton.setLocation(commandField.getX() + commandField.getWidth() + 10, commandField.getY());
 		submitCommandButton.addActionListener(this);
 		frame.add(submitCommandButton);
+		
+		destroyImage      = new ImageIcon("res/images/destroy.png");
+		destroyLightImage = new ImageIcon("res/images/destroylight.png");
+		
+		destroyButton = new JButton();
+		destroyButton.setSize(16, 16);
+		destroyButton.setIcon(destroyImage);
+		destroyButton.setEnabled(false);
+		destroyButton.setLocation(outputArea.getX() + outputArea.getWidth() - destroyButton.getWidth(), pullButton.getY());
+		destroyButton.addActionListener(this);
+		frame.add(destroyButton);
 	    
 		frame.setVisible(true);
 	}
@@ -304,7 +324,7 @@ public class GitFoxy implements ActionListener, CommandListener
 				username = values[0];
 				password = values[1];
 
-				Command command = new Command(new String[] { configData.get("git.location") + "/bin/git", "push", "origin", "master", "--porcelain", "--progress" }, directoryBox.getSelectedItem().toString());
+				Command command = new Command(new String[] { configData.get("git.location") + "/bin/git", "push", "origin", "master", "-v" }, directoryBox.getSelectedItem().toString());
 				command.addCommandListener(this);
 				command.execute();
 			}
@@ -349,6 +369,17 @@ public class GitFoxy implements ActionListener, CommandListener
 				command.execute();
 			}
 		}
+		else if (source == destroyButton)
+		{
+			Command c = commands.get(0);
+			c.destroy();
+			commands.remove(0);
+			
+			if (commands.size() <= 0)
+			{
+				destroyButton.setEnabled(false);
+			}
+		}
 
 		if (source == pullButton || source == submitCommandButton || source == commandField || source == pushButton || source == addButton || source == commitButton)
 		{
@@ -366,8 +397,14 @@ public class GitFoxy implements ActionListener, CommandListener
 
 	public void onResultReceived(CommandEvent event)
 	{
-		System.out.println("done");
 		outputArea.setText(event.getOutput());
+		
+		commands.remove(event.getCommand());
+		
+		if (commands.size() <= 0)
+		{
+			destroyButton.setEnabled(false);
+		}
 	}
 
 	public void onOutputReceived(CommandEvent event)
@@ -383,46 +420,27 @@ public class GitFoxy implements ActionListener, CommandListener
 	public void onCommandStarted(CommandEvent event)
 	{
 		Command command = event.getCommand();
+		
+		commands.add(command);
+		
+		destroyButton.setEnabled(true);
+		
+		PrintWriter writer = command.getWriter();
 
-		final PrintWriter writer = command.getWriter();
+		System.out.println(username + ", " + password);
+		writer.print(username);
+		writer.print("\n");
+		writer.flush();
 
-		new Thread()
-		{
-			public void run()
-			{
-				try
-				{
-					Thread.sleep(5000);
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
-				
-				writer.print(username);
-				writer.print(System.getProperty("line.separator"));
-				writer.flush();
-				
-				try
-				{
-					Thread.sleep(2000);
-				}
-				catch (InterruptedException e)
-				{
-					e.printStackTrace();
-				}
+		writer.print(password);
+		writer.print("\n");
+		writer.flush();
 
-				writer.print(password);
-				writer.print(System.getProperty("line.separator"));
-				writer.flush();
+//		System.out.println(writer.);
+//		writer.close();
 
-//				System.out.println(writer.);
-//				writer.close();
-	
-				username = null;
-				password = null;
-			}
-		}.start();
+		username = null;
+		password = null;
 	}
 	
 	public static void main(String args[])
