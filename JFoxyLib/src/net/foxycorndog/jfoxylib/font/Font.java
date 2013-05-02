@@ -84,7 +84,12 @@ public class Font
 					break;
 				}
 				
-				this.charSequence.put(charSequence[x + y * cols], new int[] { x, y });
+				char c = charSequence[x + y * cols];
+				
+				if (!this.charSequence.containsKey(c))
+				{
+					this.charSequence.put(c, new int[] { x, y });
+				}
 			}
 		}
 	}
