@@ -260,9 +260,7 @@ public abstract class Component
 	 */
 	public boolean dispose()
 	{
-		Frame.remove(this);
-		
-		disposed = true;
+		boolean disposed = Frame.remove(this);
 		
 		return disposed;
 	}
