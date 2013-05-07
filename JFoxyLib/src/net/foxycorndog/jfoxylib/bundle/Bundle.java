@@ -16,12 +16,14 @@ import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL20;
 
 /**
+ * Holds a central collection of vertices, textures, and colors.
+ * These entities can be rendered in several ways if needed.
  * 
- * 
+ * @file	Bundle.java
  * @author	Braden Steffaniak
  * @since	Feb 16, 2013 at 3:23:29 AM
  * @since	v0.1
- * @version	Apr 26, 2013 at 10:08:29 PM
+ * @version	May 7, 2013 at 6:42:29 AM
  * @version	v0.2
  */
 public class Bundle
@@ -87,12 +89,16 @@ public class Bundle
 //	}
 	
 	/**
+	 * Create a Bundle with the specified amount of needed
+	 * vertices. Also specify the amount of dimensions the
+	 * vertex will be in, as well as whether to enable textures
+	 * and color Buffers with the Buffer.
 	 * 
-	 * 
-	 * @param vertexAmount
-	 * @param vertexSize
-	 * @param textures
-	 * @param colors
+	 * @param vertexAmount The amount of needed vertices.
+	 * @param vertexSize The amount of dimensions the vertex
+	 *		will be in.
+	 * @param textures Whether to enable texture Buffers for this Bundle.
+	 * @param colors Whether to enable color Buffers for this Bundle.
 	 */
 	public Bundle(int vertexAmount, int vertexSize, boolean textures, boolean colors)
 	{
