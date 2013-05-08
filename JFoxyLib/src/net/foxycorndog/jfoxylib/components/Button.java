@@ -7,8 +7,8 @@ import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.events.ButtonEvent;
 import net.foxycorndog.jfoxylib.events.ButtonListener;
 import net.foxycorndog.jfoxylib.font.Font;
-import net.foxycorndog.jfoxylib.graphics.Texture;
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 
 /**
  * Class used as a button on the screen.

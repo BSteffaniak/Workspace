@@ -3,7 +3,7 @@ package net.foxycorndog.jfoxylib.util;
 import static org.lwjgl.opengl.GL11.glRotatef;
 import static org.lwjgl.opengl.GL11.glTranslatef;
 
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.GL;
 
 import org.lwjgl.util.vector.Vector3f;
 

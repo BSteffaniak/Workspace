@@ -1,7 +1,7 @@
 package net.foxycorndog.jfoxylib.components;
 
 import net.foxycorndog.jfoxylib.Frame;
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.GL;
 
 /**
  * Abstract parent class that is used for every Component. Holds the

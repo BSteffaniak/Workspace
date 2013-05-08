@@ -14,7 +14,6 @@ import javax.imageio.ImageIO;
 import net.foxycorndog.jfoxylib.Display;
 import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.GameStarter;
-import net.foxycorndog.jfoxylib.bundle.Bundle;
 import net.foxycorndog.jfoxylib.components.Button;
 import net.foxycorndog.jfoxylib.components.Component;
 import net.foxycorndog.jfoxylib.components.Image;
@@ -23,15 +22,16 @@ import net.foxycorndog.jfoxylib.events.ButtonListener;
 import net.foxycorndog.jfoxylib.events.MouseEvent;
 import net.foxycorndog.jfoxylib.events.MouseListener;
 import net.foxycorndog.jfoxylib.font.Font;
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
 import net.foxycorndog.jfoxylib.input.Keyboard;
 import net.foxycorndog.jfoxylib.input.Mouse;
+import net.foxycorndog.jfoxylib.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
 import net.foxycorndog.jfoxylib.util.Intersects;
 import net.foxycorndog.thedigginggame.actor.Player;
 import net.foxycorndog.thedigginggame.components.Cursor;
 import net.foxycorndog.thedigginggame.map.Chunk;
 import net.foxycorndog.thedigginggame.map.Map;
-import net.foxycorndog.thedigginggame.tile.Tile;
+import net.foxycorndog.thedigginggame.tile.Tile01;
 
 /**
  * Main class for the Game. Starts the game.
@@ -196,16 +196,18 @@ public class TheDiggingGame
 	{
 		map = new Map(this);
 		
-		map.load("world");
-//		map.generateChunk(0, 0);
+//		map.load("world");
+		map.generateChunk(0, 0);
 		
 		player = new Player(map);
 		player.setLocation(16 * 6, 16 * 13);
 		player.setFocused(true);
 		
+//		System.out.println("asdf" );
+//		System.exit(0);
 		map.addActor(player);
 		
-		cursor = new Cursor(Tile.getTileSize());
+		cursor = new Cursor(Tile01.getTileSize());
 		
 		player.center();
 		
@@ -290,9 +292,9 @@ public class TheDiggingGame
 			int cursorX  = cursor.getX();
 			int cursorY  = cursor.getY();
 			
-			int tileSize = Tile.getTileSize();
+			int tileSize = Tile01.getTileSize();
 			
-			Tile tile    = Tile.getTile("Torch");
+			Tile01 tile    = Tile01.getTile("Torch");
 			
 			if (editing != Chunk.MIDDLEGROUND || !Intersects.rectangles(cursorX * tileSize, cursorY * tileSize, tile.getCols() * tileSize, tile.getRows() * tileSize, player.getX() + 1, player.getY(), player.getWidth() - 2, player.getHeight() - 1))
 			{
@@ -381,7 +383,7 @@ public class TheDiggingGame
 	 */
 	private void renderCursor()
 	{
-		int tileSize = Tile.getTileSize();
+		int tileSize = Tile01.getTileSize();
 		
 		float mx = Mouse.getX() / scale;
 		float my = Mouse.getY() / scale;

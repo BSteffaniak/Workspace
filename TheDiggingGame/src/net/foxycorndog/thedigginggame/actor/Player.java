@@ -7,10 +7,10 @@ import java.io.IOException;
 
 import javax.imageio.ImageIO;
 
-import net.foxycorndog.jfoxylib.bundle.Bundle;
-import net.foxycorndog.jfoxylib.graphics.SpriteSheet;
-import net.foxycorndog.jfoxylib.graphics.Texture;
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
+import net.foxycorndog.jfoxylib.opengl.texture.SpriteSheet;
+import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 import net.foxycorndog.thedigginggame.TheDiggingGame;
 import net.foxycorndog.thedigginggame.map.Map;
 

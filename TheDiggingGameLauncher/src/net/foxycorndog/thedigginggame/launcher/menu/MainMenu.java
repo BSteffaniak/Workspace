@@ -17,7 +17,7 @@ import net.foxycorndog.jfoxylib.events.ButtonListener;
 import net.foxycorndog.jfoxylib.events.FrameEvent;
 import net.foxycorndog.jfoxylib.events.FrameListener;
 import net.foxycorndog.jfoxylib.font.Font;
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.util.Bounds2f;
 import net.foxycorndog.jfoxylib.util.FileUtils;
 import net.foxycorndog.thedigginggame.launcher.Launcher;

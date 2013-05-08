@@ -6,9 +6,9 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
 import net.foxycorndog.jfoxylib.input.Keyboard;
 import net.foxycorndog.jfoxylib.input.Mouse;
+import net.foxycorndog.jfoxylib.opengl.GL;
 
 /**
  * This class serves as the entry point for all of the

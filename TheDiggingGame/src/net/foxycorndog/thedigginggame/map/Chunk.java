@@ -6,15 +6,15 @@ import java.awt.image.BufferedImage;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-import net.foxycorndog.jfoxylib.bundle.Buffer;
-import net.foxycorndog.jfoxylib.bundle.Bundle;
-import net.foxycorndog.jfoxylib.graphics.Texture;
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.bundle.Buffer;
+import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
+import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 import net.foxycorndog.jfoxylib.util.Intersects;
 import net.foxycorndog.jfoxylib.util.Point;
 import net.foxycorndog.thedigginggame.TheDiggingGame;
 import net.foxycorndog.thedigginggame.actor.Actor;
-import net.foxycorndog.thedigginggame.tile.Tile;
+import net.foxycorndog.thedigginggame.tile.Tile01;
 
 /**
  * Class that holds the information for each of the chunks.
@@ -42,7 +42,7 @@ public class Chunk implements Serializable
 	
 	private float				colors[];
 	
-	private Tile				tiles[];
+	private Tile01				tiles[];
 	
 	private ArrayList<Thread>	generateHooks;
 	
@@ -61,7 +61,7 @@ public class Chunk implements Serializable
 	
 	static
 	{
-		BufferedImage img = new BufferedImage(Tile.getTileSize(), Tile.getTileSize(), BufferedImage.BITMASK);
+		BufferedImage img = new BufferedImage(Tile01.getTileSize(), Tile01.getTileSize(), BufferedImage.BITMASK);
 		
 		Graphics2D g = img.createGraphics();
 		g.setColor(Color.BLACK);
@@ -76,7 +76,7 @@ public class Chunk implements Serializable
 		{
 			int offset = 0;
 			
-			int tileSize = Tile.getTileSize();
+			int tileSize = Tile01.getTileSize();
 			
 			for (int z = -5; z <= 5; z += 5)
 			{
@@ -106,7 +106,7 @@ public class Chunk implements Serializable
 	}
 	
 	/**
-	 * Class that holds the information for a new Tile that will be
+	 * Class that holds the information for a new Tile01 that will be
 	 * added to the tiles when the update() method is called.
 	 * 
 	 * @author	Braden Steffaniak
@@ -120,9 +120,9 @@ public class Chunk implements Serializable
 		private int		x, y;
 		private int		layer;
 		
-		private Tile	tile;
+		private Tile01	tile;
 		
-		public NewTile(Tile tile, int x, int y, int layer)
+		public NewTile(Tile01 tile, int x, int y, int layer)
 		{
 			this.tile  = tile;
 			
@@ -134,7 +134,7 @@ public class Chunk implements Serializable
 	}
 	
 	/**
-	 * Class that holds the information for a new Tile that will be
+	 * Class that holds the information for a new Tile01 that will be
 	 * added to the tiles when the update() method is called.
 	 * 
 	 * @author	Braden Steffaniak
@@ -269,7 +269,7 @@ public class Chunk implements Serializable
 		
 		lightingBundle.beginEditingVertices();
 		{
-			int ts = Tile.getTileSize();
+			int ts = Tile01.getTileSize();
 			
 			for (int i = 0; i < CHUNK_SIZE * CHUNK_SIZE; i++)
 			{
@@ -278,7 +278,7 @@ public class Chunk implements Serializable
 		}
 		lightingBundle.endEditingVertices();
 		
-		tiles    = new Tile[CHUNK_SIZE * CHUNK_SIZE * 3];
+		tiles    = new Tile01[CHUNK_SIZE * CHUNK_SIZE * 3];
 		newTiles = new ArrayList<NewTile>();
 		
 		generateHooks = new ArrayList<Thread>();
@@ -299,8 +299,8 @@ public class Chunk implements Serializable
 					{
 						for (int x = 0; x < CHUNK_SIZE; x++)
 						{
-							addTile(Tile.getTile("Dirt"), x, y, MIDDLEGROUND, true);
-							addTile(Tile.getTile("Dirt"), x, y, BACKGROUND, true);
+							addTile(Tile01.getTile("Dirt"), x, y, MIDDLEGROUND, true);
+							addTile(Tile01.getTile("Dirt"), x, y, BACKGROUND, true);
 						}
 					}
 					
@@ -310,8 +310,8 @@ public class Chunk implements Serializable
 						{
 							for (int x = 0; x < CHUNK_SIZE; x++)
 							{
-								addTile(Tile.getTile("Dirt"), x, y, MIDDLEGROUND, true);
-								addTile(Tile.getTile("Dirt"), x, y, BACKGROUND, true);
+								addTile(Tile01.getTile("Dirt"), x, y, MIDDLEGROUND, true);
+								addTile(Tile01.getTile("Dirt"), x, y, BACKGROUND, true);
 							}
 						}
 					}
@@ -319,8 +319,8 @@ public class Chunk implements Serializable
 					{
 						for (int i = 0; i < CHUNK_SIZE; i++)
 						{
-							addTile(Tile.getTile("Grass"), i, CHUNK_SIZE - 21, MIDDLEGROUND, true);
-							addTile(Tile.getTile("Grass"), i, CHUNK_SIZE - 21, BACKGROUND, true);
+							addTile(Tile01.getTile("Grass"), i, CHUNK_SIZE - 21, MIDDLEGROUND, true);
+							addTile(Tile01.getTile("Grass"), i, CHUNK_SIZE - 21, BACKGROUND, true);
 						}
 					}
 				}
@@ -349,7 +349,7 @@ public class Chunk implements Serializable
 	}
 	
 	/**
-	 * Adds a Tile to the newTile queue. The update() method has to be
+	 * Adds a Tile01 to the newTile01 queue. The update() method has to be
 	 * called after this call to update the Buffers.
 	 * 
 	 * @param tile The tile to add to the queue.
@@ -357,9 +357,9 @@ public class Chunk implements Serializable
 	 * 		(0 - CHUNK_SIZE-1)
 	 * @param y The vertical location of the new Tile.
 	 * 		(0 - CHUNK_SIZE-1)
-	 * @return Whether a Tile was successfully added or not.
+	 * @return Whether a Tile01 was successfully added or not.
 	 */
-	public boolean addTile(Tile tile, int x, int y, int layer, boolean replace)
+	public boolean addTile(Tile01 tile, int x, int y, int layer, boolean replace)
 	{
 		if (!replace && tiles[layer * LAYER_COUNT + (x + y * CHUNK_SIZE)] != null)
 		{
@@ -375,14 +375,14 @@ public class Chunk implements Serializable
 	}
 
 	/**
-	 * Removes a Tile from the Chunk at the specified location. Still
+	 * Removes a Tile01 from the Chunk at the specified location. Still
 	 * needs an update() call afterwards.
 	 * 
 	 * @param x The horizontal location of the Tile.
 	 * 		(0 - CHUNK_SIZE-1)
 	 * @param y The vertical location of the Tile.
 	 * 		(0 - CHUNK_SIZE-1)
-	 * @return Whether a Tile was successfully removed or not.
+	 * @return Whether a Tile01 was successfully removed or not.
 	 */
 	public boolean removeTile(int x, int y, int layer)
 	{
@@ -400,14 +400,14 @@ public class Chunk implements Serializable
 	}
 	
 	/**
-	 * Get the Tile at the specified location in the Chunk.
+	 * Get the Tile01 at the specified location in the Chunk.
 	 * 
 	 * @param x The horizontal offset of the Tile.
 	 * @param y The vertical offset of the Tile.
-	 * @param layer The layer to get the Tile from.
-	 * @return The Tile at the location.
+	 * @param layer The layer to get the Tile01 from.
+	 * @return The Tile01 at the location.
 	 */
-	public Tile getTile(int x, int y, int layer)
+	public Tile01 getTile(int x, int y, int layer)
 	{
 		return tiles[layer * LAYER_COUNT + x + y * CHUNK_SIZE];
 	}
@@ -429,9 +429,9 @@ public class Chunk implements Serializable
 		{
 			float lightness = 1;
 				
-			boolean isTile  = tiles[LAYER_COUNT + i] != null || tiles[i] != null || tiles[LAYER_COUNT * 2 + i] != null;
+			boolean isTile01  = tiles[LAYER_COUNT + i] != null || tiles[i] != null || tiles[LAYER_COUNT * 2 + i] != null;
 			
-			Tile torch = Tile.getTile("Torch");
+			Tile01 torch = Tile01.getTile("Torch");
 			
 			boolean isTorch = tiles[LAYER_COUNT + i] == torch || tiles[i] == torch || tiles[LAYER_COUNT * 2 + i] == torch;
 			
@@ -440,11 +440,11 @@ public class Chunk implements Serializable
 			
 			int offset = i * 4 * 4;
 			
-			if (isTile)
+			if (isTile01)
 			{
 				int index = y + 1;
 				
-				Tile above = null;
+				Tile01 above = null;
 				
 				boolean chunkAvailable = map.isChunkAt(this, x, index);
 				
@@ -529,7 +529,7 @@ public class Chunk implements Serializable
 //	 * 
 //	 * @param x The horizontal location of the Tile.
 //	 * @param y The vertical location of the Tile.
-//	 * @return The float value of the lightness of the Tile at the
+//	 * @return The float value of the lightness of the Tile01 at the
 //	 * 		specified location.
 //	 */
 //	public float getLightness(int x, int y)
@@ -563,7 +563,7 @@ public class Chunk implements Serializable
 			
 			int offset = 4 * LAYER_COUNT * newTile.layer;
 			
-			Tile tile  = newTile.tile;
+			Tile01 tile  = newTile.tile;
 			
 			tiles[LAYER_COUNT * newTile.layer + (x + y * CHUNK_SIZE)] = tile;
 		}
@@ -595,7 +595,7 @@ public class Chunk implements Serializable
 				
 				int offset = 4 * LAYER_COUNT * newTile.layer;
 				
-				Tile tile  = newTile.tile;
+				Tile01 tile  = newTile.tile;
 				
 				float textures[] = null;
 				
@@ -605,7 +605,7 @@ public class Chunk implements Serializable
 				}
 				else
 				{
-					textures = GL.genRectTextures(Tile.getTerrainSprites().getImageOffsets(tile.getX(), tile.getY(), tile.getCols(), tile.getRows()));
+					textures = GL.genRectTextures(Tile01.getTerrainSprites().getImageOffsets(tile.getX(), tile.getY(), tile.getCols(), tile.getRows()));
 				}
 				
 				chunkBundle.setTextures(offset + (x + y * CHUNK_SIZE) * 4, textures);
@@ -617,12 +617,12 @@ public class Chunk implements Serializable
 	}
 	
 	/**
-	 * Get the Tile array that holds the information of the Tiles in the
+	 * Get the Tile01 array that holds the information of the Tiles in the
 	 * Chunk.
 	 * 
-	 * @return The Tile array.
+	 * @return The Tile01 array.
 	 */
-	public Tile[] getTiles()
+	public Tile01[] getTiles()
 	{
 		return tiles;
 	}
@@ -632,7 +632,7 @@ public class Chunk implements Serializable
 	 * 
 	 * @param tiles The tiles to replace the old ones.
 	 */
-	public void setTiles(Tile tiles[])
+	public void setTiles(Tile01 tiles[])
 	{
 		for (int layer = 0; layer < 3; layer++)
 		{
@@ -663,7 +663,7 @@ public class Chunk implements Serializable
 	{
 		GL.pushMatrix();
 		{
-			GL.translate(relativeX * CHUNK_SIZE * Tile.getTileSize(), relativeY * CHUNK_SIZE * Tile.getTileSize(), 0);
+			GL.translate(relativeX * CHUNK_SIZE * Tile01.getTileSize(), relativeY * CHUNK_SIZE * Tile01.getTileSize(), 0);
 			
 			renderBackground();
 			renderMiddleground();
@@ -679,7 +679,7 @@ public class Chunk implements Serializable
 	{
 		GL.pushMatrix();
 		{
-			GL.translate(relativeX * CHUNK_SIZE * Tile.getTileSize(), relativeY * CHUNK_SIZE * Tile.getTileSize(), 0);
+			GL.translate(relativeX * CHUNK_SIZE * Tile01.getTileSize(), relativeY * CHUNK_SIZE * Tile01.getTileSize(), 0);
 
 			GL.translate(0, 0, 6);
 			
@@ -699,7 +699,7 @@ public class Chunk implements Serializable
 			
 			GL.setColor(0.4f, 0.4f, 0.4f, 1);
 			
-			chunkBundle.render(GL.QUADS, 0, 4 * CHUNK_SIZE * CHUNK_SIZE, Tile.getTerrainSprites());
+			chunkBundle.render(GL.QUADS, 0, 4 * CHUNK_SIZE * CHUNK_SIZE, Tile01.getTerrainSprites());
 			
 			GL.setColor(1, 1, 1, 1);
 		}
@@ -713,7 +713,7 @@ public class Chunk implements Serializable
 	{
 		GL.pushMatrix();
 		{
-			chunkBundle.render(GL.QUADS, 4 * CHUNK_SIZE * CHUNK_SIZE, 4 * CHUNK_SIZE * CHUNK_SIZE, Tile.getTerrainSprites());
+			chunkBundle.render(GL.QUADS, 4 * CHUNK_SIZE * CHUNK_SIZE, 4 * CHUNK_SIZE * CHUNK_SIZE, Tile01.getTerrainSprites());
 		}
 		GL.popMatrix();
 	}
@@ -727,7 +727,7 @@ public class Chunk implements Serializable
 		{
 			GL.translate(0, 0, 5);
 			
-			chunkBundle.render(GL.QUADS, 4 * CHUNK_SIZE * CHUNK_SIZE * 2, 4 * CHUNK_SIZE * CHUNK_SIZE, Tile.getTerrainSprites());
+			chunkBundle.render(GL.QUADS, 4 * CHUNK_SIZE * CHUNK_SIZE * 2, 4 * CHUNK_SIZE * CHUNK_SIZE, Tile01.getTerrainSprites());
 		}
 		GL.popMatrix();
 	}
@@ -753,7 +753,7 @@ public class Chunk implements Serializable
 	 */
 	public int getX()
 	{
-		return relativeX * CHUNK_SIZE * Tile.getTileSize();
+		return relativeX * CHUNK_SIZE * Tile01.getTileSize();
 	}
 
 	/**
@@ -761,7 +761,7 @@ public class Chunk implements Serializable
 	 */
 	public int getY()
 	{
-		return relativeY * CHUNK_SIZE * Tile.getTileSize();
+		return relativeY * CHUNK_SIZE * Tile01.getTileSize();
 	}
 
 	/**
@@ -769,7 +769,7 @@ public class Chunk implements Serializable
 	 */
 	public static int getWidth()
 	{
-		return CHUNK_SIZE * Tile.getTileSize();
+		return CHUNK_SIZE * Tile01.getTileSize();
 	}
 
 	/**
@@ -777,7 +777,7 @@ public class Chunk implements Serializable
 	 */
 	public static int getHeight()
 	{
-		return CHUNK_SIZE * Tile.getTileSize();
+		return CHUNK_SIZE * Tile01.getTileSize();
 	}
 	
 	public Intersections getIntersections(Actor actor)
@@ -795,7 +795,7 @@ public class Chunk implements Serializable
 		int width  = 0;
 		int height = 0;
 		
-		int tileSize = Tile.getTileSize();
+		int tileSize = Tile01.getTileSize();
 		
 		startX = (int)((actorX - chunkX)  / tileSize) - 1;
 		startY = (int)((actorY - chunkY)  / tileSize) - 1;
@@ -842,7 +842,7 @@ public class Chunk implements Serializable
 		float chunkX    = getX();
 		float chunkY    = getY();
 		
-		int tileSize = Tile.getTileSize();
+		int tileSize = Tile01.getTileSize();
 		
 		if (inChunk(actor))
 		{
@@ -857,7 +857,7 @@ public class Chunk implements Serializable
 				int x = points[i].getX();
 				int y = points[i].getY();
 				
-				Tile tile = tiles[offset + x + y * CHUNK_SIZE];
+				Tile01 tile = tiles[offset + x + y * CHUNK_SIZE];
 				
 				if (tile != null && tile.isCollidable())
 				{

@@ -6,9 +6,9 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferInt;
 import java.io.IOException;
 
-import net.foxycorndog.jfoxylib.bundle.Bundle;
-import net.foxycorndog.jfoxylib.graphics.Texture;
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
+import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 
 /**
  * Class that is used to organize information for the cursor.

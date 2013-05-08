@@ -1,9 +1,9 @@
 package net.foxycorndog.thedigginggame.actor;
 
 import net.foxycorndog.jfoxylib.Frame;
-import net.foxycorndog.jfoxylib.bundle.Bundle;
-import net.foxycorndog.jfoxylib.graphics.SpriteSheet;
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
+import net.foxycorndog.jfoxylib.opengl.texture.SpriteSheet;
 import net.foxycorndog.thedigginggame.map.Map;
 
 /**

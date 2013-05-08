@@ -13,16 +13,16 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import net.foxycorndog.jfoxylib.Frame;
-import net.foxycorndog.jfoxylib.bundle.Bundle;
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
-import net.foxycorndog.jfoxylib.shader.Shader;
+import net.foxycorndog.jfoxylib.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
+import net.foxycorndog.jfoxylib.opengl.shader.Shader;
 import net.foxycorndog.jfoxylib.util.Bounds;
 import net.foxycorndog.jfoxylib.util.Intersects;
 import net.foxycorndog.jfoxylib.util.Point;
 import net.foxycorndog.thedigginggame.TheDiggingGame;
 import net.foxycorndog.thedigginggame.actor.Actor;
 import net.foxycorndog.thedigginggame.map.Chunk.Intersections;
-import net.foxycorndog.thedigginggame.tile.Tile;
+import net.foxycorndog.thedigginggame.tile.Tile01;
 
 /**
  * Class that holds the information of everything on the map. Such things
@@ -281,7 +281,7 @@ public class Map
 //		});
 //	}
 	
-	public boolean generateChunk(int rx, int ry, Tile tiles[])
+	public boolean generateChunk(int rx, int ry, Tile01 tiles[])
 	{
 		if (!isChunkAt(rx, ry))
 		{
@@ -380,7 +380,7 @@ public class Map
 	{
 		boolean generated = false;
 		
-		int tileSize    = Tile.getTileSize();
+		int tileSize    = Tile01.getTileSize();
 		
 		int chunkWidth  = Chunk.getWidth();
 		int chunkHeight = Chunk.getHeight();
@@ -545,9 +545,9 @@ public class Map
 	 * @param y The vertical location to search relative to.
 	 * @return The Tile at the location.
 	 */
-	public Tile getTile(Chunk chunk, int x, int y, int layer)
+	public Tile01 getTile(Chunk chunk, int x, int y, int layer)
 	{
-		Tile tile = null;
+		Tile01 tile = null;
 		
 		int rx = x / Chunk.CHUNK_SIZE + chunk.getRelativeX();
 		int ry = y / Chunk.CHUNK_SIZE + chunk.getRelativeY();
@@ -582,7 +582,7 @@ public class Map
 	 * 		(0 - CHUNK_SIZE-1)
 	 * @return Whether a Tile was successfully added or not.
 	 */
-	public boolean addTile(Tile tile, int x, int y, int layer, boolean replace)
+	public boolean addTile(Tile01 tile, int x, int y, int layer, boolean replace)
 	{
 		int chunkSize = Chunk.CHUNK_SIZE;
 		
@@ -871,7 +871,7 @@ public class Map
 				{
 					ObjectInputStream in = new ObjectInputStream(new FileInputStream(children[i]));
 					
-					Tile tiles[] = (Tile[])in.readObject();
+					Tile01 tiles[] = (Tile01[])in.readObject();
 					
 					in.close();
 					

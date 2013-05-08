@@ -20,8 +20,8 @@ import net.foxycorndog.jfoxylib.events.FrameEvent;
 import net.foxycorndog.jfoxylib.events.FrameListener;
 import net.foxycorndog.jfoxylib.events.MouseEvent;
 import net.foxycorndog.jfoxylib.events.MouseListener;
-import net.foxycorndog.jfoxylib.graphics.opengl.GL;
 import net.foxycorndog.jfoxylib.input.Mouse;
+import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.util.Intersects;
 
 import org.lwjgl.BufferUtils;
