@@ -1,6 +1,7 @@
 package net.foxycorndog.thedigginggame.launcher;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -13,8 +14,10 @@ import java.net.URLClassLoader;
 import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.GameStarter;
 import net.foxycorndog.jfoxylib.font.Font;
+import net.foxycorndog.jfoxylib.input.Keyboard;
 import net.foxycorndog.jfoxylib.web.ConnectionException;
 import net.foxycorndog.jfoxylib.web.WebPage;
+import net.foxycorndog.jfoxylib.openal.Sound;
 import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.util.FileUtils;
 import net.foxycorndog.thedigginggame.launcher.events.DialogMenuEvent;
