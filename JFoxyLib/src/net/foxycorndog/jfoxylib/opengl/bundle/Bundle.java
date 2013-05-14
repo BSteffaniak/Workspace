@@ -105,32 +105,35 @@ public class Bundle
 		this.vertexAmount = vertexAmount;
 		this.vertexSize   = vertexSize;
 		
-		verticesBuffer = new Buffer(vertexAmount * vertexSize);
-		verticesId = verticesBuffer.getId();
+		verticesBuffer    = new Buffer(vertexAmount * vertexSize);
+		verticesId        = verticesBuffer.getId();
 		
 		if (textures)
 		{
 			texturesBuffer = new Buffer(vertexAmount * 2);
-			texturesId = texturesBuffer.getId();
+			texturesId     = texturesBuffer.getId();
 		}
 		
 		if (colors)
 		{
-			colorsBuffer   = new Buffer(vertexAmount * 4);
-			colorsId   = colorsBuffer.getId();
+			colorsBuffer = new Buffer(vertexAmount * 4);
+			colorsId     = colorsBuffer.getId();
 		
-			colorsBuffer.beginEditing();
-			
-			float cols[] = new float[vertexAmount * 4];
-			
-			for (int i = 0; i < cols.length; i++)
+			if (vertexAmount > 0)
 			{
-				cols[i] = 1;
+				colorsBuffer.beginEditing();
+				{
+					float cols[] = new float[vertexAmount * 4];
+					
+					for (int i = 0; i < cols.length; i++)
+					{
+						cols[i] = 1;
+					}
+					
+					colorsBuffer.setData(0, cols);
+				}
+				colorsBuffer.endEditing();
 			}
-			
-			colorsBuffer.setData(0, cols);
-			
-			colorsBuffer.endEditing();
 		}
 	}
 	
