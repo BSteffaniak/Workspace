@@ -106,18 +106,18 @@ public class Bundle
 		this.vertexSize   = vertexSize;
 		
 		verticesBuffer = new Buffer(vertexAmount * vertexSize);
-		verticesId = verticesBuffer.getId();
+		verticesId     = verticesBuffer.getId();
 		
 		if (textures)
 		{
 			texturesBuffer = new Buffer(vertexAmount * 2);
-			texturesId = texturesBuffer.getId();
+			texturesId     = texturesBuffer.getId();
 		}
 		
 		if (colors)
 		{
-			colorsBuffer   = new Buffer(vertexAmount * 4);
-			colorsId   = colorsBuffer.getId();
+			colorsBuffer = new Buffer(vertexAmount * 4);
+			colorsId     = colorsBuffer.getId();
 		
 			colorsBuffer.beginEditing();
 			

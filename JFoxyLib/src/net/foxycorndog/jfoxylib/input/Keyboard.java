@@ -5,7 +5,6 @@ import java.awt.KeyEventDispatcher;
 import java.awt.KeyEventPostProcessor;
 import java.awt.KeyboardFocusManager;
 import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -14,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Queue;
 
+import net.foxycorndog.jfoxylib.events.KeyEvent;
+import net.foxycorndog.jfoxylib.events.KeyListener;
 import net.foxycorndog.jfoxylib.opengl.GL;
 
 import org.lwjgl.LWJGLException;
@@ -131,10 +132,12 @@ public class Keyboard
 	public static final int KEY_RIGHT			= keyboard.KEY_RIGHT;
 	public static final int KEY_UP				= keyboard.KEY_UP;
 	
+	private static int length;
+	
 	private static final boolean keys[];
 	private static final boolean next[];
 	
-	private static int length;
+	private static final ArrayList<KeyListener>	listeners;
 	
 	static
 	{
@@ -142,6 +145,8 @@ public class Keyboard
 		
 		keys = new boolean[length];
 		next = new boolean[length];
+		
+		listeners = new ArrayList<KeyListener>();
 	}
 	
 	/**
@@ -203,14 +208,39 @@ public class Keyboard
 	 */
 	public static void update()
 	{
+		KeyEvent event;
+		
 		for (int i = 0; i < keys.length; i ++)
 		{
 			if (!keys[i] && keyboard.isKeyDown(i))
 			{
+				for (int j = 0; j < listeners.size(); j++)
+				{
+					KeyListener listener = listeners.get(j);
+					
+					event = new KeyEvent(keyboard.getKeyName(i), i);
+					
+					listener.keyPressed(event);
+				}
+				
 				next[i] = true;
 			}
 			else
 			{
+				if (keys[i] && !keyboard.isKeyDown(i))
+				{
+					
+					for (int j = 0; j < listeners.size(); j++)
+					{
+						KeyListener listener = listeners.get(j);
+						
+						event = new KeyEvent(keyboard.getKeyName(i), i);
+						
+						listener.keyTyped(event);
+						listener.keyReleased(event);
+					}
+				}
+				
 				next[i] = false;
 			}
 			
@@ -262,14 +292,36 @@ public class Keyboard
 		return 0;
 	}
 	
+//	/**
+//	 * 
+//	 * 
+//	 * @return
+//	 */
+//	public static boolean isCapsLockOn()
+//	{
+//		return Toolkit.getDefaultToolkit().getLockingKeyState(java.awt.KeyEvent.VK_CAPS_LOCK);
+//	}
+	
 	/**
 	 * 
 	 * 
+	 * @param listener
 	 * @return
 	 */
-	public static boolean isCapsLockOn()
+	public static boolean addKeyListener(KeyListener listener)
 	{
-		return Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK);
+		return listeners.add(listener);
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param listener
+	 * @return
+	 */
+	public static boolean removeKeyListener(KeyListener listener)
+	{
+		return listeners.remove(listener);
 	}
 	
 	/**

@@ -13,6 +13,8 @@ import java.net.URLClassLoader;
 
 import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.GameStarter;
+import net.foxycorndog.jfoxylib.events.KeyEvent;
+import net.foxycorndog.jfoxylib.events.KeyListener;
 import net.foxycorndog.jfoxylib.font.Font;
 import net.foxycorndog.jfoxylib.input.Keyboard;
 import net.foxycorndog.jfoxylib.web.ConnectionException;
@@ -347,6 +349,26 @@ public class Launcher extends GameStarter
 	 */
 	public void init()
 	{
+		Keyboard.addKeyListener(new KeyListener()
+		{
+			public void keyTyped(KeyEvent e)
+			{
+				System.out.println("typed " + e.getDescription() + ", " + e.getCode());
+				
+			}
+			
+			public void keyReleased(KeyEvent e)
+			{
+				System.out.println("released " + e.getDescription() + ", " + e.getCode());
+				
+			}
+			
+			public void keyPressed(KeyEvent e)
+			{
+				System.out.println("pressed " + e.getDescription() + ", " + e.getCode());
+			}
+		});
+		
 		GL.setTextureScaleMinMethod(GL.LINEAR);
 		GL.setTextureScaleMagMethod(GL.NEAREST);
 		
