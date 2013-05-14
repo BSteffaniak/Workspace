@@ -1,6 +1,7 @@
 package net.foxycorndog.jfoxylib.components;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 
 import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
@@ -31,6 +32,28 @@ public class Image extends Component
 		super(parent);
 		
 		bundle = new Bundle(4, 2, true, false);
+	}
+	
+	/**
+	 * Get the Texture of the Image.
+	 * 
+	 * @return The Texture instance used in the Image.
+	 */
+	public Texture getTexture()
+	{
+		return texture;
+	}
+	
+	/**
+	 * Set the Image of this Image Component by giving the location
+	 * of the image.
+	 * 
+	 * @param location The location of the Image.
+	 * @throws IOException If there was any trouble reading the image.
+	 */
+	public void setImage(String location) throws IOException
+	{
+		setImage(new Texture(location), 1, 1);
 	}
 	
 	/**

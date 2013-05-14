@@ -62,6 +62,14 @@ public class Sound
 		}
 		
 		initialized = true;
+		
+		Runtime.getRuntime().addShutdownHook(new Thread()
+		{
+			public void run()
+			{
+				AL.destroy();
+			}
+		});
 	}
 	
 	/**
@@ -121,5 +129,15 @@ public class Sound
 	public void rewind()
 	{
 		alSourceRewind(source);
+	}
+	
+	/**
+	 * Set the volume of the sound. Value is from 0f-1f.
+	 * 
+	 * @param volume The float value of the new volume.
+	 */
+	public void setVolume(float volume)
+	{
+		alSourcef(source, AL_GAIN, volume);
 	}
 }
