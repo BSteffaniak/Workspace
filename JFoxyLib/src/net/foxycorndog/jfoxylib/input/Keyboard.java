@@ -20,8 +20,8 @@ import net.foxycorndog.jfoxylib.opengl.GL;
 import org.lwjgl.LWJGLException;
 
 /**
- *
- *
+ * 
+ * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 10:54:39 PM
  * @since	v0.1
@@ -31,7 +31,7 @@ import org.lwjgl.LWJGLException;
 public class Keyboard
 {
 	private static org.lwjgl.input.Keyboard keyboard;
-
+	
 	static
 	{
 		try
@@ -43,7 +43,7 @@ public class Keyboard
 			e.printStackTrace();
 		}
 	}
-
+	
 	public static final int KEY_ESCAPE			= keyboard.KEY_ESCAPE;
 	public static final int KEY_F1				= keyboard.KEY_F1;
 	public static final int KEY_F2				= keyboard.KEY_F2;
@@ -131,35 +131,35 @@ public class Keyboard
 	public static final int KEY_DOWN			= keyboard.KEY_DOWN;
 	public static final int KEY_RIGHT			= keyboard.KEY_RIGHT;
 	public static final int KEY_UP				= keyboard.KEY_UP;
-
-	private static int length;
-
+	
 	private static final boolean keys[];
 	private static final boolean next[];
-
+	
 	private static final ArrayList<KeyListener>	listeners;
-
+	
+	private static int length;
+	
 	static
 	{
 		length = keyboard.KEYBOARD_SIZE;
-
+		
 		keys = new boolean[length];
 		next = new boolean[length];
-
+		
 		listeners = new ArrayList<KeyListener>();
 	}
-
+	
 	/**
-	 *
+	 * 
 	 */
 	public static void destroy()
 	{
 		keyboard.destroy();
 	}
-
+	
 	/**
-	 *
-	 *
+	 * 
+	 * 
 	 * @param key
 	 * @return
 	 */
@@ -167,49 +167,49 @@ public class Keyboard
 	{
 		return keyboard.isKeyDown(key);
 	}
-
+	
 	/**
-	 *
-	 *
+	 * 
+	 * 
 	 * @return
 	 */
 	public static int getEventKey()
 	{
 		return keyboard.getEventKey();
 	}
-
+	
 	/**
-	 *
-	 *
+	 * 
+	 * 
 	 * @return
 	 */
 	public static boolean next()
 	{
 		return keyboard.next();
 	}
-
+	
 	/**
-	 *
-	 *
+	 * 
+	 * 
 	 * @param keyId
 	 * @return
 	 */
 	public static boolean next(int keyId)
 	{
 		boolean nxt = keys[keyId] && next[keyId];
-
+		
 //		keys[keyId] = false;
-
+		
 		return nxt;
 	}
-
+	
 	/**
-	 *
+	 * 
 	 */
 	public static void update()
 	{
 		KeyEvent event;
-
+		
 		for (int i = 0; i < keys.length; i ++)
 		{
 			if (keys[i])
@@ -217,32 +217,23 @@ public class Keyboard
 				for (int j = 0; j < listeners.size(); j++)
 				{
 					KeyListener listener = listeners.get(j);
-
+					
 					event = new KeyEvent(keyboard.getKeyName(i), i);
-
+					
 					listener.keyDown(event);
 				}
 			}
-
+			
 			if (!keys[i] && keyboard.isKeyDown(i))
 			{
-				for (int j = 0; j < listeners.size(); j++)
-				{
-					KeyListener listener = listeners.get(j);
-
-					event = new KeyEvent(keyboard.getKeyName(i), i);
-
-					listener.keyPressed(event);
-				}
-
 				next[i] = true;
-
+				
 				for (int j = 0; j < listeners.size(); j++)
 				{
 					KeyListener listener = listeners.get(j);
-
+					
 					event = new KeyEvent(keyboard.getKeyName(i), i);
-
+					
 					listener.keyPressed(event);
 				}
 			}
@@ -253,31 +244,31 @@ public class Keyboard
 					for (int j = 0; j < listeners.size(); j++)
 					{
 						KeyListener listener = listeners.get(j);
-
+						
 						event = new KeyEvent(keyboard.getKeyName(i), i);
-
+						
 						listener.keyReleased(event);
 						listener.keyTyped(event);
 					}
 				}
-
+				
 				next[i] = false;
 			}
-
+			
 			keys[i] = keyboard.isKeyDown(i);
 		}
 	}
-
+	
 //	public static boolean[] getKeys()
 //	{
 //		refresh();
-//
+//		
 //		return keys;
 //	}
-
+	
 	/**
-	 *
-	 *
+	 * 
+	 * 
 	 * @param key
 	 * @return
 	 */
@@ -285,17 +276,17 @@ public class Keyboard
 	{
 		return keyboard.getKeyName(key);
 	}
-
+	
 	/**
-	 *
-	 *
+	 * 
+	 * 
 	 * @param name
 	 * @return
 	 */
 	public static int getKey(String name)
 	{
 		name = name.toUpperCase();
-
+		
 		for (int i = 0; i < length; i ++)
 		{
 			if (getKeyName(i).equals(name))
@@ -303,59 +294,47 @@ public class Keyboard
 				return i;
 			}
 		}
-
+		
 		if (name.equals("ENTER"))
 		{
 			return KEY_ENTER;
 		}
-
+		
 		return 0;
 	}
-
-	/**
-	 *
-	 *
-	 * @param listener
-	 * @return
-	 */
+	
 	public static boolean addKeyListener(KeyListener listener)
 	{
 		return listeners.add(listener);
 	}
-
-	/**
-	 *
-	 *
-	 * @param listener
-	 * @return
-	 */
+	
 	public static boolean removeKeyListener(KeyListener listener)
 	{
 		return listeners.remove(listener);
 	}
-
+	
 //	/**
-//	 *
-//	 *
+//	 * 
+//	 * 
 //	 * @return
 //	 */
 //	public static boolean isCapsLockOn()
 //	{
 //		return Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK);
 //	}
-
+	
 	/**
-	 *
-	 *
+	 * 
+	 * 
 	 * @return
 	 */
 	public static int keysAmount()
 	{
 		return length;
 	}
-
+	
 	/**
-	 *
+	 * 
 	 */
 	public static void poll()
 	{
