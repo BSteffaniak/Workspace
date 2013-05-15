@@ -3,9 +3,13 @@ package net.foxycorndog.jfoxylib.openal;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.nio.IntBuffer;
+import java.util.ArrayList;
 
+import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.openal.AL;
+import org.lwjgl.openal.AL10;
 import org.lwjgl.util.WaveData;
 
 import static org.lwjgl.openal.AL10.alGenBuffers;
@@ -35,12 +39,14 @@ import static org.lwjgl.openal.AL10.alSourceRewind;
  */
 public class Sound
 {
-	private	int			id;
-	private	int			source;
+	private	int						id;
+	private	int						source;
 	
-	private	WaveData	data;
+	private	WaveData				data;
 	
-	private static boolean initialized;
+	private static boolean			initialized;
+	
+	private static ArrayList<Sound>	sounds;
 	
 	/**
 	 * Try to create the AL instance.
@@ -61,15 +67,27 @@ public class Sound
 			e.printStackTrace();
 		}
 		
-		initialized = true;
+		sounds = new ArrayList<Sound>();
 		
 		Runtime.getRuntime().addShutdownHook(new Thread()
 		{
 			public void run()
 			{
+				while (sounds.size() > 0)
+				{
+					Sound sound = sounds.remove(0);
+					
+					AL10.alDeleteSources(sound.source);
+					AL10.alDeleteBuffers(sound.id);
+					
+					sound.data.dispose();
+				}
+				
 				AL.destroy();
 			}
 		});
+		
+		initialized = true;
 	}
 	
 	/**
@@ -82,6 +100,8 @@ public class Sound
 	public Sound(String location) throws FileNotFoundException
 	{
 		init();
+		
+		sounds.add(this);
 		
 		data = WaveData.create(new BufferedInputStream(new FileInputStream(location)));
 		
@@ -108,6 +128,16 @@ public class Sound
 	}
 	
 	/**
+	 * Loops the audio file indefinitely until it is stopped.
+	 */
+	public void loop()
+	{
+		AL10.alSourcei(source, AL10.AL_LOOPING, AL10.AL_TRUE);
+		
+		play();
+	}
+	
+	/**
 	 * Pause the Sound file's audio.
 	 */
 	public void pause()
@@ -120,6 +150,8 @@ public class Sound
 	 */
 	public void stop()
 	{
+		AL10.alSourcei(source, AL10.AL_LOOPING, AL10.AL_FALSE);
+		
 		alSourceStop(source);
 	}
 	
