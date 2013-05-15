@@ -67,7 +67,8 @@ import org.lwjgl.opengl.GL32;
 import org.lwjgl.opengl.GL43;
 
 /**
- * 
+ * Class that has several static methods used for manipulating
+ * OpenGL capabilities and other things.
  * 
  * @author	Braden Steffaniak
  * @since	Feb 15, 2013 at 11:43:44 PM
@@ -93,6 +94,10 @@ public class GL
 	
 	public static final int LINEAR = GL11.GL_LINEAR, NEAREST = GL11.GL_NEAREST, REPEAT = GL11.GL_REPEAT, CLAMP = GL11.GL_CLAMP;
 	
+	/**
+	 * Initialize all of the OpenGL states that are required before
+	 * the use of the functions.
+	 */
 	private static void initGLStates()
 	{
 		glEnable(GL_TEXTURE_2D);
@@ -122,10 +127,11 @@ public class GL
 	}
 	
 	/**
+	 * Initialize the orthographic view mode. This mode is used
+	 * for 2 dimensional viewing.
 	 * 
-	 * 
-	 * @param width
-	 * @param height
+	 * @param width The width of each OpenGL unit per pixel.
+	 * @param height The height of each OpenGL unit per pixel.
 	 */
 	public static void initOrtho(int width, int height)
 	{
@@ -141,12 +147,14 @@ public class GL
 	}
 	
 	/**
+	 * Initialize the OpenGL perspective viewing mode.
 	 * 
-	 * 
-	 * @param width
-	 * @param height
-	 * @param zClose
-	 * @param zFar
+	 * @param width The width of the Frame of reference.
+	 * @param height The height of the Frame of reference.
+	 * @param zClose The closest index to the screen possible for
+	 * 		the zed axis.
+	 * @param zFar The farthest index to the screen possible for
+	 * 		the zed axis.
 	 */
 	public static void initPerspective(int width, int height, float zClose, float zFar)
 	{
@@ -177,9 +185,11 @@ public class GL
 	}
 	
 	/**
+	 * Get the integer variable that represents the method of
+	 * minification for OpenGL Textures.
 	 * 
-	 * 
-	 * @return
+	 * @return The integer variable that represents the method of
+	 * minification for OpenGL Textures.
 	 */
 	public static int getTextureScaleMinMethod()
 	{
@@ -187,9 +197,11 @@ public class GL
 	}
 	
 	/**
+	 * Get the integer variable that represents the method of
+	 * magnification for OpenGL Textures.
 	 * 
-	 * 
-	 * @return
+	 * @return The integer variable that represents the method of
+	 * magnification for OpenGL Textures.
 	 */
 	public static int getTextureScaleMagMethod()
 	{
@@ -265,9 +277,64 @@ public class GL
 	}
 	
 	/**
+	 * Clip the area that will be rendered inside of to the screen. The
+	 * difference between this method and
+	 * beginFrameClipping(int, int, int, int) is that this method takes into
+	 * account the current scale amount.
 	 * 
+	 * @param x The horizonal location to make the clip.
+	 * @param y The vertical location to make to clip.
+	 * @param width The horizontal size of the area to clip.
+	 * @param height The vertical size of the area to clip.
+	 */
+	public static void beginClipping(int x, int y, int width, int height)
+	{
+		float scale[] = getAmountScaled();
+		
+		x      *= scale[0];
+		y      *= scale[1];
+		width  *= scale[0];
+		height *= scale[1];
+		
+		beginFrameClipping(x, y, width, height);
+	}
+	
+	/**
+	 * Stop clipping what is rendered to the screen.
+	 */
+	public static void endClipping()
+	{
+		endFrameClipping();
+	}
+	
+	/**
+	 * Clip the area that will be rendered inside of to the screen. The
+	 * difference between this method and
+	 * beginClipping(int, int, int, int) is that this method does not
+	 * takes into account the current scale amount, and is based on pixels.
 	 * 
-	 * @return
+	 * @param x The horizonal location to make the clip.
+	 * @param y The vertical location to make to clip.
+	 * @param width The horizontal size of the area to clip.
+	 * @param height The vertical size of the area to clip.
+	 */
+	public static void beginFrameClipping(int x, int y, int width, int height)
+	{
+
+	}
+
+	/**
+	 * Stop clipping what is rendered to the screen.
+	 */
+	public static void endFrameClipping()
+	{
+
+	}
+	
+	/**
+	 * Get the current version of OpenGL.
+	 * 
+	 * @return The current version of OpenGL.
 	 */
 	public static String getVersion()
 	{
