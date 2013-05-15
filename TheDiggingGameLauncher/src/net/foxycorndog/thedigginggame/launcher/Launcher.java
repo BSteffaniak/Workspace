@@ -349,26 +349,6 @@ public class Launcher extends GameStarter
 	 */
 	public void init()
 	{
-		Keyboard.addKeyListener(new KeyListener()
-		{
-			public void keyTyped(KeyEvent e)
-			{
-				System.out.println("typed " + e.getDescription() + ", " + e.getCode());
-				
-			}
-			
-			public void keyReleased(KeyEvent e)
-			{
-				System.out.println("released " + e.getDescription() + ", " + e.getCode());
-				
-			}
-			
-			public void keyPressed(KeyEvent e)
-			{
-				System.out.println("pressed " + e.getDescription() + ", " + e.getCode());
-			}
-		});
-		
 		GL.setTextureScaleMinMethod(GL.LINEAR);
 		GL.setTextureScaleMagMethod(GL.NEAREST);
 		

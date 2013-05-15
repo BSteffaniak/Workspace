@@ -31,6 +31,7 @@ import static org.lwjgl.opengl.GL11.GL_TEXTURE_ENV;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_ENV_MODE;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
+import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 import static org.lwjgl.opengl.GL11.glAlphaFunc;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
 import static org.lwjgl.opengl.GL11.glClearColor;
@@ -38,6 +39,7 @@ import static org.lwjgl.opengl.GL11.glClearDepth;
 import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glDepthFunc;
 import static org.lwjgl.opengl.GL11.glEnable;
+import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glHint;
 import static org.lwjgl.opengl.GL11.glLoadIdentity;
 import static org.lwjgl.opengl.GL11.glMatrixMode;
@@ -47,6 +49,7 @@ import static org.lwjgl.opengl.GL11.glTexEnvi;
 import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
+import static org.lwjgl.opengl.GL11.glScissor;
 
 import java.io.File;
 import java.io.IOException;
@@ -277,10 +280,18 @@ public class GL
 	}
 	
 	/**
+	 * Enable the use of clipping the rendering to the screen.
+	 */
+	private static void enableClipping()
+	{
+		glEnable(GL_SCISSOR_TEST);
+	}
+	
+	/**
 	 * Clip the area that will be rendered inside of to the screen. The
 	 * difference between this method and
 	 * beginFrameClipping(int, int, int, int) is that this method takes into
-	 * account the current scale amount.
+	 * account the current scale amount and amount translated.
 	 * 
 	 * @param x The horizonal location to make the clip.
 	 * @param y The vertical location to make to clip.
@@ -295,6 +306,11 @@ public class GL
 		y      *= scale[1];
 		width  *= scale[0];
 		height *= scale[1];
+		
+		float trans[] = getAmountTranslated();
+		
+		x      += trans[0];
+		y      += trans[1];
 		
 		beginFrameClipping(x, y, width, height);
 	}
@@ -312,6 +328,7 @@ public class GL
 	 * difference between this method and
 	 * beginClipping(int, int, int, int) is that this method does not
 	 * takes into account the current scale amount, and is based on pixels.
+	 * It also takes the absolute position from the screen.
 	 * 
 	 * @param x The horizonal location to make the clip.
 	 * @param y The vertical location to make to clip.
@@ -320,7 +337,9 @@ public class GL
 	 */
 	public static void beginFrameClipping(int x, int y, int width, int height)
 	{
-
+		enableClipping();
+		
+		glScissor(x, y, width, height);
 	}
 
 	/**
@@ -328,7 +347,7 @@ public class GL
 	 */
 	public static void endFrameClipping()
 	{
-
+		glDisable(GL_SCISSOR_TEST);
 	}
 	
 	/**
