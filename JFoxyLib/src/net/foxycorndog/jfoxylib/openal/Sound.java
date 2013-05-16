@@ -39,14 +39,14 @@ import static org.lwjgl.openal.AL10.alSourceRewind;
  */
 public class Sound
 {
-	private	int						id;
-	private	int						source;
+	private			int					id;
+	private			int					source;
 	
-	private	WaveData				data;
+	private			WaveData			data;
 	
-	private static boolean			initialized;
+	private static	boolean				initialized;
 	
-	private static ArrayList<Sound>	sounds;
+	private static	ArrayList<Sound>	sounds;
 	
 	/**
 	 * Try to create the AL instance.
@@ -57,6 +57,8 @@ public class Sound
 		{
 			return;
 		}
+		
+		initialized = true;
 		
 		try
 		{
@@ -77,17 +79,12 @@ public class Sound
 				{
 					Sound sound = sounds.remove(0);
 					
-					AL10.alDeleteSources(sound.source);
-					AL10.alDeleteBuffers(sound.id);
-					
-					sound.data.dispose();
+					sound.dispose();
 				}
 				
 				AL.destroy();
 			}
 		});
-		
-		initialized = true;
 	}
 	
 	/**
@@ -171,5 +168,16 @@ public class Sound
 	public void setVolume(float volume)
 	{
 		alSourcef(source, AL_GAIN, volume);
+	}
+	
+	/**
+	 * Dispose of the Buffers and data for the Sound instance.
+	 */
+	public void dispose()
+	{
+		AL10.alDeleteSources(source);
+		AL10.alDeleteBuffers(id);
+
+		data.dispose();
 	}
 }
