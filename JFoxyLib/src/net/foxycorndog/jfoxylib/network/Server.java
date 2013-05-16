@@ -10,7 +10,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 /**
- * 
+ * Class used to create a Server instance that can be used
+ * to recieve and transfer data along a Network.
  * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 11:11:21 PM
@@ -30,8 +31,7 @@ public abstract class Server extends Network
 	* Creates a Server that extends the Network class. This constructor
 	* method is used for creating a new ServerSocket.
 	* 
-	* @param port The port of the created Server
-	* @param poker The PokerGame object that the Server is created from.
+	* @param port The port of the created Server.
 	*/
 	public Server(int port)
 	{
@@ -39,7 +39,7 @@ public abstract class Server extends Network
 	}
 	
 	/**
-	 * 
+	 * Create the Server's connection.
 	 */
 	public void create()
 	{

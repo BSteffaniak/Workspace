@@ -12,12 +12,12 @@ package net.foxycorndog.jfoxylib.network;
  */
 public class Ping extends Packet
 {
-	private boolean received;
+	private boolean	received;
 	
-	private long    timeSent;
-	private long    timeReceived;
+	private long	timeSent;
+	private long	timeReceived;
 	
-	private int     ping;
+	private int		ping;
 	
 	/**
 	 * Creates a Ping object used for receiving the ping count of
@@ -35,7 +35,7 @@ public class Ping extends Packet
 	 */
 	public void receive()
 	{
-		received = true;;
+		received = true;
 	}
 	
 	/**

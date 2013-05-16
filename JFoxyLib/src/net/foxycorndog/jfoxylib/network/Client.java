@@ -7,7 +7,7 @@ import java.net.ConnectException;
 import java.net.Socket;
 
 /**
- * 
+ * Class used to connect to a Server across a Network connection.
  * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 11:03:11 PM
@@ -37,7 +37,7 @@ public abstract class Client extends Network
 	}
 	
 	/**
-	 * 
+	 * Attempt a connection to the specified ip and port.
 	 */
 	public void connect()
 	{
