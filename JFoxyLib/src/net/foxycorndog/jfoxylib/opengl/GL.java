@@ -212,9 +212,12 @@ public class GL
 	}
 	
 	/**
+	 * Set the Texture minification method when rendering Textures.
+	 * Possible methods include:<br>
+	 * NEAREST - Minify the Texture exactly as it is, with loss of pixels.<br>
+	 * LINEAR - Minify the Texture with estimation.<br>
 	 * 
-	 * 
-	 * @param method
+	 * @param method The method to set the minification to.
 	 */
 	public static void setTextureScaleMinMethod(int method)
 	{
@@ -224,9 +227,12 @@ public class GL
 	}
 	
 	/**
+	 * Set the Texture magification method when rendering Textures.
+	 * Possible methods include:<br>
+	 * NEAREST - Magnify the Texture exactly as it is, without estimation.<br>
+	 * LINEAR - Magnify the Texture with estimation.
 	 * 
-	 * 
-	 * @param method
+	 * @param method The method to set the magnification to.
 	 */
 	public static void setTextureScaleMagMethod(int method)
 	{
@@ -236,9 +242,18 @@ public class GL
 	}
 	
 	/**
+	 * Get the method that is used wrap Textures when they are rendered.
+	 * This only effects the horizontal view of the Texture.<br>
+	 * Possible methods include:<br>
+	 * CLAMP - When the object the Texture is rendered to is too large
+	 * 		for the Texture, clamp the Texture by continuing the
+	 * 		colors closest to the edge onward.<br>
+	 * REPEAT - When the object the Texture is rendered to is too large
+	 * 		for the Texture, repeat the Texture to fill the empty
+	 * 		space.
 	 * 
-	 * 
-	 * @return
+	 * @return The method that is used wrap Textures when they are rendered
+	 * 		horizontally.
 	 */
 	public static int getTextureWrapSMethod()
 	{
@@ -246,9 +261,18 @@ public class GL
 	}
 	
 	/**
+	 * Get the method that is used wrap Textures when they are rendered.
+	 * This only effects the vertical view of the Texture.<br>
+	 * Possible methods include:<br>
+	 * CLAMP - When the object the Texture is rendered to is too large
+	 * 		for the Texture, clamp the Texture by continuing the
+	 * 		colors closest to the edge onward.<br>
+	 * REPEAT - When the object the Texture is rendered to is too large
+	 * 		for the Texture, repeat the Texture to fill the empty
+	 * 		space.
 	 * 
-	 * 
-	 * @return
+	 * @return The method that is used wrap Textures when they are rendered
+	 * 		vertically.
 	 */
 	public static int getTextureWrapTMethod()
 	{
@@ -256,9 +280,18 @@ public class GL
 	}
 	
 	/**
+	 * Set the method to wrap Textures when they are rendered. This
+	 * only effects the horizontal view of the Texture.<br>
+	 * Possible methods include:<br>
+	 * CLAMP - When the object the Texture is rendered to is too large
+	 * 		for the Texture, clamp the Texture by continuing the
+	 * 		colors closest to the edge onward.<br>
+	 * REPEAT - When the object the Texture is rendered to is too large
+	 * 		for the Texture, repeat the Texture to fill the empty
+	 * 		space.
 	 * 
-	 * 
-	 * @param method
+	 * @param method The method to set the horizontal Texture wrap
+	 * 		method.
 	 */
 	public static void setTextureWrapSMethod(int method)
 	{
@@ -268,9 +301,18 @@ public class GL
 	}
 	
 	/**
+	 * Set the method to wrap Textures when they are rendered. This
+	 * only effects the vertical view of the Texture.<br>
+	 * Possible methods include:<br>
+	 * CLAMP - When the object the Texture is rendered to is too large
+	 * 		for the Texture, clamp the Texture by continuing the
+	 * 		colors closest to the edge onward.<br>
+	 * REPEAT - When the object the Texture is rendered to is too large
+	 * 		for the Texture, repeat the Texture to fill the empty
+	 * 		space.
 	 * 
-	 * 
-	 * @param method
+	 * @param method The method to set the vertical Texture wrap
+	 * 		method.
 	 */
 	public static void setTextureWrapTMethod(int method)
 	{
@@ -361,9 +403,9 @@ public class GL
 	}
 	
 	/**
+	 * Method used to push the specified object onto the stack.
 	 * 
-	 * 
-	 * @param bit
+	 * @param bit The bit to push onto the stack.
 	 */
 	public static void pushAttrib(int bit)
 	{
@@ -371,7 +413,8 @@ public class GL
 	}
 	
 	/**
-	 * 
+	 * Pop the last added bit off of the stack and return to
+	 * the second latest mode.
 	 */
 	public static void popAttrib()
 	{
@@ -379,7 +422,7 @@ public class GL
 	}
 	
 	/**
-	 * 
+	 * Push the current matrix configuration to the stack.
 	 */
 	public static void pushMatrix()
 	{
@@ -387,7 +430,9 @@ public class GL
 	}
 	
 	/**
-	 * 
+	 * Pop the last matrix off of the stack. Returns the matrix
+	 * configuration to the seconf last configuration available on the
+	 * stack.
 	 */
 	public static void popMatrix()
 	{
@@ -395,11 +440,13 @@ public class GL
 	}
 	
 	/**
+	 * Rotates everything that is rendered after this method call
+	 * the specified x, y, and z amounts.<br>
+	 * Rotates the current matrix configuration the specified amounts.
 	 * 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param x How many degrees to rotate around the x axis.
+	 * @param y How many degrees to rotate around the y axis.
+	 * @param z How many degrees to rotate around the z axis.
 	 */
 	public static void rotate(float x, float y, float z)
 	{
@@ -409,11 +456,13 @@ public class GL
 	}
 	
 	/**
+	 * Translate everything that is rendered after this method call
+	 * the specified x, y, and z amounts.<br>
+	 * Translates the current matrix configuration the specified amounts.
 	 * 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param x The amount to translate along the x (horizontal) axis.
+	 * @param y The amount to translate along the y (vertical) axis.
+	 * @param z The amount to translate along the z (onlique) axis.
 	 */
 	public static void translate(float x, float y, float z)
 	{
