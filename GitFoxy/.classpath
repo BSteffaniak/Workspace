@@ -3,11 +3,16 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JFoxyUtil"/>
+<<<<<<< HEAD
 	<classpathentry kind="lib" path="C:/Users/Braden Steffaniak/Documents/GitHub/Workspace/Github/jar/gson-2.2.4.jar"/>
 	<classpathentry kind="lib" path="C:/Users/Braden Steffaniak/Documents/GitHub/Workspace/Github/jar/org.eclipse.egit.github.core-2.1.5.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/C:/Users/Braden Steffaniak/Documents/GitHub/Workspace/Github/jar/org.eclipse.egit.github.core-2.1.5-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+=======
+	<classpathentry kind="lib" path="H:/GitHub/Workspace/GitHub/jar/gson-2.2.4.jar"/>
+	<classpathentry kind="lib" path="H:/GitHub/Workspace/GitHub/jar/org.eclipse.egit.github.core-2.1.5.jar"/>
+>>>>>>> 931dda3f1067d0293baf7216cab4e35f613edb73
 	<classpathentry kind="output" path="bin"/>
 </classpath>
