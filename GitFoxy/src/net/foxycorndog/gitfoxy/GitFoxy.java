@@ -24,6 +24,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.client.GitHubClient;
+import org.eclipse.egit.github.core.client.GitHubRequest;
+import org.eclipse.egit.github.core.client.GitHubResponse;
+import org.eclipse.egit.github.core.service.RepositoryService;
+
 import net.foxycorndog.gitfoxy.command.Command;
 import net.foxycorndog.gitfoxy.dialog.AuthenticationDialog;
 import net.foxycorndog.gitfoxy.dialog.CommitMessageDialog;
@@ -61,6 +67,24 @@ public class GitFoxy implements ActionListener, CommandListener
 	
 	public GitFoxy()
 	{
+		//Basic authentication
+		GitHubClient client = new GitHubClient();
+		client.setCredentials("FoxyCorndog", "");
+		GitHubRequest request = new GitHubRequest();
+		request.setUri("/users/FoxyCorndog");
+		
+		try
+		{
+			GitHubResponse response = client.get(request);
+			System.out.println(client.getUser());
+			
+			System.out.println(response.getBody());
+		}
+		catch (IOException e1)
+		{
+			e1.printStackTrace();
+		}
+		
 		commands = new ArrayList<Command>();
 		
 		configLocation = "gitfoxy.config";
