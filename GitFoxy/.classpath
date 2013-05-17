@@ -3,5 +3,7 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/JFoxyUtil"/>
+	<classpathentry kind="lib" path="H:/GitHub/Workspace/GitHub/jar/gson-2.2.4.jar"/>
+	<classpathentry kind="lib" path="H:/GitHub/Workspace/GitHub/jar/org.eclipse.egit.github.core-2.1.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -13,6 +13,7 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -23,6 +24,18 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+
+import org.eclipse.egit.github.core.IRepositoryIdProvider;
+import org.eclipse.egit.github.core.PullRequest;
+import org.eclipse.egit.github.core.PullRequestMarker;
+import org.eclipse.egit.github.core.Repository;
+import org.eclipse.egit.github.core.RepositoryId;
+import org.eclipse.egit.github.core.User;
+import org.eclipse.egit.github.core.client.GitHubRequest;
+import org.eclipse.egit.github.core.client.GitHubResponse;
+import org.eclipse.egit.github.core.service.PullRequestService;
+import org.eclipse.egit.github.core.service.RepositoryService;
+import org.eclipse.egit.github.core.service.UserService;
 
 import net.foxycorndog.gitfoxy.command.Command;
 import net.foxycorndog.gitfoxy.dialog.AuthenticationDialog;
@@ -87,6 +100,68 @@ public class GitFoxy implements ActionListener, CommandListener
 		{
 			setConfigDataValue("git.location", findGitLocation());
 		}
+		
+		String pass = "";
+		
+		try
+		{
+			pass = new BufferedReader(new FileReader(new File("pass.txt"))).readLine();
+		}
+		catch (FileNotFoundException e1)
+		{
+			e1.printStackTrace();
+		}
+		catch (IOException e1)
+		{
+			e1.printStackTrace();
+		}
+		
+		RepositoryService service = new RepositoryService();
+		service.getClient().setCredentials("FoxyCorndogTest", pass);
+		
+		PullRequestService pService = new PullRequestService();
+		pService.getClient().setCredentials("FoxyCorndogTest", pass);
+		
+		RepositoryId repo = new RepositoryId("FoxyCorndog", "ArrowWorkspace");
+		PullRequest request = new PullRequest();
+
+		try
+		{
+			List<Repository> repos = service.getRepositories();
+			repos.addAll(service.getOrgRepositories("FoxyCorndogOrganization"));
+			
+			System.out.println(repos.size());
+			
+			Repository wsp = service.getRepository(repo);
+			
+			System.out.println(wsp.getCreatedAt());
+			
+//			User user = null;
+//			
+//			UserService uService = new UserService();
+//			user = uService.getUser("FoxyCorndog");
+//			
+//			System.out.println(user.getLogin());
+			
+			System.out.println(wsp);
+			
+			System.out.println(pService.createPullRequest(wsp, 0, "master", "master"));
+			
+//			PullRequestMarker p = new PullRequestMarker();
+//			p.setRepo(wsp);
+//			p.setUser(user);
+//			request.setBase(p);
+//			request.setHead(p);
+//			
+			
+//			System.out.println(request.getState());
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+		System.out.println("done");
 	}
 	
 	public void open()
@@ -447,6 +522,6 @@ public class GitFoxy implements ActionListener, CommandListener
 	{
 		GitFoxy program = new GitFoxy();
 		
-		program.open();
+//		program.open();
 	}
 }
