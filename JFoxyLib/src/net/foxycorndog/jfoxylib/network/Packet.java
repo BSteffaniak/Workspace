@@ -14,9 +14,9 @@ import java.io.Serializable;
  */
 public class Packet implements Serializable
 {
-	private Object object;
+	private	Object	data;
 	
-	private int id;
+	private	int		id;
 	
 	/**
 	 * Creates a new Packet. Packets are used for sending information
@@ -27,8 +27,8 @@ public class Packet implements Serializable
 	 */
 	public Packet(Object object, int id)
 	{
-		this.object = object;
-		this.id     = id;
+		this.data = object;
+		this.id   = id;
 	}
 	
 	/**
@@ -42,12 +42,12 @@ public class Packet implements Serializable
 	}
 	
 	/**
-	 * Get the Object that was sent with the Packet.
+	 * Get the Object data that was sent with the Packet.
 	 * 
-	 * @return The Object that was sent with the Packet.
+	 * @return The Object data that was sent with the Packet.
 	 */
-	public Object getObject()
+	public Object getData()
 	{
-		return object;
+		return data;
 	}
 }

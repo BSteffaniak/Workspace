@@ -22,7 +22,7 @@ import net.foxycorndog.jfoxylib.opengl.GL;
  */
 public class TextField extends Component
 {
-	private	float			scale;
+	private	float			scale, textScale;
 	
 	private	Image			backgroundImage;
 	
@@ -41,7 +41,9 @@ public class TextField extends Component
 		
 		Frame.add(this);
 		
-		builder = new StringBuilder();
+		textScale = 1;
+		
+		builder   = new StringBuilder();
 		
 		Keyboard.addKeyListener(new KeyListener()
 		{
@@ -60,8 +62,6 @@ public class TextField extends Component
 					boolean shift = Keyboard.isKeyDown(Keyboard.KEY_LEFT_SHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RIGHT_SHIFT);
 						
 					String desc = event.getDescription();
-					
-					System.out.println(event.getCharacter());
 					
 					if (desc.length() == 1)
 					{
@@ -204,7 +204,27 @@ public class TextField extends Component
 		
 		builder.append(text);
 	}
-
+	
+	/**
+	 * Get the scale that the text will be rendered in.
+	 * 
+	 * @return The scale that the text will be rendered in.
+	 */
+	public float getScale()
+	{
+		return textScale;
+	}
+	
+	/**
+	 * Set the scale that the text will be rendered in.
+	 * 
+	 * @param scale The scale that the text will be rendered in.
+	 */
+	public void setScale(float scale)
+	{
+		this.textScale = scale;
+	}
+	
 	/**
 	 * @see net.foxycorndog.jfoxylib.components.Component#render()
 	 */
@@ -220,7 +240,9 @@ public class TextField extends Component
 			
 			GL.beginClipping(0, 0, getWidth(), getHeight());
 			{
-				font.render(builder.toString(), 0, 0, 0, scale, getParent());
+				float offsetY = (getHeight() / 2) - (font.getGlyphHeight() * (scale * textScale)) / 2;
+				
+				font.render(builder.toString(), 2, offsetY, 0, scale * textScale, getParent());
 			}
 			GL.endClipping();
 		}

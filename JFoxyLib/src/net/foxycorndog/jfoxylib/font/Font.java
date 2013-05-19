@@ -375,6 +375,11 @@ public class Font
 				{
 					try
 					{
+						if (!charSequence.containsKey(chars[i]))	
+						{
+							continue;
+						}
+						
 						int charX       = charSequence.get(chars[i])[0];
 						int charY       = charSequence.get(chars[i])[1];
 						

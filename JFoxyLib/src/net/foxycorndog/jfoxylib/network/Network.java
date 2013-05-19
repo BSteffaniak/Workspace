@@ -67,6 +67,11 @@ public abstract class Network
 	 */
 	public void sendPacket(Packet object)
 	{
+		if (!isConnected())
+		{
+			throw new NotConnectedException("The Network must be connected to another Network in order to send a Packet.");
+		}
+		
 		try
 		{
 			out.writeObject(object);
@@ -91,6 +96,30 @@ public abstract class Network
 		try
 		{
 			out.writeObject(ping);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Close the current Network connection.
+	 */
+	public void close()
+	{
+		try
+		{
+			if (isConnected())
+			{
+				out.close();
+				in.close();
+			}
+		
+			if (connection != null)
+			{
+				connection.close();
+			}
 		}
 		catch (IOException e)
 		{
@@ -236,12 +265,16 @@ public abstract class Network
 						{
 							packet = (Packet)in.readObject();
 						}
-						catch (SocketException ex)
+						catch (SocketException e)
 						{
+//							e.printStackTrace();
+							
 							break;
 						}
-						catch (EOFException ex)
+						catch (EOFException e)
 						{
+//							e.printStackTrace();
+							
 							break;
 						}
 						catch (ClassNotFoundException e)

@@ -43,8 +43,6 @@ public abstract class Client extends Network
 	{
 		try
 		{
-			System.out.println("Attempting connection on " + ip + ":" + port);
-			
 			socket = new Socket(ip, port);
 			
 			setOut(new ObjectOutputStream(socket.getOutputStream()));
@@ -54,18 +52,18 @@ public abstract class Client extends Network
 			
 			if (socket.isConnected())
 			{
-				System.out.println("Connected!!!");
+//				System.out.println("Connected!!!");
 			}
 			else
 			{
-				System.out.println("Connection error!");
+				System.err.println("Connection error!");
 			}
 			
 			setConnection(socket);
 		}
 		catch (ConnectException ex)
 		{
-			System.out.println("Connection Refused!");
+			System.err.println("Connection Refused!");
 		}
 		catch (IOException e)
 		{

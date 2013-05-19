@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 
 /**
@@ -21,11 +22,13 @@ import java.net.UnknownHostException;
  */
 public abstract class Server extends Network
 {
-	private int          port;
+	private int				port;
 	
-	private Socket       socket;
+	private	String			ip;
 	
-	private ServerSocket server;
+	private Socket			socket;
+	
+	private ServerSocket	server;
 	
 	/**
 	* Creates a Server that extends the Network class. This constructor
@@ -56,14 +59,32 @@ public abstract class Server extends Network
 		{
 			try
 			{
-				System.out.println("Server started on " + InetAddress.getLocalHost().getHostAddress() + ":" + port);
+				ip = InetAddress.getLocalHost().getHostAddress();
+				
+//				System.out.println("Server started on " + ip + ":" + port);
 			}
 			catch (UnknownHostException e)
 			{
 				e.printStackTrace();
 			}
 			
-			socket = server.accept();
+			try
+			{
+				socket = server.accept();
+			}
+			catch (SocketException e)
+			{
+				if (e.getMessage().equals("socket closed"))
+				{
+					// Was probably purposely closed.
+				}
+				else
+				{
+					e.printStackTrace();
+				}
+				
+				return;
+			}
 			
 			setConnection(socket);
 			
@@ -72,9 +93,7 @@ public abstract class Server extends Network
 			
 			setConnected(socket.isConnected());
 			
-			System.out.println("Connected!");
-			
-			sendPacket(new Packet(new Point(3, 1), 2));
+//			System.out.println("Connected!");
 		}
 		catch (IOException e)
 		{
@@ -82,5 +101,32 @@ public abstract class Server extends Network
 		}
 		
 		startInputLoop();
+	}
+	
+	/**
+	 * Get the IP address that the Server was started on.
+	 * 
+	 * @return The IP address that the Server was started on.
+	 */
+	public String getIP()
+	{
+		return ip;
+	}
+
+	/**
+	 * Close the current Servers Network connection.
+	 */
+	public void close()
+	{
+		super.close();
+		
+		try
+		{
+			server.close();
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 	}
 }

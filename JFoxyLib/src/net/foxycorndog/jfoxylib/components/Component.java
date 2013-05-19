@@ -76,6 +76,9 @@ public abstract class Component
 		{
 			parent.addChild(this);
 		}
+		
+		scaleX = 1;
+		scaleY = 1;
 	}
 	
 	/**
