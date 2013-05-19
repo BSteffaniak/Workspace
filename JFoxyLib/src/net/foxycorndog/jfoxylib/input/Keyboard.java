@@ -137,7 +137,9 @@ public class Keyboard
 	
 	private static final ArrayList<KeyListener>	listeners;
 	
-	private static int length;
+	private static boolean	capsLockOn;
+	
+	private static int		length;
 	
 	static
 	{
@@ -147,6 +149,32 @@ public class Keyboard
 		next = new boolean[length];
 		
 		listeners = new ArrayList<KeyListener>();
+		
+		Keyboard.addKeyListener(new KeyListener()
+		{
+			public void keyTyped(KeyEvent event)
+			{
+				
+			}
+			
+			public void keyReleased(KeyEvent event)
+			{
+				
+			}
+			
+			public void keyPressed(KeyEvent event)
+			{
+				if (event.getKeyCode() == Keyboard.KEY_CAPS_LOCK)
+				{
+					capsLockOn = !capsLockOn;
+				}
+			}
+			
+			public void keyDown(KeyEvent event)
+			{
+				
+			}
+		});
 	}
 	
 	/**
@@ -218,7 +246,7 @@ public class Keyboard
 				{
 					KeyListener listener = listeners.get(j);
 					
-					event = new KeyEvent(keyboard.getKeyName(i), i);
+					event = new KeyEvent(keyboard.getKeyName(i), i, getChar(i));
 					
 					listener.keyDown(event);
 				}
@@ -232,7 +260,7 @@ public class Keyboard
 				{
 					KeyListener listener = listeners.get(j);
 					
-					event = new KeyEvent(keyboard.getKeyName(i), i);
+					event = new KeyEvent(keyboard.getKeyName(i), i, getChar(i));
 					
 					listener.keyPressed(event);
 				}
@@ -245,7 +273,7 @@ public class Keyboard
 					{
 						KeyListener listener = listeners.get(j);
 						
-						event = new KeyEvent(keyboard.getKeyName(i), i);
+						event = new KeyEvent(keyboard.getKeyName(i), i, getChar(i));
 						
 						listener.keyReleased(event);
 						listener.keyTyped(event);
@@ -313,15 +341,172 @@ public class Keyboard
 		return listeners.remove(listener);
 	}
 	
-//	/**
-//	 * 
-//	 * 
-//	 * @return
-//	 */
-//	public static boolean isCapsLockOn()
-//	{
-//		return Toolkit.getDefaultToolkit().getLockingKeyState(KeyEvent.VK_CAPS_LOCK);
-//	}
+	/**
+	 * Get whether the caps lock is on or not.
+	 * 
+	 * @return Whether the caps lock is on or not.
+	 */
+	public static boolean isCapsLockOn()
+	{
+		return capsLockOn;
+	}
+	
+	/**
+	 * Get the char that represents the keyCode (if there is one).
+	 * 
+	 * (ONLY WORKS WITH SYMBOLS)
+	 * 
+	 * @param keyCode The keyCode of the key.
+	 * @return The char that represnets the keyCode.
+	 */
+	public static char getChar(int keyCode)
+	{
+		if (keyCode == KEY_SEMICOLON)
+		{
+			return ';';
+		}
+		else if (keyCode == KEY_MINUS)
+		{
+			return '-';
+		}
+		else if (keyCode == KEY_EQUALS)
+		{
+			return '=';
+		}
+		else if (keyCode == KEY_LEFT_BRACKET)
+		{
+			return '[';
+		}
+		else if (keyCode == KEY_RIGHT_BRACKET)
+		{
+			return ']';
+		}
+		else if (keyCode == KEY_BACKSLASH)
+		{
+			return '\\';
+		}
+		else if (keyCode == KEY_APOSTROPHE)
+		{
+			return '\'';
+		}
+		else if (keyCode == KEY_COMMA)
+		{
+			return ',';
+		}
+		else if (keyCode == KEY_PERIOD)
+		{
+			return '.';
+		}
+		else if (keyCode == KEY_SLASH)
+		{
+			return '/';
+		}
+		else if (keyCode == KEY_TICK)
+		{
+			return '`';
+		}
+		
+		return 0;
+	}
+	
+	/**
+	 * Return the character that would be equivalent to pressing shift
+	 * on the specified key.
+	 * 
+	 * (ONLY WORKS WITH NUMBERS AND SYMBOLS)
+	 * 
+	 * @param key The key that is being simulated with a shift press.
+	 * @return The output of the Shift+key combination.
+	 */
+	public static char shiftKey(char key)
+	{
+		if (key == '1')
+		{
+			return '!';
+		}
+		else if (key == '2')
+		{
+			return '@';
+		}
+		else if (key == '3')
+		{
+			return '#';
+		}
+		else if (key == '4')
+		{
+			return '$';
+		}
+		else if (key == '5')
+		{
+			return '%';
+		}
+		else if (key == '6')
+		{
+			return '^';
+		}
+		else if (key == '7')
+		{
+			return '&';
+		}
+		else if (key == '8')
+		{
+			return '*';
+		}
+		else if (key == '9')
+		{
+			return '(';
+		}
+		else if (key == '0')
+		{
+			return ')';
+		}
+		else if (key == '-')
+		{
+			return '_';
+		}
+		else if (key == '=')
+		{
+			return '+';
+		}
+		else if (key == '`')
+		{
+			return '~';
+		}
+		else if (key == '[')
+		{
+			return '{';
+		}
+		else if (key == ']')
+		{
+			return '}';
+		}
+		else if (key == '\\')
+		{
+			return '|';
+		}
+		else if (key == ';')
+		{
+			return ':';
+		}
+		else if (key == '\'')
+		{
+			return '"';
+		}
+		else if (key == ',')
+		{
+			return '<';
+		}
+		else if (key == '.')
+		{
+			return '>';
+		}
+		else if (key == '/')
+		{
+			return '?';
+		}
+		
+		return key;
+	}
 	
 	/**
 	 * 

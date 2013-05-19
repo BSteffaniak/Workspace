@@ -22,7 +22,6 @@ import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 public class Button extends Image
 {
 	private boolean						hovered;
-	private	boolean						enabled;
 	
 	private String						text;
 	
@@ -40,8 +39,6 @@ public class Button extends Image
 	public Button(Panel parent)
 	{
 		super(parent);
-		
-		enabled = true;
 		
 		buttonListeners = new ArrayList<ButtonListener>();
 		
@@ -249,26 +246,6 @@ public class Button extends Image
 //	{
 //		this.hovered = hovered;
 //	}
-	
-	/**
-	 * Get whether the Button is enabled or not.
-	 * 
-	 * @return Whether the Button is enabled or not.
-	 */
-	public boolean isEnabled()
-	{
-		return enabled;
-	}
-	
-	/**
-	 * Set whether to enable the Button or disable the Button.
-	 * 
-	 * @param enabled Whether to enable or disable the Button.
-	 */
-	public void setEnabled(boolean enabled)
-	{
-		this.enabled = enabled;
-	}
 	
 	/**
 	 * Dispose this Button from the Listeners.

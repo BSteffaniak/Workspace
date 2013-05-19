@@ -254,9 +254,13 @@ public class Frame
 			
 			public void mousePressed(MouseEvent event)
 			{
+				boolean focused = false;
+				
 				for (int i = 0; i < components.size(); i++)
 				{
 					Component comp = components.get(i);
+					
+					comp.setFocused(false);
 					
 					if (comp.isDisposed())
 					{
@@ -267,23 +271,30 @@ public class Frame
 					
 					boolean buttons[] = new boolean[] { Mouse.isButtonDown(0), Mouse.isButtonDown(1), Mouse.isButtonDown(2) };
 					
-					if (comp instanceof Button)
+					if (intersects && comp.isEnabled())
 					{
-						Button button = (Button)comp;
-						
-						if (intersects && button.isHovered() && button.isEnabled())
+						if (comp instanceof Button)
 						{
-							ArrayList<ButtonListener> buttonListeners = button.getButtonListeners();
+							Button button = (Button)comp;
 							
-							for (int n = buttonListeners.size() - 1; n >= 0; n--)
+							if (button.isHovered())
 							{
-								ButtonListener listener = buttonListeners.get(n);
+								ArrayList<ButtonListener> buttonListeners = button.getButtonListeners();
 								
-								ButtonEvent buttonEvent = new ButtonEvent(button, buttons);
-								
-								listener.buttonPressed(buttonEvent);
+								for (int n = buttonListeners.size() - 1; n >= 0; n--)
+								{
+									ButtonListener listener = buttonListeners.get(n);
+									
+									ButtonEvent buttonEvent = new ButtonEvent(button, buttons);
+									
+									listener.buttonPressed(buttonEvent);
+								}
 							}
 						}
+						
+						focused = true;
+						
+						comp.setFocused(true);
 					}
 				}
 			}

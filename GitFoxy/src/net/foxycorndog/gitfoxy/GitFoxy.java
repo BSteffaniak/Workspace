@@ -1,6 +1,5 @@
 package net.foxycorndog.gitfoxy;
 
-import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -31,6 +30,7 @@ import org.eclipse.egit.github.core.PullRequestMarker;
 import org.eclipse.egit.github.core.Repository;
 import org.eclipse.egit.github.core.RepositoryId;
 import org.eclipse.egit.github.core.User;
+import org.eclipse.egit.github.core.client.GitHubClient;
 import org.eclipse.egit.github.core.client.GitHubRequest;
 import org.eclipse.egit.github.core.client.GitHubResponse;
 import org.eclipse.egit.github.core.service.PullRequestService;
@@ -75,22 +75,22 @@ public class GitFoxy implements ActionListener, CommandListener
 	public GitFoxy()
 	{
 		//Basic authentication
-		GitHubClient client = new GitHubClient();
-		client.setCredentials("FoxyCorndog", "");
-		GitHubRequest request = new GitHubRequest();
-		request.setUri("/users/FoxyCorndog");
-		
-		try
-		{
-			GitHubResponse response = client.get(request);
-			System.out.println(client.getUser());
-			
-			System.out.println(response.getBody());
-		}
-		catch (IOException e1)
-		{
-			e1.printStackTrace();
-		}
+//		GitHubClient client = new GitHubClient();
+//		client.setCredentials("FoxyCorndog", "");
+//		GitHubRequest request = new GitHubRequest();
+//		request.setUri("/users/FoxyCorndog");
+//		
+//		try
+//		{
+//			GitHubResponse response = client.get(request);
+//			System.out.println(client.getUser());
+//			
+//			System.out.println(response.getBody());
+//		}
+//		catch (IOException e1)
+//		{
+//			e1.printStackTrace();
+//		}
 		
 		commands = new ArrayList<Command>();
 		

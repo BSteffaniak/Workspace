@@ -1,5 +1,7 @@
 package net.foxycorndog.jfoxylib.components;
 
+import java.util.ArrayList;
+
 import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.opengl.GL;
 
@@ -18,6 +20,8 @@ public abstract class Component
 {
 	private boolean	disposed;
 	private boolean	visible;
+	private	boolean	focused;
+	private	boolean	enabled;
 	
 	private int		x, y;
 	private int		alignX, alignY;
@@ -29,7 +33,25 @@ public abstract class Component
 	
 	private Panel	parent;
 	
-	public static final int	LEFT = 0, CENTER = 1, RIGHT = 2, BOTTOM = 0, TOP = 2;
+	private static boolean				initialized;
+	
+	private static ArrayList<Component>	components;
+	
+	public static final int				LEFT = 0, CENTER = 1, RIGHT = 2,
+										BOTTOM = 0, TOP = 2;
+	
+	/**
+	 * Initialize the Component class stuff.
+	 */
+	private static void init()
+	{
+		if (initialized)
+		{
+			return;
+		}
+		
+		components = new ArrayList<Component>();
+	}
 	
 	/**
 	 * Construct a Component with the specified parent Panel.
@@ -38,6 +60,12 @@ public abstract class Component
 	 */
 	public Component(Panel parent)
 	{
+		init();
+		
+		components.add(this);
+		
+		this.enabled  = true;
+		
 		this.parent   = parent;
 		
 		this.visible  = true;
@@ -48,6 +76,56 @@ public abstract class Component
 		{
 			parent.addChild(this);
 		}
+	}
+	
+	/**
+	 * Get whether the Component is enabled or not.
+	 * 
+	 * @return Whether the Component is enabled or not.
+	 */
+	public boolean isEnabled()
+	{
+		return enabled;
+	}
+	
+	/**
+	 * Set whether to enable the Component or disable the Component.
+	 * 
+	 * @param enabled Whether to enable or disable the Component.
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		this.enabled = enabled;
+	}
+	
+	/**
+	 * Get whether the Component is focused on or not.
+	 * 
+	 * @return Whether the Component is focused on or not.
+	 */
+	public boolean isFocused()
+	{
+		return focused;
+	}
+	
+	/**
+	 * Set whether to focus on the Component or not.
+	 * 
+	 * @param focused Whether to focus on the Component or not.
+	 */
+	public void setFocused(boolean focused)
+	{
+		if (focused)
+		{
+			for (int i = components.size() - 1; i >= 0; i--)
+			{
+				Component c = components.get(i);
+				
+				c.setFocused(false);
+			}
+		}
+		
+		this.focused = focused;
 	}
 	
 	/**
@@ -261,6 +339,8 @@ public abstract class Component
 	public boolean dispose()
 	{
 		boolean disposed = Frame.remove(this);
+		
+		components.remove(this);
 		
 		return disposed;
 	}

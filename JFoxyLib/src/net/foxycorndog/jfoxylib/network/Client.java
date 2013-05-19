@@ -24,12 +24,12 @@ public abstract class Client extends Network
 	private Socket	socket;
 	
 	/**
-	* The Constructor method that attempts to connect to the specified
-	* Server.
-	* 
-	* @param ip The ip to the Server.
-	* @param port The port to the Server.
-	*/
+	 * The Constructor method that attempts to connect to the specified
+	 * Server.
+	 * 
+	 * @param ip The ip to the Server.
+	 * @param port The port to the Server.
+	 */
 	public Client(String ip, int port)
 	{
 		this.ip   = ip;
