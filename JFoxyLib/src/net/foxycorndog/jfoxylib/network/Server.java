@@ -61,7 +61,7 @@ public abstract class Server extends Network
 			{
 				ip = InetAddress.getLocalHost().getHostAddress();
 				
-//				System.out.println("Server started on " + ip + ":" + port);
+				System.out.println("Server started on " + ip + ":" + port);
 			}
 			catch (UnknownHostException e)
 			{
