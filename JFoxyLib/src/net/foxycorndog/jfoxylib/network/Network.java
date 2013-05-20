@@ -69,7 +69,7 @@ public abstract class Network
 	{
 		if (!isConnected())
 		{
-			throw new NotConnectedException("The Network must be connected to another Network in order to send a Packet.");
+			throw new NetworkException("The Network must be connected to another Network in order to send a Packet.");
 		}
 		
 		try

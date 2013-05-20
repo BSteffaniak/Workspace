@@ -60,16 +60,16 @@ public abstract class Client extends Network
 			}
 			
 			setConnection(socket);
+		
+			startInputLoop();
 		}
 		catch (ConnectException ex)
 		{
-			System.err.println("Connection Refused!");
+			throw new NetworkException("Connection on " + ip + ":" + port + " was refused.");
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
-		
-		startInputLoop();
 	}
 }
