@@ -4,11 +4,16 @@ import java.awt.Point;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Enumeration;
 
 /**
  * Class used to create a Server instance that can be used
@@ -57,16 +62,60 @@ public abstract class Server extends Network
 		
 		try
 		{
-			try
+			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
+			
+			String fallback = null;
+			
+			while (interfaces.hasMoreElements())
 			{
-				ip = InetAddress.getLocalHost().getHostAddress();
+				NetworkInterface current = interfaces.nextElement();
 				
-				System.out.println("Server started on " + ip + ":" + port);
+				if (current.getDisplayName().toLowerCase().contains("virtual")) continue;
+
+				if (!current.isUp() || current.isLoopback() || current.isVirtual()) continue;
+
+				Enumeration<InetAddress> addresses = current.getInetAddresses();
+
+				while (addresses.hasMoreElements())
+				{
+					InetAddress current_addr = addresses.nextElement();
+					
+					if (current_addr.isLoopbackAddress()) continue;
+
+					if (current_addr instanceof Inet4Address)
+					{
+						fallback = current_addr.getHostAddress();
+						
+						if (current_addr.isSiteLocalAddress())
+						{
+							ip = current_addr.getHostAddress();
+							
+							break;
+						}
+					}
+				}
+				
+				if (ip != null)
+				{
+					break;
+				}
 			}
-			catch (UnknownHostException e)
+			
+			if (ip == null)
 			{
-				e.printStackTrace();
+				ip = fallback;
 			}
+			
+//			try
+//			{
+//				ip = InetAddress.getByName("FoxyCorndog").getHostAddress();
+//			}
+//			catch (UnknownHostException e)
+//			{
+//				e.printStackTrace();
+//			}
+			
+//			System.out.println("Server started on " + ip + ":" + port + ", " + server.getLocalPort());
 			
 			try
 			{

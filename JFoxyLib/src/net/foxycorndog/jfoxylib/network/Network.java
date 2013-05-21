@@ -78,6 +78,10 @@ public abstract class Network
 			
 			out.writeObject(new Ping());
 		}
+		catch (SocketException e)
+		{
+			throw new NetworkException("The Network connection had a io error.");
+		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
