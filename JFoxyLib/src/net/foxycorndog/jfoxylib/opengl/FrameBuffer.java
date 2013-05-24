@@ -1,7 +1,8 @@
 package net.foxycorndog.jfoxylib.opengl;
 
 /**
- * 
+ * Class used to create an instance of a frame buffer that is used in
+ * OpenGL versions >= 3.0.
  * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 10:50:04 PM
@@ -12,7 +13,7 @@ package net.foxycorndog.jfoxylib.opengl;
 public class FrameBuffer
 {
 	/**
-	 * 
+	 * Create a default FrameBuffer instance.
 	 */
 	public FrameBuffer()
 	{
@@ -23,11 +24,13 @@ public class FrameBuffer
 	}
 	
 	/**
+	 * Get whether FrameBuffer objects are supported with the current
+	 * OpenGL version.
 	 * 
-	 * 
-	 * @return
+	 * @return Whether FrameBuffer objects are supported with the current
+	 * 		OpenGL version.
 	 */
-	public boolean isSupported()
+	private static boolean isSupported()
 	{
 		return GL.getVersion().compareTo("3.0") >= 0;
 	}

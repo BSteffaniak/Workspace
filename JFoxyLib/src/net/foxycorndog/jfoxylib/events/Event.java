@@ -19,7 +19,7 @@ public class Event
 	 */
 	public Event()
 	{
-		when         = System.currentTimeMillis();
+		when = System.currentTimeMillis();
 	}
 	
 	/**

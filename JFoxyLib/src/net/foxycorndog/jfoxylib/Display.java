@@ -18,6 +18,9 @@ public class Display
 {
 	private static int	width, height;
 	
+	/**
+	 * Acquire the screen size of the Desktop.
+	 */
 	static
 	{
 		Dimension size = Toolkit.getDefaultToolkit().getScreenSize();

@@ -35,7 +35,7 @@ import org.lwjgl.opengl.DisplayMode;
  * @since	Mar 9, 2013 at 3:18:44 AM
  * @since	v0.1
  * @version Mar 9, 2013 at 3:18:44 AM
- * @version	v0.1
+ * @version	v0.2
  */
 public class Frame
 {
@@ -652,30 +652,30 @@ public class Frame
 //	 */
 //	public static void setIcon(String image16Location, String image32Location) throws IOException
 //	{
-////		InputStream in;
-////		
-////		in = new FileInputStream(image16Location);
-////	
-////		PNGDecoder decoder = new PNGDecoder(in);
-////		
-////		ByteBuffer buf16 = BufferUtils.createByteBuffer(4 * decoder.getWidth() * decoder.getHeight());
-////		decoder.decode(buf16, decoder.getWidth() * 4, Format.RGBA);
-////		buf16.flip();
-////		
-////		in.close();
-////		
-////		
-////		in = new FileInputStream(image32Location);
-////		
-////		decoder = new PNGDecoder(in);
-////		
-////		ByteBuffer buf32 = BufferUtils.createByteBuffer(4 * decoder.getWidth() * decoder.getHeight());
-////		decoder.decode(buf32, decoder.getWidth() * 4, Format.RGBA);
-////		buf32.flip();
-////		
-////		in.close();
-////		
-////		
-////		Display.setIcon(new ByteBuffer[] { buf16, buf32 });
+//		InputStream in;
+//		
+//		in = new FileInputStream(image16Location);
+//	
+//		PNGDecoder decoder = new PNGDecoder(in);
+//		
+//		ByteBuffer buf16 = BufferUtils.createByteBuffer(4 * decoder.getWidth() * decoder.getHeight());
+//		decoder.decode(buf16, decoder.getWidth() * 4, Format.RGBA);
+//		buf16.flip();
+//		
+//		in.close();
+//		
+//		
+//		in = new FileInputStream(image32Location);
+//		
+//		decoder = new PNGDecoder(in);
+//		
+//		ByteBuffer buf32 = BufferUtils.createByteBuffer(4 * decoder.getWidth() * decoder.getHeight());
+//		decoder.decode(buf32, decoder.getWidth() * 4, Format.RGBA);
+//		buf32.flip();
+//		
+//		in.close();
+//		
+//		
+//		Display.setIcon(new ByteBuffer[] { buf16, buf32 });
 //	}
 }

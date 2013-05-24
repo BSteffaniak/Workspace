@@ -1,7 +1,9 @@
 package net.foxycorndog.jfoxylib.events;
 
 /**
- * 
+ * Class used when a KeyListener instance has an been notified
+ * of an event. Keeps track of the key code, character, and a
+ * description of the key that caused the event.
  * 
  * @author	bmsteffaniak
  * @since	May 10, 2013 at 7:07:55 AM
@@ -21,6 +23,7 @@ public class KeyEvent extends Event
 	 * 
 	 * @param description The description of the KeyEvent.
 	 * @param code The key code of the KeyEvent
+	 * @param character The Character that caused the Event.
 	 */
 	public KeyEvent(String description, int code, char character)
 	{
@@ -32,9 +35,9 @@ public class KeyEvent extends Event
 	}
 	
 	/**
+	 * Get the String representation of the key that caused the Event.
 	 * 
-	 * 
-	 * @return
+	 * @return A String representation of the key that caused the Event.
 	 */
 	public String getDescription()
 	{
@@ -42,9 +45,10 @@ public class KeyEvent extends Event
 	}
 	
 	/**
+	 * Get the code that refers to the specific key that caused the Event.
 	 * 
-	 * 
-	 * @return
+	 * @return The code that refers to the specific key that caused the
+	 * 		Event.
 	 */
 	public int getKeyCode()
 	{

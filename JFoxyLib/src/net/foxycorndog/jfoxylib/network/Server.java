@@ -17,7 +17,7 @@ import java.util.Enumeration;
 
 /**
  * Class used to create a Server instance that can be used
- * to recieve and transfer data along a Network.
+ * to receive and transfer data along a Network.
  * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 11:11:21 PM
@@ -66,6 +66,9 @@ public abstract class Server extends Network
 			
 			String fallback = null;
 			
+			/* Loop through all of the available network ips and check
+			 * them to see if they fit the criteria
+			 */
 			while (interfaces.hasMoreElements())
 			{
 				NetworkInterface current = interfaces.nextElement();

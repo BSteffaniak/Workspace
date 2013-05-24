@@ -138,12 +138,15 @@ public class Bundle
 	}
 	
 	/**
+	 * Create a Bundle from the specified Vertices Buffer with the
+	 * specified vertex size, Textures Buffer, and Colors Buffer.
 	 * 
-	 * 
-	 * @param verticesBuffer
-	 * @param texturesBuffer
-	 * @param colorsBuffer
-	 * @param vertexSize
+	 * @param verticesBuffer The Vertices Buffer to create the Bundle
+	 * 		with.
+	 * @param texturesBuffer The Textures Buffer to create the Bundle
+	 * 		with.
+	 * @param colorsBuffer The Colors Buffer to create the Bundle with.
+	 * @param vertexSize The size of the vertices in the Vertex Buffer.
 	 */
 	public Bundle(Buffer verticesBuffer, Buffer texturesBuffer, Buffer colorsBuffer, int vertexSize)
 	{
@@ -167,13 +170,18 @@ public class Bundle
 	}
 	
 	/**
+	 * Create a Bundle from the specified vertices buffer id, textures
+	 * buffer id, and colors buffer id. You also need to specify the
+	 * amount of vertices are in the vertices buffer as well as the size
+	 * of the vertices in the vertices buffer.
 	 * 
-	 * 
-	 * @param verticesId
-	 * @param texturesId
-	 * @param colorsId
-	 * @param vertexAmount
-	 * @param vertexSize
+	 * @param verticesId The OpenGL Buffer id for the vertices buffer.
+	 * @param texturesId The OpenGL Buffer id for the textures buffer.
+	 * @param colorsId The OpenGL Buffer id for the colors buffer.
+	 * @param vertexAmount The amount of vertices that are in the
+	 * 		vertices buffer.
+	 * @param vertexSize The size of the vertices in the vertices
+	 * 		buffer.
 	 */
 	public Bundle(int verticesId, int texturesId, int colorsId, int vertexAmount, int vertexSize)
 	{
@@ -185,38 +193,38 @@ public class Bundle
 		this.vertexAmount = vertexAmount;
 	}
 	
-	/**
-	 * 
-	 * 
-	 * @param amount
-	 */
-	private void createColorShader(int amount)
-	{
-//		String vertexShader =
-//				"\nvoid main()" +
-//				"\n{" +
-//				"\n	gl_TexCoord[0] = gl_MultiTexCoord0;" +
-//				"\n	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;" +
-//				"\n}";
-//		
-//		String fragmentShader =
-//				"\nuniform sampler2D	texture;" +
-//				"\nuniform vec4			colors[" + amount / 10 + "];" +
-//				"\n" +
-//				"\nvoid main()" +
-//				"\n{" +
-//				"\n	gl_FragColor = texture2D(texture, gl_TexCoord[0].st);" +
-//				"\n	gl_FragColor = gl_FragColor * colors[0];" +
-//				"\n}";
-//		
-//		colorShader = new Shader();
-//		colorShader.loadString(new String[] { vertexShader }, new String[] { fragmentShader });
-	}
+//	/**
+//	 * 
+//	 * 
+//	 * @param amount
+//	 */
+//	private void createColorShader(int amount)
+//	{
+////		String vertexShader =
+////				"\nvoid main()" +
+////				"\n{" +
+////				"\n	gl_TexCoord[0] = gl_MultiTexCoord0;" +
+////				"\n	gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;" +
+////				"\n}";
+////		
+////		String fragmentShader =
+////				"\nuniform sampler2D	texture;" +
+////				"\nuniform vec4			colors[" + amount / 10 + "];" +
+////				"\n" +
+////				"\nvoid main()" +
+////				"\n{" +
+////				"\n	gl_FragColor = texture2D(texture, gl_TexCoord[0].st);" +
+////				"\n	gl_FragColor = gl_FragColor * colors[0];" +
+////				"\n}";
+////		
+////		colorShader = new Shader();
+////		colorShader.loadString(new String[] { vertexShader }, new String[] { fragmentShader });
+//	}
 	
 	/**
+	 * Get the position that the Vertices Buffer is set at currently.
 	 * 
-	 * 
-	 * @return
+	 * @return The position that the Vertices Buffer is set at currently.
 	 */
 	public int getVerticesPosition()
 	{
@@ -224,9 +232,9 @@ public class Bundle
 	}
 	
 	/**
+	 * Get the position that the Textures Buffer is set at currently.
 	 * 
-	 * 
-	 * @return
+	 * @return The position that the Textures Buffer is set at currently.
 	 */
 	public int getTexturesPosition()
 	{
@@ -234,9 +242,9 @@ public class Bundle
 	}
 	
 	/**
+	 * Get the Vertices Buffer instance that this Bundle is using.
 	 * 
-	 * 
-	 * @return
+	 * @return The Vertices Buffer instance that this Bundle is using.
 	 */
 	public Buffer getVerticesBuffer()
 	{
@@ -244,9 +252,10 @@ public class Bundle
 	}
 	
 	/**
+	 * Set the Vertices Buffer instance that this Bundle will use.
 	 * 
-	 * 
-	 * @param buffer
+	 * @param buffer The Vertices Buffer instance that this Bundle will
+	 * 		use.
 	 */
 	public void setVerticesBuffer(Buffer buffer)
 	{
@@ -254,36 +263,37 @@ public class Bundle
 	}
 	
 	/**
+	 * Set the vertices at the specified offset in the Vertices Buffer.
 	 * 
-	 * 
-	 * @param offset
-	 * @param verts
-	 * @return
+	 * @param offset The offset in the Vertices Buffer. (This offset is
+	 * 		per vertex, not per vertex * vertexSize, so use smaller
+	 * 		numbers)
+	 * @param verts The new float array to set the data at the offset to.
 	 */
-	public int setVertices(int offset, float verts[])
+	public void setVertices(int offset, float verts[])
 	{
 		verticesBuffer.setData(offset * vertexSize, verts);
 		
-		int id = ++this.id;
+//		int id = ++this.id;
 		
 //		vertexOffsets.put(id, new VertexOffset(shape, offset, vertexSize, verts.length));
 		
-		return id;
+//		return id;
 	}
 	
 	/**
+	 * Add the specified float array to the end of the Vertices Buffer's
+	 * current position.
 	 * 
-	 * 
-	 * @param verts
-	 * @return
+	 * @param verts The float array to append.
 	 */
-	public int addVertices(float verts[])
+	public void addVertices(float verts[])
 	{
-		int id = setVertices(vertsPosition, verts);
+		setVertices(vertsPosition, verts);
 		
 		vertsPosition += verts.length / vertexSize;
 		
-		return id;
+//		return id;
 	}
 	
 //	public void translate(int offset, int numVertices, float dx, float dy, float dz)
@@ -292,9 +302,9 @@ public class Bundle
 //	}
 	
 	/**
+	 * Get the Textures Buffer instance that this Bundle is using.
 	 * 
-	 * 
-	 * @return
+	 * @return The Textures Buffer instance that this Bundle is using.
 	 */
 	public Buffer getTexturesBuffer()
 	{
@@ -302,9 +312,10 @@ public class Bundle
 	}
 	
 	/**
+	 * Set the Textures Buffer instance that this Bundle will use.
 	 * 
-	 * 
-	 * @param buffer
+	 * @param buffer The Textures Buffer instance that this Bundle will
+	 * 		use.
 	 */
 	public void setTexturesBuffer(Buffer buffer)
 	{
@@ -312,42 +323,44 @@ public class Bundle
 	}
 	
 	/**
+	 * Set the textures at the specified offset in the Textures Buffer.
 	 * 
-	 * 
-	 * @param offset
-	 * @param textures
-	 * @return
+	 * @param offset The offset in the Textures Buffer. (This offset is
+	 * 		per texture, not per texture * textureSize, so use smaller
+	 * 		numbers)
+	 * @param textures The new float array to set the data at the offset
+	 * 		to.
 	 */
-	public int setTextures(int offset, float textures[])
+	public void setTextures(int offset, float textures[])
 	{
 		texturesBuffer.setData(offset * 2, textures);
 		
-		int id = ++this.id;
+//		int id = ++this.id;
 
 //		textureOffsets.put(id, new TextureOffset(offset, textures.length));
 		
-		return id;
+//		return id;
 	}
 	
 	/**
+	 * Add the specified float array to the end of the Textures Buffer's
+	 * current position.
 	 * 
-	 * 
-	 * @param textures
-	 * @return
+	 * @param verts The float array to append.
 	 */
-	public int addTextures(float textures[])
+	public void addTextures(float textures[])
 	{
-		int id = setTextures(texturesPosition, textures);
+		setTextures(texturesPosition, textures);
 		
 		texturesPosition += textures.length / 2;
 		
-		return id;
+//		return id;
 	}
 	
 	/**
+	 * Get the Colors Buffer instance that this Bundle is using.
 	 * 
-	 * 
-	 * @return
+	 * @return The Colors Buffer instance that this Bundle is using.
 	 */
 	public Buffer getColorsBuffer()
 	{
@@ -355,9 +368,10 @@ public class Bundle
 	}
 	
 	/**
+	 * Set the Colors Buffer instance that this Bundle will use.
 	 * 
-	 * 
-	 * @param buffer
+	 * @param buffer The Colors Buffer instance that this Bundle will
+	 * 		use.
 	 */
 	public void setColorsBuffer(Buffer buffer)
 	{
@@ -365,36 +379,38 @@ public class Bundle
 	}
 	
 	/**
+	 * Set the colors at the specified offset in the Colors Buffer.
 	 * 
-	 * 
-	 * @param offset
-	 * @param colors
-	 * @return
+	 * @param offset The offset in the Colors Buffer. (This offset is
+	 * 		per color, not per color * colorSize, so use smaller
+	 * 		numbers)
+	 * @param colors The new float array to set the data at the offset
+	 * 		to.
 	 */
-	public int setColors(int offset, float colors[])
+	public void setColors(int offset, float colors[])
 	{
 		colorsBuffer.setData(offset * 4, colors);
 		
-		int id = ++this.id;
+//		int id = ++this.id;
 
 //		textureOffsets.put(id, new TextureOffset(offset, textures.length));
 		
-		return id;
+//		return id;
 	}
 	
 	/**
+	 * Add the specified float array to the end of the Colors Buffer's
+	 * current position.
 	 * 
-	 * 
-	 * @param colors
-	 * @return
+	 * @param verts The float array to append.
 	 */
-	public int addColors(float colors[])
+	public void addColors(float colors[])
 	{
-		int id = setColors(colorsPosition, colors);
+		setColors(colorsPosition, colors);
 		
 		colorsPosition += colors.length / 4;
 		
-		return id;
+//		return id;
 	}
 	
 	/**

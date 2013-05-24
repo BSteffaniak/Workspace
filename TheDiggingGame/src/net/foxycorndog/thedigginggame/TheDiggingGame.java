@@ -19,6 +19,8 @@ import net.foxycorndog.jfoxylib.components.Component;
 import net.foxycorndog.jfoxylib.components.Image;
 import net.foxycorndog.jfoxylib.events.ButtonEvent;
 import net.foxycorndog.jfoxylib.events.ButtonListener;
+import net.foxycorndog.jfoxylib.events.KeyEvent;
+import net.foxycorndog.jfoxylib.events.KeyListener;
 import net.foxycorndog.jfoxylib.events.MouseEvent;
 import net.foxycorndog.jfoxylib.events.MouseListener;
 import net.foxycorndog.jfoxylib.font.Font;
@@ -169,14 +171,21 @@ public class TheDiggingGame
 //		
 //		map.addActor(player);
 		
-		font = new Font("res/images/fonts/font.png", 26, 4,
-				new char[]
-				{
-					'A', 'B', 'C', 'D', 'E', 'F',  'G', 'H', 'I', 'J', 'K', 'L',  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-					'a', 'b', 'c', 'd', 'e', 'f',  'g', 'h', 'i', 'j', 'k', 'l',  'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-					'0', '1', '2', '3', '4', '5',  '6', '7', '8', '9', '_', '-',  '+', '=', '~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
-					'?', '>', '<', ';', ':', '\'', '"', '{', '}', '[', ']', '\\', '|', ',', '.', '/', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
-				});
+		try
+		{
+			font = new Font("res/images/fonts/font.png", 26, 4,
+					new char[]
+					{
+						'A', 'B', 'C', 'D', 'E', 'F',  'G', 'H', 'I', 'J', 'K', 'L',  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+						'a', 'b', 'c', 'd', 'e', 'f',  'g', 'h', 'i', 'j', 'k', 'l',  'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+						'0', '1', '2', '3', '4', '5',  '6', '7', '8', '9', '_', '-',  '+', '=', '~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
+						'?', '>', '<', ';', ':', '\'', '"', '{', '}', '[', ']', '\\', '|', ',', '.', '/', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
+					});
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
 		
 //		cursor = new Cursor(Tile.getTileSize());
 //		
@@ -185,6 +194,48 @@ public class TheDiggingGame
 //		editing = Chunk.MIDDLEGROUND;
 //		
 //		GL.setClearColor(0.2f, 0.5f, 0.8f, 1);
+		
+		Keyboard.addKeyListener(new KeyListener()
+		{
+			public void keyTyped(KeyEvent event)
+			{
+			}
+			
+			public void keyReleased(KeyEvent event)
+			{
+			}
+			
+			public void keyPressed(KeyEvent event)
+			{
+				int code = event.getKeyCode();
+				
+				if (map != null)
+				{
+					if (code == Keyboard.KEY_L)
+					{
+						map.save("world");
+					}
+					if (code == Keyboard.KEY_Q)
+					{
+						editing--;
+						
+						if (editing < 0)
+						{
+							editing = Chunk.FOREGROUND;
+						}
+					}
+					else if (code == Keyboard.KEY_E)
+					{
+						editing = (editing + 1) % 3;
+					}
+				}
+			}
+			
+			public void keyDown(KeyEvent event)
+			{
+				
+			}
+		});
 		
 		startGame();
 	}
@@ -306,11 +357,6 @@ public class TheDiggingGame
 			}
 		}
 		
-		if (Keyboard.next(Keyboard.KEY_L))
-		{
-			map.save("world");
-		}
-		
 		if (Keyboard.isKeyDown(Keyboard.KEY_A))
 		{
 			player.moveLeft(delta);
@@ -334,19 +380,7 @@ public class TheDiggingGame
 			player.setSprinting(false);
 		}
 		
-		if (Keyboard.next(Keyboard.KEY_Q))
-		{
-			editing--;
-			
-			if (editing < 0)
-			{
-				editing = Chunk.FOREGROUND;
-			}
-		}
-		else if (Keyboard.next(Keyboard.KEY_E))
-		{
-			editing = (editing + 1) % 3;
-		}
+		
 		
 		if (Mouse.getDWheel() != 0)
 		{

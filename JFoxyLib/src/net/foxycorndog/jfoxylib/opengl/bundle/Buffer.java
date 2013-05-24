@@ -29,7 +29,7 @@ import org.lwjgl.opengl.GL15;
  * @since	Feb 16, 2013 at 3:23:16 AM
  * @since	v0.1
  * @version	Feb 26, 2013 at 6:39:16 AM
- * @version	v0.1
+ * @version	v0.2
  */
 public class Buffer
 {

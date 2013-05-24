@@ -8,6 +8,7 @@ import net.foxycorndog.jfoxylib.events.ButtonListener;
 import net.foxycorndog.jfoxylib.events.KeyEvent;
 import net.foxycorndog.jfoxylib.events.KeyListener;
 import net.foxycorndog.jfoxylib.font.Font;
+import net.foxycorndog.jfoxylib.font.MissingCharacterException;
 import net.foxycorndog.jfoxylib.input.Keyboard;
 import net.foxycorndog.jfoxylib.opengl.GL;
 
@@ -57,6 +58,8 @@ public class TextField extends Component
 			
 			public void keyPressed(KeyEvent event)
 			{
+				char c = 0;
+				
 				if (isFocused())
 				{
 					boolean shift = Keyboard.isKeyDown(Keyboard.KEY_LEFT_SHIFT) || Keyboard.isKeyDown(Keyboard.KEY_RIGHT_SHIFT);
@@ -70,14 +73,12 @@ public class TextField extends Component
 							desc = desc.toLowerCase();
 						}
 						
-						char c = desc.charAt(0);
+						c = desc.charAt(0);
 						
 						if (shift && !Keyboard.isCapsLockOn())
 						{
 							c = Keyboard.shiftKey(c);
 						}
-						
-						builder.append(c);
 					}
 					else
 					{
@@ -94,7 +95,7 @@ public class TextField extends Component
 						}
 						else
 						{
-							char c = Keyboard.getChar(event.getKeyCode());
+							c = Keyboard.getChar(event.getKeyCode());
 							
 							if (c != 0)
 							{
@@ -102,16 +103,26 @@ public class TextField extends Component
 								{
 									c = Keyboard.shiftKey(c);
 								}
-								
-								builder.append(c);
 							}
 						}
 					}
+				}
+				
+				if (c != 0)
+				{
+//					if (!font.containsChar(c))
+//					{
+//						throw new MissingCharacterException("The Character '" + c + "' does "
+//								+ "not exist in the specified charSequence given to the Font.");
+//					}
+					
+					builder.append(c);
 				}
 			}
 			
 			public void keyDown(KeyEvent event)
 			{
+				
 			}
 		});
 	}

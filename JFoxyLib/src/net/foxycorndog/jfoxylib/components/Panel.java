@@ -3,6 +3,7 @@ package net.foxycorndog.jfoxylib.components;
 import java.util.ArrayList;
 
 import net.foxycorndog.jfoxylib.Frame;
+import net.foxycorndog.jfoxylib.opengl.GL;
 
 /**
  * Class that is used to contain other Components.
@@ -72,15 +73,25 @@ public class Panel extends Component
 	{
 		if (isVisible())
 		{
-			for (int i = children.size() - 1; i >= 0; i--)
+			GL.pushMatrix();
 			{
-				Component child = children.get(i);
+				GL.translate(getX(), getY(), 0);
 				
-				if (child.isVisible())
+				GL.beginClipping(0, 0, getWidth(), getHeight());
 				{
-					child.render();
+					for (int i = children.size() - 1; i >= 0; i--)
+					{
+						Component child = children.get(i);
+						
+						if (child.isVisible())
+						{
+							child.render();
+						}
+					}
 				}
+				GL.endClipping();
 			}
+			GL.popMatrix();
 		}
 	}
 }

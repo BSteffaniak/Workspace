@@ -16,7 +16,9 @@ import net.foxycorndog.jfoxylib.util.Bounds2f;
 import org.lwjgl.opengl.GL11;
 
 /**
- * 
+ * Class used to load an image full of glyphs and bring them to
+ * function as a Font that can render Strings according to the
+ * given character set of the Font image.
  * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 10:46:35 PM
@@ -26,43 +28,41 @@ import org.lwjgl.opengl.GL11;
  */
 public class Font
 {
-	private int cols, rows;
-	private int yOff, xOff;
-	private int width, height;
-	private int glyphWidth, glyphHeight;
-	private int ids;
-	private int letterMargin;
+	private int							cols, rows;
+	private int							yOff, xOff;
+	private int							width, height;
+	private int							glyphWidth, glyphHeight;
+	private int							ids;
+	private int							letterMargin, lineOffset;
 	
-	private SpriteSheet characters;
+	private SpriteSheet					characters;
 	
-	private int idArray[][];
+	private int							idArray[][];
 	
-	private HashMap<Character, int[]> charSequence;
-	private HashMap<String, int[]>  history;
+	private HashMap<Character, int[]>	charSequence;
+	private HashMap<String, int[]>		history;
 	
-	public static final int	LEFT = 0, CENTER = 1, RIGHT = 2, BOTTOM = 0, TOP = 2;
+	public static final int				LEFT = 0, CENTER = 1, RIGHT = 2, BOTTOM = 0, TOP = 2;
 	
 	/**
+	 * Create a Font from the image at the specified location. The Font
+	 * image will be split up into the specified amount of columns and
+	 * rows. Each of the characters will correspond with the given
+	 * charSequence char array.
 	 * 
-	 * 
-	 * @param location
-	 * @param cols
-	 * @param rows
-	 * @param charSequence
+	 * @param location The location of the Font image.
+	 * @param cols The number of columns in the Font image.
+	 * @param rows The number of rows in the Font image.
+	 * @param charSequence The character array that corresponds with each
+	 * 		Character in the Font image.
+	 * @throws IOException Thrown if the Font image file was not found.
 	 */
-	public Font(String location, int cols, int rows, char charSequence[])
+	public Font(String location, int cols, int rows, char charSequence[]) throws IOException
 	{
 		this.cols         = cols;
 		this.rows         = rows;
 		
-		try
-		{
-			characters        = new SpriteSheet(location, cols, rows);
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		characters        = new SpriteSheet(location, cols, rows);
 		
 		this.width        = characters.getWidth();
 		this.height       = characters.getHeight();
@@ -92,19 +92,28 @@ public class Font
 				}
 			}
 		}
+		
+		lineOffset = 1;
 	}
 	
 	/**
+	 * Get the Bounds that the Font render will take up with the specified
+	 * text, location, scale, alignment, and panel given to it.
 	 * 
-	 * 
-	 * @param text
-	 * @param x
-	 * @param y
-	 * @param scale
-	 * @param horizontalAlignment
-	 * @param verticalAlignment
-	 * @param panel
-	 * @return
+	 * @param text The text to get the Bounds with.
+	 * @param x The horizontal location that the text would be rendered
+	 * 		to.
+	 * @param y The vertical location that the text would be rendered
+	 * 		to.
+	 * @param scale The scale that the Font would be rendered by.
+	 * @param horizontalAlignment The horizontal alignment that the text
+	 * 		will be aligned by.
+	 * @param verticalAlignment The vertical alignment that the text will
+	 * 		be aligned by.
+	 * @param panel The Panel that the Font will be rendered inside of.
+	 * 		Passing a null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @return The Bounds that the text will take up after rendered.
 	 */
 	public Bounds2f getRenderBounds(String text, float x, float y, float scale, int horizontalAlignment, int verticalAlignment, Panel panel)
 	{
@@ -210,14 +219,16 @@ public class Font
 	}
 	
 	/**
+	 * Render the text at the specified location to the specified Panel.
 	 * 
-	 * 
-	 * @param text
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param panel
-	 * @return
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @return The Bounds that the text was rendered inside of.
 	 */
 	public Bounds2f render(String text, float x, float y, float z, Panel panel)
 	{
@@ -225,15 +236,17 @@ public class Font
 	}
 	
 	/**
+	 * Render the text at the specified location to the specified Panel.
 	 * 
-	 * 
-	 * @param text
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param scale
-	 * @param panel
-	 * @return
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param scale The scale to render the text by.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @return The Bounds that the text was rendered inside of.
 	 */
 	public Bounds2f render(String text, float x, float y, float z, float scale, Panel panel)
 	{
@@ -241,16 +254,20 @@ public class Font
 	}
 	
 	/**
+	 * Render the text at the specified location to the specified Panel.
 	 * 
-	 * 
-	 * @param text
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param horizontalAlignment
-	 * @param verticalAlignment
-	 * @param panel
-	 * @return
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param horizontalAlignment The horizontal alignment that the text
+	 * 		will be aligned by.
+	 * @param verticalAlignment The vertical alignment that the text will
+	 * 		be aligned by.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @return The Bounds that the text was rendered inside of.
 	 */
 	public Bounds2f render(String text, float x, float y, float z, int horizontalAlignment, int verticalAlignment, Panel panel)
 	{
@@ -258,17 +275,21 @@ public class Font
 	}
 	
 	/**
+	 * Render the text at the specified location to the specified Panel.
 	 * 
-	 * 
-	 * @param text
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param scale
-	 * @param horizontalAlignment
-	 * @param verticalAlignment
-	 * @param panel
-	 * @return
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param scale The scale to render the text by.
+	 * @param horizontalAlignment The horizontal alignment that the text
+	 * 		will be aligned by.
+	 * @param verticalAlignment The vertical alignment that the text will
+	 * 		be aligned by.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @return The Bounds that the text was rendered inside of.
 	 */
 	public Bounds2f render(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Panel panel)
 	{
@@ -276,37 +297,48 @@ public class Font
 	}
 	
 	/**
+	 * Render the text at the specified location to the specified Panel.
 	 * 
-	 * 
-	 * @param text
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param scale
-	 * @param horizontalAlignment
-	 * @param verticalAlignment
-	 * @param panel
-	 * @return
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param scale The scale to render the text by.
+	 * @param horizontalAlignment The horizontal alignment that the text
+	 * 		will be aligned by.
+	 * @param verticalAlignment The vertical alignment that the text will
+	 * 		be aligned by.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @return The Bounds that the text was rendered inside of.
 	 */
-	public Bounds2f renderVertexBuffer(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Panel panel)
+	private Bounds2f renderVertexBuffer(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Panel panel)
 	{
 		return renderVertexBuffer(text, x, y, z, scale, horizontalAlignment, verticalAlignment, null, null, panel);
 	}
 	
 	/**
+	 * Render the text at the specified location to the specified Panel
+	 * using vertex buffers.
 	 * 
-	 * 
-	 * @param text
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param scale
-	 * @param horizontalAlignment
-	 * @param verticalAlignment
-	 * @param vertices
-	 * @param textures
-	 * @param panel
-	 * @return
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param scale The scale to render the text by.
+	 * @param horizontalAlignment The horizontal alignment that the text
+	 * 		will be aligned by.
+	 * @param verticalAlignment The vertical alignment that the text will
+	 * 		be aligned by.
+	 * @param vertices The Buffer that holds the vertices used for
+	 * 		rendering the Font.
+	 * @param textures The Buffer that holds the Textures used for
+	 * 		each of the letters in the text.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @return The Bounds that the text was rendered inside of.
 	 */
 	private Bounds2f renderVertexBuffer(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Buffer vertices, Buffer textures, Panel panel)
 	{
@@ -407,7 +439,7 @@ public class Font
 						}
 						else
 						{
-							addToHistory(text, vId, tId, viId, size, vertices, textures, null);
+							addToHistory(text, vId, tId, viId, size);
 							
 							return null;
 						}
@@ -415,7 +447,7 @@ public class Font
 				}
 				else
 				{
-					yOffset -= glyphHeight + 1;
+					yOffset -= glyphHeight + lineOffset;
 					xOffset  = 0;
 				}
 			}
@@ -426,7 +458,7 @@ public class Font
 			tId  = textures.getId();
 //			viId = vertices.getIndicesId(0);
 			
-			addToHistory(text, vId, tId, viId, size, vertices, textures, null);
+			addToHistory(text, vId, tId, viId, size);
 		}
 		
 		bundle = new Bundle(vId, tId, 0, size / 2, 2);
@@ -444,236 +476,273 @@ public class Font
 	}
 	
 	/**
+	 * Get whether the specified char is a valid character contained in
+	 * the character set given to the Font during construction.
 	 * 
-	 * 
-	 * @param text
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param scale
-	 * @param horizontalAlignment
-	 * @param verticalAlignment
-	 * @param panel
+	 * @param c The character to check if it is a valid character or not.
+	 * @return Whether the character is valid or not.
 	 */
-	public void renderDisplayList(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Panel panel)
+	public boolean containsChar(char c)
 	{
-		characters.bind();
-		
-		int id = 0;
-		
-		if (history.containsKey(text) && history.get(text)[1] == 0)
-		{
-			if (horizontalAlignment == CENTER)
-			{
-				if (panel != null)
-				{
-					x += panel.getWidth() / 2;
-				}
-				else
-				{
-					x += Frame.getWidth() / 2;
-				}
-				
-				x -= text.length() * scale * glyphWidth / 2;
-			}
-			else if (horizontalAlignment == RIGHT)
-			{
-				if (panel != null)
-				{
-					x += panel.getWidth();
-				}
-				else
-				{
-					x += Frame.getWidth();
-				}
-				
-				x -= text.length() * scale * glyphWidth;
-			}
-			if (verticalAlignment == CENTER)
-			{
-				if (panel != null)
-				{
-					y += panel.getHeight() / 2;
-				}
-				else
-				{
-					x += Frame.getHeight() / 2;
-				}
-				
-				y -= glyphHeight * scale / 2;
-			}
-			else if (verticalAlignment == TOP)
-			{
-				if (panel != null)
-				{
-					y += panel.getHeight();
-				}
-				else
-				{
-					x += Frame.getHeight();
-				}
-				
-				y -= glyphHeight * scale;
-			}
-			
-			id = history.get(text)[2];
-		}
-		else
-		{
-			id = GL11.glGenLists(1);
-			
-			GL11.glNewList(id, GL11.GL_COMPILE);
-			{
-				char chars[] = text.toCharArray();
-				
-				for (int i = 0; i < chars.length; i ++)
-				{
-					if (chars[i] == '\n')
-					{
-						renderDisplayList(text.substring(0, i), x, y /*+ ((glyphHeight + 1) / 2) * scale*/ , z, scale, horizontalAlignment, verticalAlignment, panel);
-						renderDisplayList(text.substring(i + 1), x, y - (glyphHeight + 1) * scale/*((glyphHeight + 1) / 2) * scale*/, z, scale, horizontalAlignment, verticalAlignment, panel);
-						
-						GL11.glEndList();
-						addToHistory(text, id);
-	//					y += ((glyphHeight + 1) / 2) * scale;
-						return;
-					}
-				}
-				
-				if (horizontalAlignment == CENTER)
-				{
-					x += panel.getWidth() / 2;
-					x -= text.length() * scale * glyphWidth / 2;
-				}
-				else if (horizontalAlignment == RIGHT)
-				{
-					x += panel.getWidth();
-					x -= text.length() * scale * glyphWidth;
-				}
-				if (verticalAlignment == CENTER)
-				{
-					y += panel.getHeight() / 2;
-					y -= glyphHeight * scale / 2;
-				}
-				else if (verticalAlignment == TOP)
-				{
-					y += panel.getHeight();
-					y -= glyphHeight * scale;
-				}
-				
-				for (int i = 0; i < chars.length; i ++)
-				{
-					try
-					{
-						int charX       = charSequence.get(chars[i])[0];
-						int charY       = charSequence.get(chars[i])[1];
-						
-						float offsets[] = characters.getImageOffsets(charX, charY, 1, 1);
-					
-						GL.pushMatrix();
-						{
-//							GL.translatef(x, y, z);
-//							GL.scalef(scale, scale, 1);
-							
-							GL11.glBegin(GL.QUADS);
-							{
-			//					Correct View
-								
-								GL11.glTexCoord2f(offsets[2], offsets[1]);
-								GL11.glVertex2f(i * glyphWidth + glyphWidth + (letterMargin * i), 0);
-								
-								GL11.glTexCoord2f(offsets[2], offsets[3]);
-								GL11.glVertex2f(i * glyphWidth + glyphWidth + (letterMargin * i), glyphHeight);
-								
-								GL11.glTexCoord2f(offsets[0], offsets[3]);
-								GL11.glVertex2f(i * glyphWidth + (letterMargin * i), glyphHeight);
-								
-								GL11.glTexCoord2f(offsets[0], offsets[1]);
-								GL11.glVertex2f(i * glyphWidth + (letterMargin * i), 0);
-								
-			//					Reversed View
-			//					
-			//					GL.glTexCoord2f(offsets[2], offsets[1]);
-			//					GL.glVertex2f(- i * glyphWidth, 0);
-			//					
-			//					GL.glTexCoord2f(offsets[2], offsets[3]);
-			//					GL.glVertex2f(- i * glyphWidth, glyphHeight);
-			//					
-			//					GL.glTexCoord2f(offsets[0], offsets[3]);
-			//					GL.glVertex2f(- i * glyphWidth + glyphWidth, glyphHeight);
-			//					
-			//					GL.glTexCoord2f(offsets[0], offsets[1]);
-			//					GL.glVertex2f(- i * glyphWidth + glyphWidth, 0);
-							}
-							GL11.glEnd();
-						}
-						GL.popMatrix();
-					}
-					catch (NullPointerException e)
-					{
-						if (chars[i] == ' ')
-						{
-							
-						}
-						else
-						{
-							GL11.glEndList();
-							
-							addToHistory(text, id);
-							
-							return;
-						}
-					}
-				}
-			}
-			GL11.glEndList();
-			
-			addToHistory(text, id);
-		}
-			
-		GL.pushMatrix();
-		{
-			GL.translate(x, y, z);
-			GL.scale(scale, scale, 1);
-			
-			GL11.glCallList(id);
-		}
-		GL.popMatrix();
+		return charSequence.containsKey(c);
 	}
 	
 	/**
+	 * Get the amount of pixels that there will be between a new-line in
+	 * a String of text rendered.
 	 * 
-	 * 
-	 * @param text
-	 * @param id
+	 * @return The amount of pixels that there will be between a new-line
+	 * 		in a String of text rendered.
 	 */
-	private void addToHistory(String text, int id)
+	public int getLineOffset()
 	{
-		ids = ids + 1 < 100 ? ids + 1 : 0;
-		
-//		if (idArray[ids] != null)
-//		{
-//			GL11.glDeleteLists(idArray[ids][0], 1);
-//		}
-//		
-//		idArray[ids] = new int[] { id };
-		
-		history.put(text, new int[] { ids, 0, id });
+		return lineOffset;
 	}
+	
+	/**
+	 * Set the amount of pixels that there will be between a new-line in
+	 * a String of text rendered.
+	 * 
+	 * @param lineOffset The amount of pixels that there will be between
+	 * 		a new-line in a String of text rendered.
+	 */
+	public void setLineOffset(int lineOffset)
+	{
+		this.lineOffset = lineOffset;
+	}
+	
+//	/**
+//	 * 
+//	 * 
+//	 * @param text
+//	 * @param x
+//	 * @param y
+//	 * @param z
+//	 * @param scale
+//	 * @param horizontalAlignment
+//	 * @param verticalAlignment
+//	 * @param panel
+//	 */
+//	public void renderDisplayList(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Panel panel)
+//	{
+//		characters.bind();
+//		
+//		int id = 0;
+//		
+//		if (history.containsKey(text) && history.get(text)[1] == 0)
+//		{
+//			if (horizontalAlignment == CENTER)
+//			{
+//				if (panel != null)
+//				{
+//					x += panel.getWidth() / 2;
+//				}
+//				else
+//				{
+//					x += Frame.getWidth() / 2;
+//				}
+//				
+//				x -= text.length() * scale * glyphWidth / 2;
+//			}
+//			else if (horizontalAlignment == RIGHT)
+//			{
+//				if (panel != null)
+//				{
+//					x += panel.getWidth();
+//				}
+//				else
+//				{
+//					x += Frame.getWidth();
+//				}
+//				
+//				x -= text.length() * scale * glyphWidth;
+//			}
+//			if (verticalAlignment == CENTER)
+//			{
+//				if (panel != null)
+//				{
+//					y += panel.getHeight() / 2;
+//				}
+//				else
+//				{
+//					x += Frame.getHeight() / 2;
+//				}
+//				
+//				y -= glyphHeight * scale / 2;
+//			}
+//			else if (verticalAlignment == TOP)
+//			{
+//				if (panel != null)
+//				{
+//					y += panel.getHeight();
+//				}
+//				else
+//				{
+//					x += Frame.getHeight();
+//				}
+//				
+//				y -= glyphHeight * scale;
+//			}
+//			
+//			id = history.get(text)[2];
+//		}
+//		else
+//		{
+//			id = GL11.glGenLists(1);
+//			
+//			GL11.glNewList(id, GL11.GL_COMPILE);
+//			{
+//				char chars[] = text.toCharArray();
+//				
+//				for (int i = 0; i < chars.length; i ++)
+//				{
+//					if (chars[i] == '\n')
+//					{
+//						renderDisplayList(text.substring(0, i), x, y /*+ ((glyphHeight + 1) / 2) * scale*/ , z, scale, horizontalAlignment, verticalAlignment, panel);
+//						renderDisplayList(text.substring(i + 1), x, y - (glyphHeight + 1) * scale/*((glyphHeight + 1) / 2) * scale*/, z, scale, horizontalAlignment, verticalAlignment, panel);
+//						
+//						GL11.glEndList();
+//						addToHistory(text, id);
+//	//					y += ((glyphHeight + 1) / 2) * scale;
+//						return;
+//					}
+//				}
+//				
+//				if (horizontalAlignment == CENTER)
+//				{
+//					x += panel.getWidth() / 2;
+//					x -= text.length() * scale * glyphWidth / 2;
+//				}
+//				else if (horizontalAlignment == RIGHT)
+//				{
+//					x += panel.getWidth();
+//					x -= text.length() * scale * glyphWidth;
+//				}
+//				if (verticalAlignment == CENTER)
+//				{
+//					y += panel.getHeight() / 2;
+//					y -= glyphHeight * scale / 2;
+//				}
+//				else if (verticalAlignment == TOP)
+//				{
+//					y += panel.getHeight();
+//					y -= glyphHeight * scale;
+//				}
+//				
+//				for (int i = 0; i < chars.length; i ++)
+//				{
+//					try
+//					{
+//						int charX       = charSequence.get(chars[i])[0];
+//						int charY       = charSequence.get(chars[i])[1];
+//						
+//						float offsets[] = characters.getImageOffsets(charX, charY, 1, 1);
+//					
+//						GL.pushMatrix();
+//						{
+////							GL.translatef(x, y, z);
+////							GL.scalef(scale, scale, 1);
+//							
+//							GL11.glBegin(GL.QUADS);
+//							{
+//			//					Correct View
+//								
+//								GL11.glTexCoord2f(offsets[2], offsets[1]);
+//								GL11.glVertex2f(i * glyphWidth + glyphWidth + (letterMargin * i), 0);
+//								
+//								GL11.glTexCoord2f(offsets[2], offsets[3]);
+//								GL11.glVertex2f(i * glyphWidth + glyphWidth + (letterMargin * i), glyphHeight);
+//								
+//								GL11.glTexCoord2f(offsets[0], offsets[3]);
+//								GL11.glVertex2f(i * glyphWidth + (letterMargin * i), glyphHeight);
+//								
+//								GL11.glTexCoord2f(offsets[0], offsets[1]);
+//								GL11.glVertex2f(i * glyphWidth + (letterMargin * i), 0);
+//								
+//			//					Reversed View
+//			//					
+//			//					GL.glTexCoord2f(offsets[2], offsets[1]);
+//			//					GL.glVertex2f(- i * glyphWidth, 0);
+//			//					
+//			//					GL.glTexCoord2f(offsets[2], offsets[3]);
+//			//					GL.glVertex2f(- i * glyphWidth, glyphHeight);
+//			//					
+//			//					GL.glTexCoord2f(offsets[0], offsets[3]);
+//			//					GL.glVertex2f(- i * glyphWidth + glyphWidth, glyphHeight);
+//			//					
+//			//					GL.glTexCoord2f(offsets[0], offsets[1]);
+//			//					GL.glVertex2f(- i * glyphWidth + glyphWidth, 0);
+//							}
+//							GL11.glEnd();
+//						}
+//						GL.popMatrix();
+//					}
+//					catch (NullPointerException e)
+//					{
+//						if (chars[i] == ' ')
+//						{
+//							
+//						}
+//						else
+//						{
+//							GL11.glEndList();
+//							
+//							addToHistory(text, id);
+//							
+//							return;
+//						}
+//					}
+//				}
+//			}
+//			GL11.glEndList();
+//			
+//			addToHistory(text, id);
+//		}
+//			
+//		GL.pushMatrix();
+//		{
+//			GL.translate(x, y, z);
+//			GL.scale(scale, scale, 1);
+//			
+//			GL11.glCallList(id);
+//		}
+//		GL.popMatrix();
+//	}
+	
+//	/**
+//	 * 
+//	 * 
+//	 * @param text
+//	 * @param id
+//	 */
+//	private void addToHistory(String text, int id)
+//	{
+//		ids = ids + 1 < 100 ? ids + 1 : 0;
+//		
+////		if (idArray[ids] != null)
+////		{
+////			GL11.glDeleteLists(idArray[ids][0], 1);
+////		}
+////		
+////		idArray[ids] = new int[] { id };
+//		
+//		history.put(text, new int[] { ids, 0, id });
+//	}
 
 	/**
+	 * Add the String of text that was previously rendered to the history
+	 * of rendered Strings. This is used in order to save time if a String
+	 * has already been previously rendered. Instead of creating the
+	 * vertex buffer all over again, just reuse the old one.
 	 * 
-	 * 
-	 * @param text
-	 * @param vId
-	 * @param tId
-	 * @param viId
-	 * @param size
-	 * @param s
-	 * @param s2
-	 * @param s3
+	 * @param text The String of text to add to the history.
+	 * @param vId The vertex buffer's id.
+	 * @param tId The texture buffer's id.
+	 * @param viId The vertex indices buffer's id.
+	 * @param size the size of the buffer that is being added to the
+	 * 		history.
 	 */
-	private void addToHistory(String text, int vId, int tId, int viId, int size, Buffer s, Buffer s2, Buffer s3)
+	private void addToHistory(String text, int vId, int tId, int viId, int size)
 	{
 		ids = ids + 1 < 100 ? ids + 1 : 0;
 		
@@ -691,10 +760,12 @@ public class Font
 	}
 	
 	/**
+	 * Get the amount of pixels that the specified String would take up
+	 * horizontally.
 	 * 
-	 * 
-	 * @param text
-	 * @return
+	 * @param text The String of text to get the width of.
+	 * @return The amount of pixels that the specified String would take
+	 * 		up horizontally.
 	 */
 	public int getWidth(String text)
 	{
@@ -716,19 +787,48 @@ public class Font
 	}
 	
 	/**
+	 * Get the amount of pixels that the specified String would take up
+	 * vertically.
 	 * 
+	 * @param text The String of text to get the height of.
+	 * @return The amount of pixels that the specified String would take
+	 * 		up vertically.
+	 */
+	public int getHeight(String text)
+	{
+		int height = 0;
+		
+		String lines[] = text.split("\n");
+		
+		int numLines = lines.length;
+		
+		if (lines[lines.length - 1].length() <= 0)
+		{
+			numLines--;
+		}
+		
+		if (numLines > 0)
+		{
+			height = (getGlyphHeight() + lineOffset) * numLines - lineOffset;
+		}
+		
+		return height;
+	}
+	
+	/**
+	 * Get the width that each of the Font's Glyphs take up.
 	 * 
-	 * @return
+	 * @return The width that each of the Font's Glyphs take up.
 	 */
 	public int getGlyphWidth()
 	{
 		return glyphWidth;
 	}
-	
+
 	/**
+	 * Get the height that each of the Font's Glyphs take up.
 	 * 
-	 * 
-	 * @return
+	 * @return The height that each of the Font's Glyphs take up.
 	 */
 	public int getGlyphHeight()
 	{
@@ -736,9 +836,11 @@ public class Font
 	}
 	
 	/**
+	 * Get the amount of pixels that the letters will be spaced by when
+	 * rendered.
 	 * 
-	 * 
-	 * @return
+	 * @return The amount of pixels that the letters will be spaced by when
+	 * 		rendered.
 	 */
 	public int getLetterMargin()
 	{
@@ -746,9 +848,11 @@ public class Font
 	}
 	
 	/**
+	 * Set the amount of pixels that the letters will be spaced by when
+	 * rendered.
 	 * 
-	 * 
-	 * @param letterMargin
+	 * @param letterMargin The amount of pixels that the letters will be
+	 * 		spaced by when rendered.
 	 */
 	public void setLetterMargin(int letterMargin)
 	{

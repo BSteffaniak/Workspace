@@ -214,6 +214,11 @@ public class Button extends Image
 	public void setFont(Font font)
 	{
 		this.font = font;
+
+		if (normalTexture == null && font != null && text != null)
+		{
+			setSize(font.getWidth(text), font.getHeight(text));
+		}
 	}
 	
 	/**
@@ -234,6 +239,11 @@ public class Button extends Image
 	public void setText(String text)
 	{
 		this.text = text;
+		
+		if (normalTexture == null && font != null && text != null)
+		{
+			setSize(font.getWidth(text), font.getHeight(text));
+		}
 	}
 	
 //	/**
@@ -270,9 +280,10 @@ public class Button extends Image
 		
 		if (text != null && text.length() > 0 && font != null)
 		{
-			float scale = (getHeight() * 0.7f) / font.getGlyphHeight();
+			float scale = 1;//(getHeight() * 0.7f) / font.getGlyphHeight();
 			
-			scale = (float)Math.floor(scale);
+			scale = scale >= 1 ? (float)Math.floor(scale) : scale;
+//			scale = 1;
 			
 			float textX = getX() + (getWidth() / 2) - (font.getWidth(text) * scale) / 2;
 			float textY = getY() + (getHeight() / 2) - (font.getGlyphHeight() * scale) / 2;

@@ -76,7 +76,7 @@ import org.lwjgl.opengl.GL43;
  * @author	Braden Steffaniak
  * @since	Feb 15, 2013 at 11:43:44 PM
  * @since	v0.1
- * @version	Apr 26, 2013 at 10:50:44 PM
+ * @version	May 23, 2013 at 2:28:44 PM
  * @version	v0.2
  */
 public class GL
@@ -470,11 +470,13 @@ public class GL
 	}
 	
 	/**
+	 * Scale everything that is rendered after this method call
+	 * the specified amount int the x, y, and z axis.<br>
+	 * Scales the current matrix configuration the specified amounts.
 	 * 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param x The amount to scale horizontally what is rendered.
+	 * @param y The amount to scale vertically what is rendered.
+	 * @param z The amount to scale obliquely what is rendered.
 	 */
 	public static void scale(float x, float y, float z)
 	{
@@ -482,9 +484,11 @@ public class GL
 	}
 	
 	/**
+	 * Get the amount that the current matrix has been scaled up to
+	 * this method call.
 	 * 
-	 * 
-	 * @return
+	 * @return A float array containing three values that correspond
+	 * 		to the (x, y, z) amount scaled.
 	 */
 	public static float[] getAmountScaled()
 	{
@@ -502,9 +506,11 @@ public class GL
 	}
 	
 	/**
+	 * Get the amount that the current matrix has been translated by up
+	 * to this method call.
 	 * 
-	 * 
-	 * @return
+	 * @return A float array containing three values that correspond
+	 * 		to the (x, y, z) amount translated.
 	 */
 	public static float[] getAmountTranslated()
 	{
@@ -521,61 +527,61 @@ public class GL
 		return translated;
 	}
 	
-	/**
-	 * 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param width
-	 * @param height
-	 */
-	public static void drawRect(int x, int y, int width, int height)
-	{
-		GL11.glBegin(GL11.GL_QUADS);
-		{
-			GL11.glVertex2f(x, y);
-			GL11.glVertex2f(x + width, y);
-			GL11.glVertex2f(x + width, y + height);
-			GL11.glVertex2f(x, y + height);
-		}
-		GL11.glEnd();
-	}
+//	/**
+//	 * 
+//	 * 
+//	 * @param x
+//	 * @param y
+//	 * @param width
+//	 * @param height
+//	 */
+//	public static void drawRect(int x, int y, int width, int height)
+//	{
+//		GL11.glBegin(GL11.GL_QUADS);
+//		{
+//			GL11.glVertex2f(x, y);
+//			GL11.glVertex2f(x + width, y);
+//			GL11.glVertex2f(x + width, y + height);
+//			GL11.glVertex2f(x, y + height);
+//		}
+//		GL11.glEnd();
+//	}
+	
+//	/**
+//	 * 
+//	 * 
+//	 * @param x
+//	 * @param y
+//	 * @param width
+//	 * @param height
+//	 * @param texture
+//	 */
+//	public static void drawRect(int x, int y, int width, int height, Texture texture)
+//	{
+//		texture.bind();
+//		float offsets[] = texture.getImageOffsets();
+//		
+//		GL11.glBegin(GL11.GL_QUADS);
+//		{
+//			GL11.glVertex2f(x, y);
+//			GL11.glTexCoord2f(offsets[0], offsets[1]);
+//			GL11.glVertex2f(x + width, y);
+//			GL11.glTexCoord2f(offsets[0], offsets[3]);
+//			GL11.glVertex2f(x + width, y + height);
+//			GL11.glTexCoord2f(offsets[2], offsets[3]);
+//			GL11.glVertex2f(x, y + height);
+//			GL11.glTexCoord2f(offsets[2], offsets[1]);
+//		}
+//		GL11.glEnd();
+//	}
 	
 	/**
+	 * Set the color that everything rendered will be affected by.
 	 * 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param width
-	 * @param height
-	 * @param texture
-	 */
-	public static void drawRect(int x, int y, int width, int height, Texture texture)
-	{
-		texture.bind();
-		float offsets[] = texture.getImageOffsets();
-		
-		GL11.glBegin(GL11.GL_QUADS);
-		{
-			GL11.glVertex2f(x, y);
-			GL11.glTexCoord2f(offsets[0], offsets[1]);
-			GL11.glVertex2f(x + width, y);
-			GL11.glTexCoord2f(offsets[0], offsets[3]);
-			GL11.glVertex2f(x + width, y + height);
-			GL11.glTexCoord2f(offsets[2], offsets[3]);
-			GL11.glVertex2f(x, y + height);
-			GL11.glTexCoord2f(offsets[2], offsets[1]);
-		}
-		GL11.glEnd();
-	}
-	
-	/**
-	 * 
-	 * 
-	 * @param r
-	 * @param g
-	 * @param b
-	 * @param a
+	 * @param r The red component (0.0 - 1.0).
+	 * @param g The green component (0.0 - 1.0).
+	 * @param b The blue component (0.0 - 1.0).
+	 * @param a The alpha component (0.0 - 1.0).
 	 */
 	public static void setColor(float r, float g, float b, float a)
 	{
@@ -583,12 +589,12 @@ public class GL
 	}
 	
 	/**
+	 * Set the color that the Frame will clear the scene with.
 	 * 
-	 * 
-	 * @param r
-	 * @param g
-	 * @param b
-	 * @param a
+	 * @param r The red component (0.0 - 1.0).
+	 * @param g The green component (0.0 - 1.0).
+	 * @param b The blue component (0.0 - 1.0).
+	 * @param a The alpha component (0.0 - 1.0).
 	 */
 	public static void setClearColor(float r, float g, float b, float a)
 	{
@@ -596,7 +602,7 @@ public class GL
 	}
 	
 	/**
-	 * 
+	 * Reset the matrix of all translations and scales.
 	 */
 	public static void resetMatrix()
 	{
@@ -604,9 +610,9 @@ public class GL
 	}
 	
 	/**
+	 * Get the float value of the Field of View.
 	 * 
-	 * 
-	 * @return
+	 * @return The float value of the Field of View.
 	 */
 	public static float getFOV()
 	{
@@ -614,9 +620,9 @@ public class GL
 	}
 	
 	/**
+	 * Set the float value of the Field of View.
 	 * 
-	 * 
-	 * @param FOV
+	 * @param FOV The float value of the Field of View.
 	 */
 	public static void setFOV(float FOV)
 	{
@@ -624,13 +630,14 @@ public class GL
 	}
 	
 	/**
+	 * Generate a float array containing values that describe a
+	 * 2 dimensional rectangle's vertices.
 	 * 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param width
-	 * @param height
-	 * @return
+	 * @param x The horizontal location of the rectangle.
+	 * @param y The vertical location of the rectangle.
+	 * @param width The width of the rectangle.
+	 * @param height The height of the rectangle.
+	 * @return The generated float array containing the values.
 	 */
 	public static float[] genRectVerts(float x, float y, float width, float height)
 	{
@@ -660,14 +667,15 @@ public class GL
 	}
 	
 	/**
+	 * Generate a float array containing values that describe a
+	 * 2 dimensional rectangle's vertices with depth.
 	 * 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param width
-	 * @param height
-	 * @return
+	 * @param x The horizontal location of the rectangle.
+	 * @param y The vertical location of the rectangle.
+	 * @param z The oblique location of the rectangle (depth).
+	 * @param width The width of the rectangle.
+	 * @param height The height of the rectangle.
+	 * @return The generated float array containing the values.
 	 */
 	public static float[] genRectVerts(float x, float y, float z, float width, float height)
 	{
@@ -696,10 +704,12 @@ public class GL
 	}
 	
 	/**
+	 * Generate a float array containing values that describe a
+	 * 2 dimensional rectangle's texture coordinates to map on
+	 * vertices.
 	 * 
-	 * 
-	 * @param texture
-	 * @return
+	 * @param texture The texture to generate the values for.
+	 * @return The generated float array containing the values.
 	 */
 	public static float[] genRectTextures(Texture texture)
 	{
@@ -707,12 +717,15 @@ public class GL
 	}
 	
 	/**
+	 * Generate a float array containing values that describe a
+	 * 2 dimensional rectangle's texture coordinates to map on
+	 * vertices. The texture will be repeated the specified amount on
+	 * each of the axiis.
 	 * 
-	 * 
-	 * @param texture
-	 * @param rx
-	 * @param ry
-	 * @return
+	 * @param texture The texture to generate the values for.
+	 * @param rx The amount of times to repeat the Texture horizontally.
+	 * @param ry The amount of times to repeat the Texture vertically.
+	 * @return The generated float array containing the values.
 	 */
 	public static float[] genRectTextures(Texture texture, int rx, int ry)
 	{
@@ -720,12 +733,17 @@ public class GL
 	}
 	
 	/**
+	 * Generate a float array containing values that describe a
+	 * 2 dimensional rectangle's texture coordinates to map on
+	 * vertices. The texture can be mirrored horizontally and/or
+	 * vertically depending on the values passed to the parameters.
 	 * 
-	 * 
-	 * @param texture
-	 * @param mirrorHorizontal
-	 * @param mirrorVertical
-	 * @return
+	 * @param texture The texture to generate the values for.
+	 * @param mirrorHorizontal Whether or not to mirror the Texture
+	 * 		horizontally.
+	 * @param mirrorVertical Whether or not to mirror the Texture
+	 * 		vertically.
+	 * @return The generated float array containing the values.
 	 */
 	public static float[] genRectTextures(Texture texture, boolean mirrorHorizontal, boolean mirrorVertical)
 	{
@@ -733,10 +751,13 @@ public class GL
 	}
 	
 	/**
+	 * Generate a float array containing values that describe a
+	 * 2 dimensional rectangle's texture coordinates to map on
+	 * vertices.
 	 * 
-	 * 
-	 * @param offsets
-	 * @return
+	 * @param offsets The offsets of the Texture that will be used to
+	 * 		generate the float array.
+	 * @return The generated float array containing the values.
 	 */
 	public static float[] genRectTextures(float offsets[])
 	{
@@ -744,12 +765,15 @@ public class GL
 	}
 	
 	/**
+	 * Generate a float array containing values that describe a
+	 * 2 dimensional rectangle's texture coordinates to map on
+	 * vertices.
 	 * 
-	 * 
-	 * @param offsets
-	 * @param rx
-	 * @param ry
-	 * @return
+	 * @param offsets The offsets of the Texture that will be used to
+	 * 		generate the float array.
+	 * @param rx The amount of times to repeat the Texture horizontally.
+	 * @param ry The amount of times to repeat the Texture vertically.
+	 * @return The generated float array containing the values.
 	 */
 	public static float[] genRectTextures(float offsets[], int rx, int ry)
 	{
@@ -757,12 +781,17 @@ public class GL
 	}
 	
 	/**
+	 * Generate a float array containing values that describe a
+	 * 2 dimensional rectangle's texture coordinates to map on
+	 * vertices.
 	 * 
-	 * 
-	 * @param offsets
-	 * @param mirrorHorizontal
-	 * @param mirrorVertical
-	 * @return
+	 * @param offsets The offsets of the Texture that will be used to
+	 * 		generate the float array.
+	 * @param mirrorHorizontal Whether or not to mirror the Texture
+	 * 		horizontally.
+	 * @param mirrorVertical Whether or not to mirror the Texture
+	 * 		vertically.
+	 * @return The generated float array containing the values.
 	 */
 	public static float[] genRectTextures(float offsets[], boolean mirrorHorizontal, boolean mirrorVertical)
 	{
@@ -770,14 +799,19 @@ public class GL
 	}
 	
 	/**
+	 * Generate a float array containing values that describe a
+	 * 2 dimensional rectangle's texture coordinates to map on
+	 * vertices.
 	 * 
-	 * 
-	 * @param offsets
-	 * @param rx
-	 * @param ry
-	 * @param mirrorHorizontal
-	 * @param mirrorVertical
-	 * @return
+	 * @param offsets The offsets of the Texture that will be used to
+	 * 		generate the float array.
+	 * @param rx The amount of times to repeat the Texture horizontally.
+	 * @param ry The amount of times to repeat the Texture vertically.
+	 * @param mirrorHorizontal Whether or not to mirror the Texture
+	 * 		horizontally.
+	 * @param mirrorVertical Whether or not to mirror the Texture
+	 * 		vertically.
+	 * @return The generated float array containing the values.
 	 */
 	public static float[] genRectTextures(float offsets[], int rx, int ry, boolean mirrorHorizontal, boolean mirrorVertical)
 	{
@@ -831,15 +865,16 @@ public class GL
 	}
 	
 	/**
+	 * Generate a float array containing values that describe a
+	 * 3 dimensional cube's vertices.
 	 * 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param z
-	 * @param width
-	 * @param height
-	 * @param depth
-	 * @return
+	 * @param x The horizontal location of the cube.
+	 * @param y The vertical location of the cube.
+	 * @param z The oblique location of the cube.
+	 * @param width The width of the cube.
+	 * @param height The height of the cube.
+	 * @param depth The depth of the cube.
+	 * @return The generated float array containing the values.
 	 */
 	public static float[] genCubeVerts(float x, float y, float z, float width, float height, float depth)
 	{
@@ -958,13 +993,14 @@ public class GL
 	}
 	
 	/**
+	 * Generate a float array containing values that describe an
+	 * (r, g, b, a) color's values that are used for Color Buffers.
 	 * 
-	 * 
-	 * @param r
-	 * @param g
-	 * @param b
-	 * @param a
-	 * @return
+	 * @param r The red component of the Color (0.0 - 1.0).
+	 * @param g The green component of the Color (0.0 - 1.0).
+	 * @param b The blue component of the Color (0.0 - 1.0).
+	 * @param a The alpha component of the Color (0.0 - 1.0).
+	 * @return The generated float array containing the values.
 	 */
 	public static float[] genRectColors(float r, float g, float b, float a)
 	{

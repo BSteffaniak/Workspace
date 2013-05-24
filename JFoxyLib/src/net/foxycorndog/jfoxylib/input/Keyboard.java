@@ -20,18 +20,22 @@ import net.foxycorndog.jfoxylib.opengl.GL;
 import org.lwjgl.LWJGLException;
 
 /**
- * 
+ * Class that is used to calculate and obtain information about the
+ * Keyboard and its specific keys.
  * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 10:54:39 PM
  * @since	v0.1
- * @version	Apr 26, 2013 at 10:54:39 PM
+ * @version	May 22, 2013 at 9:06:39 PM
  * @version	v0.2
  */
 public class Keyboard
 {
 	private static org.lwjgl.input.Keyboard keyboard;
 	
+	/**
+	 * Create the LWJGL keyboard.
+	 */
 	static
 	{
 		try
@@ -178,7 +182,7 @@ public class Keyboard
 	}
 	
 	/**
-	 * 
+	 * Destroy the keyboard and make it unusable.
 	 */
 	public static void destroy()
 	{
@@ -186,45 +190,47 @@ public class Keyboard
 	}
 	
 	/**
+	 * Get whether the specified key is pressed down at the current
+	 * moment or not.
 	 * 
-	 * 
-	 * @param key
-	 * @return
+	 * @param key The key code to check if pressed or not.
+	 * @return Whether the specified key is pressed down at the current
+	 * 		moment or not.
 	 */
 	public static boolean isKeyDown(int key)
 	{
 		return keyboard.isKeyDown(key);
 	}
 	
-	/**
-	 * 
-	 * 
-	 * @return
-	 */
-	public static int getEventKey()
-	{
-		return keyboard.getEventKey();
-	}
+//	/**
+//	 * 
+//	 * 
+//	 * @return
+//	 */
+//	public static int getEventKey()
+//	{
+//		return keyboard.getEventKey();
+//	}
+	
+//	/**
+//	 * 
+//	 * 
+//	 * @return
+//	 */
+//	public static boolean next()
+//	{
+//		return keyboard.next();
+//	}
 	
 	/**
+	 * Update the specified key's current status.
 	 * 
-	 * 
-	 * @return
+	 * @param keyCode The code of the key to update.
+	 * @return If the key is still pressed.
 	 */
-	public static boolean next()
+	private static boolean next(int keyCode)
 	{
-		return keyboard.next();
-	}
-	
-	/**
-	 * 
-	 * 
-	 * @param keyId
-	 * @return
-	 */
-	public static boolean next(int keyId)
-	{
-		boolean nxt = keys[keyId] && next[keyId];
+		boolean nxt = keys[keyCode] && next[keyCode];
 		
 //		keys[keyId] = false;
 		
@@ -232,7 +238,7 @@ public class Keyboard
 	}
 	
 	/**
-	 * 
+	 * Update the keyboard and all of the key status's
 	 */
 	public static void update()
 	{
@@ -295,23 +301,23 @@ public class Keyboard
 //	}
 	
 	/**
+	 * Get the name of the key with the specified key code.
 	 * 
-	 * 
-	 * @param key
-	 * @return
+	 * @param keyCode The key code for the specified key.
+	 * @return The name of the specified key with the specified key code.
 	 */
-	public static String getKeyName(int key)
+	public static String getKeyName(int keyCode)
 	{
-		return keyboard.getKeyName(key);
+		return keyboard.getKeyName(keyCode);
 	}
 	
 	/**
+	 * Get the key code of the key with the specified name.
 	 * 
-	 * 
-	 * @param name
-	 * @return
+	 * @param name The name of the key.
+	 * @return The key code of the key with the specified name.
 	 */
-	public static int getKey(String name)
+	public static int getKeyCode(String name)
 	{
 		name = name.toUpperCase();
 		
@@ -331,11 +337,28 @@ public class Keyboard
 		return 0;
 	}
 	
+	/**
+	 * Add the specified KeyListener instance to the list of Listeners
+	 * that will be notified of KeyEvents.
+	 * 
+	 * @param listener The KeyListener instance to add to the list of
+	 * 		listeners.
+	 * @return Whether it was successfully added to the list or not.
+	 */
 	public static boolean addKeyListener(KeyListener listener)
 	{
 		return listeners.add(listener);
 	}
 	
+	/**
+	 * Remove the specified KeyListener instance from the list of
+	 * Listeners that are notified of KeyEvents.
+	 * 
+	 * @param listener The KeyListener instance to remove from the
+	 * 		list of listeners.
+	 * @return Whether it was successfully removed from the list or
+	 * 		not.
+	 */
 	public static boolean removeKeyListener(KeyListener listener)
 	{
 		return listeners.remove(listener);
@@ -509,20 +532,22 @@ public class Keyboard
 	}
 	
 	/**
+	 * Get the amount of keys that are available on the current
+	 * Keyboard instance.
 	 * 
-	 * 
-	 * @return
+	 * @return The amount of keys that are available on the current
+	 * 		Keyboard instance.
 	 */
-	public static int keysAmount()
+	public static int getAmountOfKeys()
 	{
 		return length;
 	}
 	
-	/**
-	 * 
-	 */
-	public static void poll()
-	{
-		keyboard.poll();
-	}
+//	/**
+//	 * 
+//	 */
+//	public static void poll()
+//	{
+//		keyboard.poll();
+//	}
 }

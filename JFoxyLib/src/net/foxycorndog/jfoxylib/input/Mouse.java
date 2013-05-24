@@ -23,7 +23,7 @@ import org.lwjgl.LWJGLException;
  * @author	Braden Steffaniak
  * @since	Mar 9, 2013 at 3:08:15 AM
  * @since	v0.1
- * @version Mar 26, 2013 at 11:01:15 PM
+ * @version May 22, 2013 at 9:06:15 PM
  * @version	v0.2
  */
 public class Mouse

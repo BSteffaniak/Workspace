@@ -249,6 +249,14 @@ public abstract class Network
 			}
 		}
 		
+		/**
+		 * Method to be implemented that specifies what action to
+		 * perform when the specified Packet is received from another
+		 * Network.
+		 * 
+		 * @param packet The Packet instance that was received from the
+		 * 		connected Network.
+		 */
 		public abstract void onReceivedPacket(Packet packet);
 		
 		/**
