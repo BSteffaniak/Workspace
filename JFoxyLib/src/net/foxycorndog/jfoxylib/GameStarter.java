@@ -125,8 +125,8 @@ public abstract class GameStarter
 			Display.update();
 		}
 		
-		Keyboard.destroy();
-		Display.destroy();
+//		Keyboard.destroy();
+//		Display.destroy();
 //		System.exit(0);
 	}
 	
