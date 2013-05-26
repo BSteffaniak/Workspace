@@ -1,3 +1,5 @@
+package net.foxycorndog.jfoxylib.components;
+
 public class MenuItem
 {
 	private	String	name;

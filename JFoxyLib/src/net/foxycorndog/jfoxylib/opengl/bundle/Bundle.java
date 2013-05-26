@@ -28,65 +28,13 @@ import org.lwjgl.opengl.GL20;
  */
 public class Bundle
 {
-	private int								vertsPosition, texturesPosition, colorsPosition;
-	private int								vertexAmount, vertexSize;
-	private int								verticesId, texturesId, colorsId;
+	private			int		vertsPosition, texturesPosition, colorsPosition;
+	private			int		vertexAmount, vertexSize;
+	private			int		verticesId, texturesId, colorsId;
 	
-	private Buffer							verticesBuffer, texturesBuffer, colorsBuffer;
-//	private IndicesBuffer					vertexIndices, normalIndices;
-//	
-//	private Shader							colorShader;
-//	
-//	private HashMap<Integer, VertexOffset>	vertexOffsets;
-//	private HashMap<Integer, TextureOffset>	textureOffsets;
+	private			Buffer	verticesBuffer, texturesBuffer, colorsBuffer;
 	
-	private static int	id;
-	
-//	/**
-//	 * 
-//	 * 
-//	 * @author	Braden Steffaniak
-//	 * @since	Apr 26, 2013 at 9:58:09 PM
-//	 * @since	v
-//	 * @version	Apr 26, 2013 at 9:58:09 PM
-//	 * @version	v
-//	 */
-//	private class VertexOffset
-//	{
-//		private int	shape;
-//		private int	offset;
-//		private int	vertexSize;
-//		private int	length;
-//		
-//		public VertexOffset(int shape, int offset, int vertexSize, int length)
-//		{
-//			this.shape      = shape;
-//			this.offset     = offset;
-//			this.vertexSize = vertexSize;
-//			this.length     = length;
-//		}
-//	}
-//	
-//	/**
-//	 * 
-//	 * 
-//	 * @author	Braden Steffaniak
-//	 * @since	Apr 26, 2013 at 9:58:13 PM
-//	 * @since	v
-//	 * @version	Apr 26, 2013 at 9:58:13 PM
-//	 * @version	v
-//	 */
-//	private class TextureOffset
-//	{
-//		private int	offset;
-//		private int	length;
-//		
-//		public TextureOffset(int offset, int length)
-//		{
-//			this.offset     = offset;
-//			this.length     = length;
-//		}
-//	}
+	private	static	int		id;
 	
 	/**
 	 * Create a Bundle with the specified amount of needed
@@ -151,18 +99,18 @@ public class Bundle
 	public Bundle(Buffer verticesBuffer, Buffer texturesBuffer, Buffer colorsBuffer, int vertexSize)
 	{
 		this.verticesBuffer = verticesBuffer;
-		verticesId = verticesBuffer.getId();
+		this.verticesId     = verticesBuffer.getId();
 		
 		if (texturesBuffer != null)
 		{
 			this.texturesBuffer = texturesBuffer;
-			texturesId = texturesBuffer.getId();
+			this.texturesId     = texturesBuffer.getId();
 		}
 		
 		if (colorsBuffer != null)
 		{
-			this.colorsBuffer   = colorsBuffer;
-			colorsId   = colorsBuffer.getId();
+			this.colorsBuffer = colorsBuffer;
+			this.colorsId     = colorsBuffer.getId();
 		}
 		
 		this.vertexSize   = vertexSize;
@@ -265,14 +213,12 @@ public class Bundle
 	/**
 	 * Set the vertices at the specified offset in the Vertices Buffer.
 	 * 
-	 * @param offset The offset in the Vertices Buffer. (This offset is
-	 * 		per vertex, not per vertex * vertexSize, so use smaller
-	 * 		numbers)
+	 * @param offset The offset in the Vertices Buffer.
 	 * @param verts The new float array to set the data at the offset to.
 	 */
 	public void setVertices(int offset, float verts[])
 	{
-		verticesBuffer.setData(offset * vertexSize, verts);
+		verticesBuffer.setData(offset, verts);
 		
 //		int id = ++this.id;
 		
@@ -291,7 +237,7 @@ public class Bundle
 	{
 		setVertices(vertsPosition, verts);
 		
-		vertsPosition += verts.length / vertexSize;
+		vertsPosition += verts.length;
 		
 //		return id;
 	}
@@ -325,15 +271,13 @@ public class Bundle
 	/**
 	 * Set the textures at the specified offset in the Textures Buffer.
 	 * 
-	 * @param offset The offset in the Textures Buffer. (This offset is
-	 * 		per texture, not per texture * textureSize, so use smaller
-	 * 		numbers)
+	 * @param offset The offset in the Textures Buffer.
 	 * @param textures The new float array to set the data at the offset
 	 * 		to.
 	 */
 	public void setTextures(int offset, float textures[])
 	{
-		texturesBuffer.setData(offset * 2, textures);
+		texturesBuffer.setData(offset, textures);
 		
 //		int id = ++this.id;
 
@@ -352,7 +296,7 @@ public class Bundle
 	{
 		setTextures(texturesPosition, textures);
 		
-		texturesPosition += textures.length / 2;
+		texturesPosition += textures.length;
 		
 //		return id;
 	}
@@ -381,15 +325,13 @@ public class Bundle
 	/**
 	 * Set the colors at the specified offset in the Colors Buffer.
 	 * 
-	 * @param offset The offset in the Colors Buffer. (This offset is
-	 * 		per color, not per color * colorSize, so use smaller
-	 * 		numbers)
+	 * @param offset The offset in the Colors Buffer.
 	 * @param colors The new float array to set the data at the offset
 	 * 		to.
 	 */
 	public void setColors(int offset, float colors[])
 	{
-		colorsBuffer.setData(offset * 4, colors);
+		colorsBuffer.setData(offset, colors);
 		
 //		int id = ++this.id;
 
@@ -408,7 +350,7 @@ public class Bundle
 	{
 		setColors(colorsPosition, colors);
 		
-		colorsPosition += colors.length / 4;
+		colorsPosition += colors.length;
 		
 //		return id;
 	}
@@ -482,11 +424,11 @@ public class Bundle
 	 */
 	public void render(int shape, int start, int amount, Texture texture)
 	{
+		texture.bind();
+		
 		beginVerticesDraw();//start * vertexSize);
 		beginTexturesDraw();//start * 2);
 		beginColorsDraw();
-		
-		texture.bind();
 		
 		glDrawArrays(shape, start, amount);
 		

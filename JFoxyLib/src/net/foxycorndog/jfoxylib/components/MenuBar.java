@@ -1,3 +1,7 @@
+package net.foxycorndog.jfoxylib.components;
+
+import java.util.ArrayList;
+
 public class MenuBar extends Panel
 {
 	private	boolean				autoResize;
@@ -22,7 +26,7 @@ public class MenuBar extends Panel
 	 */
 	public void addMenuItem(MenuItem item)
 	{
-		menuItems.add(item, menuItems.size());
+		addMenuItem(item, menuItems.size());
 	}
 	
 	/**
@@ -36,7 +40,7 @@ public class MenuBar extends Panel
 			throw new IndexOutOfBoundsException("The index '" + index + "' must be <= the amount of MenuItems '" + menuItems.size() + "' in the MenuBar");
 		}
 		
-		menuItems.add(item, index);
+		menuItems.add(index, item);
 		
 		update();
 	}
@@ -49,7 +53,7 @@ public class MenuBar extends Panel
 	{
 		this.autoResize = autoResize;
 		
-		uodate();
+		update();
 	}
 	
 	public boolean doesAutoResize()

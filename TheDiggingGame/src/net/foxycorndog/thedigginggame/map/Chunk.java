@@ -460,7 +460,7 @@ public class Chunk implements Serializable
 					chunkAvailable = map.isChunkAt(this, x, ++index);
 				}
 				
-				setRGBA(colors, 1, 1, 1, 1-lightness, offset);
+				setRGBA(colors, 1, 1, 1, 1 - lightness, offset);
 			}
 			else
 			{
@@ -593,7 +593,7 @@ public class Chunk implements Serializable
 				int x      = newTile.x;
 				int y      = newTile.y;
 				
-				int offset = 4 * LAYER_COUNT * newTile.layer;
+				int offset = 4 * LAYER_COUNT * newTile.layer * 2;
 				
 				Tile01 tile  = newTile.tile;
 				
@@ -608,7 +608,7 @@ public class Chunk implements Serializable
 					textures = GL.genRectTextures(Tile01.getTerrainSprites().getImageOffsets(tile.getX(), tile.getY(), tile.getCols(), tile.getRows()));
 				}
 				
-				chunkBundle.setTextures(offset + (x + y * CHUNK_SIZE) * 4, textures);
+				chunkBundle.setTextures(offset + (x + y * CHUNK_SIZE) * 4 * 2, textures);
 			}
 		}
 		chunkBundle.endEditingTextures();

@@ -33,11 +33,11 @@ import org.lwjgl.opengl.GL15;
  */
 public class Buffer
 {
-	private int			id;
-	private int			size;
+	private	int			id;
+	private	int			size;
 	
-	private FloatBuffer	buffer;
-	private ByteBuffer	mapBuffer;
+	private	FloatBuffer	buffer;
+	private	ByteBuffer	mapBuffer;
 	
 	/**
 	 * Create a Buffer suitable for storing a specific amount
@@ -49,9 +49,9 @@ public class Buffer
 	{
 		this.size = size;
 		
-		buffer = BufferUtils.createFloatBuffer(size);
+		buffer    = BufferUtils.createFloatBuffer(size);
 		
-		id = glGenBuffers();
+		id        = glGenBuffers();
 		glBindBuffer(GL_ARRAY_BUFFER, id);
 		glBufferData(GL_ARRAY_BUFFER, buffer, GL_DYNAMIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
