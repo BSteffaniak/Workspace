@@ -88,7 +88,7 @@ public class GL
 	
 	private static int		textureScaleMinMethod, textureScaleMagMethod, textureWrapSMethod, textureWrapTMethod;
 	
-	public static final int	POINTS = GL11.GL_POINTS, LINES = GL11.GL_LINES, TRIANGLES = GL11.GL_TRIANGLES, QUADS = GL11.GL_QUADS;
+	public static final int	POINTS = GL11.GL_POINTS, LINES = GL11.GL_LINES, TRIANGLES = GL11.GL_TRIANGLES;//, QUADS = GL11.GL_QUADS;
 	
 	public static final int ALL_ATTRIB_BITS = GL_ALL_ATTRIB_BITS, ENABLE_BIT = GL_ENABLE_BIT, FOG_BIT = GL_FOG_BIT,
 			LIGHTING_BIT = GL_LIGHTING_BIT, LINE_BIT = GL_LINE_BIT, POINT_BIT = GL_POINT_BIT,
@@ -112,6 +112,8 @@ public class GL
 		
 		glEnable(GL_ALPHA_TEST);
 		glAlphaFunc(GL_GREATER, 0.1f); 
+		
+		GL11.glFrontFace(GL11.GL_CCW);
 		
 		glEnable(GL_CULL_FACE);
 		glCullFace(GL_BACK);
@@ -641,7 +643,7 @@ public class GL
 	 */
 	public static float[] genRectVerts(float x, float y, float width, float height)
 	{
-		float array[] = new float[4 * 2];
+		float array[] = new float[3 * 2 * 2];
 		
 		int index = 0;
 		
@@ -650,17 +652,37 @@ public class GL
 		y      -= 0.001f;
 		height += 0.002f;
 		
-		// Front
+//		// Front
+//		array[index++] = x;
+//		array[index++] = y;
+//		
+//		array[index++] = x + width;
+//		array[index++] = y;
+//		
+//		array[index++] = x + width;
+//		array[index++] = y + height;
+//		
+//		array[index++] = x;
+//		array[index++] = y + height;
+		
+		
 		array[index++] = x;
 		array[index++] = y;
-		
-		array[index++] = x + width;
-		array[index++] = y;
-		
+
 		array[index++] = x + width;
 		array[index++] = y + height;
+
+		array[index++] = x;
+		array[index++] = y + height;
+		
 		
 		array[index++] = x;
+		array[index++] = y;
+
+		array[index++] = x + width;
+		array[index++] = y;
+
+		array[index++] = x + width;
 		array[index++] = y + height;
 		
 		return array;
@@ -815,51 +837,166 @@ public class GL
 	 */
 	public static float[] genRectTextures(float offsets[], int rx, int ry, boolean mirrorHorizontal, boolean mirrorVertical)
 	{
-		float array[] = new float[4 * 2];
+		float array[] = new float[3 * 2 * 2];
 		
-		float tolerance = -0.00001f;
+//		float tolerance = -0.00001f;
+//		
+//		if (mirrorHorizontal)
+//		{
+//			array[0] = rx * offsets[2] + tolerance * 2;
+//			
+//			array[2] = rx * offsets[0] - tolerance;
+//			
+//			array[4] = rx * offsets[0] - tolerance;
+//
+//			array[6] = rx * offsets[2] + tolerance * 2;
+//		}
+//		else
+//		{
+//			array[0] = rx * offsets[0] - tolerance;
+//			
+//			array[2] = rx * offsets[2] + tolerance * 2;
+//			
+//			array[4] = rx * offsets[2] + tolerance * 2;
+//			
+//			array[6] = rx * offsets[0] - tolerance;
+//		}
+//		
+//		if (mirrorVertical)
+//		{
+//			array[1] = ry * offsets[3] + tolerance * 2;
+//			
+//			array[3] = ry * offsets[3] + tolerance * 2;
+//			
+//			array[5] = ry * offsets[1] - tolerance;
+//			
+//			array[7] = ry * offsets[1] - tolerance;
+//		}
+//		else
+//		{
+//			array[1] = ry * offsets[1] - tolerance;
+//			
+//			array[3] = ry * offsets[1] - tolerance;
+//			
+//			array[5] = ry * offsets[3] + tolerance * 2;
+//			
+//			array[7] = ry * offsets[3] + tolerance * 2;
+//		}
+		
+		float tolerance = 0;//-0.00001f;
+		
+		int index = 0;
 		
 		if (mirrorHorizontal)
 		{
-			array[0] = rx * offsets[2] + tolerance * 2;
+			index = 0;
 			
-			array[2] = rx * offsets[0] - tolerance;
+			array[index] = rx * offsets[2] + tolerance * 2;
+			index += 2;
 			
-			array[4] = rx * offsets[0] - tolerance;
-
-			array[6] = rx * offsets[2] + tolerance * 2;
+			array[index] = rx * offsets[2] + tolerance * 2;
+			index += 2;
+			
+			array[index] = rx * offsets[0] - tolerance;
+			index += 2;
+			
+			
+			array[index] = rx * offsets[2] + tolerance * 2;
+			index += 2;
+			
+			array[index] = rx * offsets[0] + tolerance * 2;
+			index += 2;
+			
+			array[index] = rx * offsets[0] - tolerance;
+			index += 2;
 		}
 		else
 		{
-			array[0] = rx * offsets[0] - tolerance;
+			array[index] = rx * offsets[0] - tolerance;
+			index += 2;
 			
-			array[2] = rx * offsets[2] + tolerance * 2;
+			array[index] = rx * offsets[2] + tolerance * 2;
+			index += 2;
 			
-			array[4] = rx * offsets[2] + tolerance * 2;
+			array[index] = rx * offsets[0] + tolerance * 2;
+			index += 2;
 			
-			array[6] = rx * offsets[0] - tolerance;
+
+			array[index] = rx * offsets[0] - tolerance;
+			index += 2;
+			
+			array[index] = rx * offsets[2] + tolerance * 2;
+			index += 2;
+			
+			array[index] = rx * offsets[2] + tolerance * 2;
+			index += 2;
 		}
 		
 		if (mirrorVertical)
 		{
-			array[1] = ry * offsets[3] + tolerance * 2;
+			index = 1;
 			
-			array[3] = ry * offsets[3] + tolerance * 2;
+			array[index] = ry * offsets[3] - tolerance;
+			index += 2;
 			
-			array[5] = ry * offsets[1] - tolerance;
+			array[index] = ry * offsets[1] + tolerance * 2;
+			index += 2;
+
+			array[index] = ry * offsets[1] - tolerance;
+			index += 2;
 			
-			array[7] = ry * offsets[1] - tolerance;
+			
+			array[index] = ry * offsets[3] + tolerance * 2;
+			index += 2;
+			
+			array[index] = ry * offsets[3] - tolerance;
+			index += 2;
+			
+			array[index] = ry * offsets[1] - tolerance;
+			index += 2;
 		}
 		else
 		{
-			array[1] = ry * offsets[1] - tolerance;
+			index = 1;
 			
-			array[3] = ry * offsets[1] - tolerance;
+			array[index] = ry * offsets[1] - tolerance;
+			index += 2;
+
+			array[index] = ry * offsets[3] - tolerance;
+			index += 2;
 			
-			array[5] = ry * offsets[3] + tolerance * 2;
+			array[index] = ry * offsets[3] + tolerance * 2;
+			index += 2;
 			
-			array[7] = ry * offsets[3] + tolerance * 2;
+			
+			array[index] = ry * offsets[1] + tolerance * 2;
+			index += 2;
+			
+			array[index] = ry * offsets[1] - tolerance;
+			index += 2;
+			
+			array[index] = ry * offsets[3] - tolerance;
+			index += 2;
 		}
+		
+//		array[offset + index ++] = rx * offsets[0];
+//		array[offset + index ++] = ry * offsets[3];
+//
+//		array[offset + index ++] = rx * offsets[0];
+//		array[offset + index ++] = ry * offsets[1];
+//
+//		array[offset + index ++] = rx * offsets[2];
+//		array[offset + index ++] = ry * offsets[1];
+//
+//
+//		array[offset + index ++] = rx * offsets[0];
+//		array[offset + index ++] = ry * offsets[3];
+//
+//		array[offset + index ++] = rx * offsets[2];
+//		array[offset + index ++] = ry * offsets[1];
+//
+//		array[offset + index ++] = rx * offsets[2];
+//		array[offset + index ++] = ry * offsets[3];
 		
 		return array;
 	}

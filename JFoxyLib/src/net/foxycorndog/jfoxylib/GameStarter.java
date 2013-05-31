@@ -125,9 +125,13 @@ public abstract class GameStarter
 			Display.update();
 		}
 		
-//		Keyboard.destroy();
-//		Display.destroy();
-//		System.exit(0);
+		Keyboard.destroy();
+		Display.destroy();
+		
+//		if (System.getProperty("os.name").toLowerCase().contains("mac"))
+//		{
+			System.exit(0);
+//		}
 	}
 	
 	/**

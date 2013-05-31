@@ -375,8 +375,8 @@ public class Font
 		{
 			if (vertices == null && textures == null)
  			{
-				vertices = new Buffer(text.length() * 4 * 2);
-				textures = new Buffer(text.length() * 4 * 2);
+				vertices = new Buffer(text.length() * 3 * 2 * 2);
+				textures = new Buffer(text.length() * 3 * 2 * 2);
 			}
 			else if (vertices != null || textures != null)
 			{
@@ -419,13 +419,13 @@ public class Font
 						
 						vertices.beginEditing();
 						{
-							vertices.setData(i * 4 * 2, GL.genRectVerts(xOffset, yOffset, glyphWidth, glyphHeight));
+							vertices.setData(i * 3 * 2 * 2, GL.genRectVerts(xOffset, yOffset, glyphWidth, glyphHeight));
 						}
 						vertices.endEditing();
 						
 						textures.beginEditing();
 						{
-							textures.setData(i * 4 * 2, GL.genRectTextures(offsets));
+							textures.setData(i * 3 * 2 * 2, GL.genRectTextures(offsets));
 						}
 						textures.endEditing();
 						
@@ -468,7 +468,7 @@ public class Font
 			GL.translate(x, y, z);
 			GL.scale(scale, scale, 1);
 			
-			bundle.render(GL.QUADS, characters);
+			bundle.render(GL.TRIANGLES, characters);
 		}
 		GL.popMatrix();
 		

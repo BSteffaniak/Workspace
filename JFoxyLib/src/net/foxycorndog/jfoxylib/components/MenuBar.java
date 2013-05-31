@@ -2,9 +2,14 @@ package net.foxycorndog.jfoxylib.components;
 
 import java.util.ArrayList;
 
-public class MenuBar extends Panel
+import net.foxycorndog.jfoxylib.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
+
+public class MenuBar extends Component
 {
 	private	boolean				autoResize;
+	
+	private	Bundle				bundle;
 	
 	private	ArrayList<MenuItem>	menuItems;
 	
@@ -15,7 +20,7 @@ public class MenuBar extends Panel
 	{
 		super(parent);
 		
-		menuItems = new ArrayList<MenuItem>();
+		menuItems  = new ArrayList<MenuItem>();
 		
 		autoResize = true;
 	}
@@ -67,5 +72,15 @@ public class MenuBar extends Panel
 	public void update()
 	{
 		
+	}
+	
+	/**
+	 * Render the MenuBar at its current location.
+	 * 
+	 * @see net.foxycorndog.jfoxylib.components.Panel#render()
+	 */
+	public void render()
+	{
+//		bundle.render(GL.QUADS, null);
 	}
 }

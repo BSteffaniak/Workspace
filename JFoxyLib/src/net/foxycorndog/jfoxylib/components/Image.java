@@ -31,7 +31,7 @@ public class Image extends Component
 	{
 		super(parent);
 		
-		bundle = new Bundle(4, 2, true, false);
+		bundle = new Bundle(3 * 2, 2, true, false);
 	}
 	
 	/**
@@ -155,7 +155,7 @@ public class Image extends Component
 		{
 			GL.translate(getX(), getY(), 0);
 			
-			bundle.render(GL.QUADS, texture);
+			bundle.render(GL.TRIANGLES, texture);
 		}
 		GL.popMatrix();
 	}
