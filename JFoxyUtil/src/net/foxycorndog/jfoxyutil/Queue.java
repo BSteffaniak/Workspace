@@ -13,7 +13,9 @@ import java.util.ArrayList;
  */
 public class Queue<E>
 {
-	ArrayList<E>	queue;
+	private	boolean			allowDuplicates;
+	
+	private	ArrayList<E>	queue;
 	
 	/**
 	 * Instantiate the ArrayList that will be used as a queue.
@@ -27,10 +29,16 @@ public class Queue<E>
 	 * Enqueue an element to the end of the queue.
 	 * 
 	 * @param element The element to enqueue.
+	 * @return Whether the element was successfully enqueued or not.
 	 */
-	public void enqueue(E element)
+	public boolean enqueue(E element)
 	{
-		queue.add(element);
+		if (!allowDuplicates && contains(element))
+		{
+			return false;
+		}
+		
+		return queue.add(element);
 	}
 	
 	/**
@@ -76,6 +84,40 @@ public class Queue<E>
 	public int size()
 	{
 		return queue.size();
+	}
+	
+	/**
+	 * Returns whether the Queue allows duplicate entries into the Queue.
+	 * 
+	 * @return Whether the Queue allows duplicate entries into the Queue.
+	 */
+	public boolean doesAllowDuplicates()
+	{
+		return allowDuplicates;
+	}
+	
+	/**
+	 * Set whether or not to allow duplicate entries to the Queue.
+	 * 
+	 * @param allow Whether or not to allow duplicate entries to the
+	 * 		Queue.
+	 */
+	public void setAllowDuplicates(boolean allow)
+	{
+		allowDuplicates = allow;
+	}
+	
+	/**
+	 * Return whether or not the Queue contains the specific Element
+	 * instance.
+	 * 
+	 * @param element The Element to check if the queue contains.
+	 * @return Whether or not the Queue contains the specific Element
+	 * 		instance.
+	 */
+	public boolean contains(E element)
+	{
+		return queue.contains(element);
 	}
 	
 	/**

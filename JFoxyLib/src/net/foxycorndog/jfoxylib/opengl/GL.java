@@ -85,6 +85,7 @@ public class GL
 	
 	private static float	zClose, zFar;
 	private static float	fov;
+	private static float	textureTolerance, vertexTolerance;
 	
 	private static int		textureScaleMinMethod, textureScaleMagMethod, textureWrapSMethod, textureWrapTMethod;
 	
@@ -121,6 +122,9 @@ public class GL
 		setTextureWrapSMethod(GL.REPEAT);
 		setTextureWrapTMethod(GL.REPEAT);
 		
+		setTextureTolerance(0.0001f);
+		setVertexTolerance(0.001f);
+		
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);//GL_DECAL);
 		
 		glEnable(GL_BLEND);
@@ -138,7 +142,7 @@ public class GL
 	 * @param width The width of each OpenGL unit per pixel.
 	 * @param height The height of each OpenGL unit per pixel.
 	 */
-	public static void initOrtho(int width, int height)
+	public static void viewOrtho(int width, int height)
 	{
 		initGLStates();
 		
@@ -161,7 +165,7 @@ public class GL
 	 * @param zFar The farthest index to the screen possible for
 	 * 		the zed axis.
 	 */
-	public static void initPerspective(int width, int height, float zClose, float zFar)
+	public static void viewPerspective(int width, int height, float zClose, float zFar)
 	{
 		fov = 55.0f;
 		
@@ -529,6 +533,60 @@ public class GL
 		return translated;
 	}
 	
+	/**
+	 * Get the tolerance in which the Textures will  be generated with.
+	 * This determines how far to keep from overlapping textures on
+	 * a SpriteSheet or image.
+	 * 
+	 * @return The tolerance in which the Textures will be generated
+	 * 		with.
+	 */
+	public static float getTextureTolerance()
+	{
+		return textureTolerance;
+	}
+	
+	/**
+	 * Set the tolerance in which the Textures will  be generated with.
+	 * This determines how far to keep from overlapping textures on
+	 * a SpriteSheet or image.
+	 * 
+	 * @param textureTolerance The tolerance in which the Textures
+	 * 		will be generated with.
+	 */
+	public static void setTextureTolerance(float textureTolerance)
+	{
+		GL.textureTolerance = textureTolerance;
+	}
+	
+	/**
+	 * Set the tolerance in which the Vertices will  be generated with.
+	 * This determines how much of a buffer to make for the vertices to
+	 * make sure that no empty space is left in between any adjacent
+	 * polygons.
+	 * 
+	 * @return The tolerance in which the Vertices will  be generated
+	 * 		with.
+	 */
+	public static float getVertexTolerance()
+	{
+		return vertexTolerance;
+	}
+	
+	/**
+	 * Get the tolerance in which the Vertices will  be generated with.
+	 * This determines how much of a buffer to make for the vertices to
+	 * make sure that no empty space is left in between any adjacent
+	 * polygons.
+	 * 
+	 * @return The tolerance in which the Vertices will  be generated
+	 * 		with.
+	 */
+	public static void setVertexTolerance(float vertexTolerance)
+	{
+		GL.vertexTolerance = vertexTolerance;
+	}
+	
 //	/**
 //	 * 
 //	 * 
@@ -647,11 +705,12 @@ public class GL
 		
 		int index = 0;
 		
-		x      -= 0.001f;
-		width  += 0.002f;
-		y      -= 0.001f;
-		height += 0.002f;
+		x      -= vertexTolerance;
+		width  += vertexTolerance * 2;
+		y      -= vertexTolerance;
+		height += vertexTolerance * 2;
 		
+//		Old QUAD method.
 //		// Front
 //		array[index++] = x;
 //		array[index++] = y;
@@ -666,6 +725,7 @@ public class GL
 //		array[index++] = y + height;
 		
 		
+//		New TRIANGLE method.
 		array[index++] = x;
 		array[index++] = y;
 
@@ -839,96 +899,96 @@ public class GL
 	{
 		float array[] = new float[3 * 2 * 2];
 		
+//		Old QUAD method.
 //		float tolerance = -0.00001f;
 //		
 //		if (mirrorHorizontal)
 //		{
-//			array[0] = rx * offsets[2] + tolerance * 2;
+//			array[0] = rx * offsets[2] - tolerance * 2;
 //			
-//			array[2] = rx * offsets[0] - tolerance;
+//			array[2] = rx * offsets[0] + tolerance;
 //			
-//			array[4] = rx * offsets[0] - tolerance;
+//			array[4] = rx * offsets[0] + tolerance;
 //
-//			array[6] = rx * offsets[2] + tolerance * 2;
+//			array[6] = rx * offsets[2] - tolerance * 2;
 //		}
 //		else
 //		{
-//			array[0] = rx * offsets[0] - tolerance;
+//			array[0] = rx * offsets[0] + tolerance;
 //			
-//			array[2] = rx * offsets[2] + tolerance * 2;
+//			array[2] = rx * offsets[2] - tolerance * 2;
 //			
-//			array[4] = rx * offsets[2] + tolerance * 2;
+//			array[4] = rx * offsets[2] - tolerance * 2;
 //			
-//			array[6] = rx * offsets[0] - tolerance;
+//			array[6] = rx * offsets[0] + tolerance;
 //		}
 //		
 //		if (mirrorVertical)
 //		{
-//			array[1] = ry * offsets[3] + tolerance * 2;
+//			array[1] = ry * offsets[3] - tolerance * 2;
 //			
-//			array[3] = ry * offsets[3] + tolerance * 2;
+//			array[3] = ry * offsets[3] - tolerance * 2;
 //			
-//			array[5] = ry * offsets[1] - tolerance;
+//			array[5] = ry * offsets[1] + tolerance;
 //			
-//			array[7] = ry * offsets[1] - tolerance;
+//			array[7] = ry * offsets[1] + tolerance;
 //		}
 //		else
 //		{
-//			array[1] = ry * offsets[1] - tolerance;
+//			array[1] = ry * offsets[1] + tolerance;
 //			
-//			array[3] = ry * offsets[1] - tolerance;
+//			array[3] = ry * offsets[1] + tolerance;
 //			
-//			array[5] = ry * offsets[3] + tolerance * 2;
+//			array[5] = ry * offsets[3] - tolerance * 2;
 //			
-//			array[7] = ry * offsets[3] + tolerance * 2;
+//			array[7] = ry * offsets[3] - tolerance * 2;
 //		}
 		
-		float tolerance = 0;//-0.00001f;
-		
+//		New TRIANGLE method.
 		int index = 0;
 		
 		if (mirrorHorizontal)
 		{
 			index = 0;
 			
-			array[index] = rx * offsets[2] + tolerance * 2;
+			array[index] = rx * offsets[2] - textureTolerance;// * 2;
 			index += 2;
 			
-			array[index] = rx * offsets[2] + tolerance * 2;
+			array[index] = rx * offsets[0] + textureTolerance;
 			index += 2;
 			
-			array[index] = rx * offsets[0] - tolerance;
+			array[index] = rx * offsets[2] - textureTolerance;// * 2;
 			index += 2;
 			
 			
-			array[index] = rx * offsets[2] + tolerance * 2;
+			array[index] = rx * offsets[2] - textureTolerance;// * 2;
 			index += 2;
 			
-			array[index] = rx * offsets[0] + tolerance * 2;
+			array[index] = rx * offsets[0] + textureTolerance;
 			index += 2;
 			
-			array[index] = rx * offsets[0] - tolerance;
+			array[index] = rx * offsets[0] + textureTolerance;
 			index += 2;
 		}
 		else
 		{
-			array[index] = rx * offsets[0] - tolerance;
+			array[index] = rx * offsets[0] + textureTolerance;
 			index += 2;
 			
-			array[index] = rx * offsets[2] + tolerance * 2;
+			array[index] = rx * offsets[2] - textureTolerance;// * 2;
 			index += 2;
 			
-			array[index] = rx * offsets[0] + tolerance * 2;
+			array[index] = rx * offsets[0] + textureTolerance;
 			index += 2;
 			
 
-			array[index] = rx * offsets[0] - tolerance;
+			array[index] = rx * offsets[0] + textureTolerance;
 			index += 2;
 			
-			array[index] = rx * offsets[2] + tolerance * 2;
+			array[index] = rx * offsets[2] - textureTolerance;// * 2;
 			index += 2;
 			
-			array[index] = rx * offsets[2] + tolerance * 2;
+			array[index] = rx * offsets[2] - textureTolerance;// * 2;
 			index += 2;
 		}
 		
@@ -936,67 +996,48 @@ public class GL
 		{
 			index = 1;
 			
-			array[index] = ry * offsets[3] - tolerance;
+			array[index] = ry * offsets[3] - textureTolerance;// * 2;
 			index += 2;
 			
-			array[index] = ry * offsets[1] + tolerance * 2;
+			array[index] = ry * offsets[1] + textureTolerance;
 			index += 2;
 
-			array[index] = ry * offsets[1] - tolerance;
+			array[index] = ry * offsets[1] + textureTolerance;
 			index += 2;
 			
 			
-			array[index] = ry * offsets[3] + tolerance * 2;
+			array[index] = ry * offsets[3] - textureTolerance;// * 2;
 			index += 2;
 			
-			array[index] = ry * offsets[3] - tolerance;
+			array[index] = ry * offsets[3] - textureTolerance;// * 2;
 			index += 2;
 			
-			array[index] = ry * offsets[1] - tolerance;
+			array[index] = ry * offsets[1] + textureTolerance;
 			index += 2;
 		}
 		else
 		{
 			index = 1;
 			
-			array[index] = ry * offsets[1] - tolerance;
+			array[index] = ry * offsets[1] + textureTolerance;
 			index += 2;
 
-			array[index] = ry * offsets[3] - tolerance;
+			array[index] = ry * offsets[3] - textureTolerance;// * 2;
 			index += 2;
 			
-			array[index] = ry * offsets[3] + tolerance * 2;
+			array[index] = ry * offsets[3] - textureTolerance;// * 2;
 			index += 2;
 			
 			
-			array[index] = ry * offsets[1] + tolerance * 2;
+			array[index] = ry * offsets[1] + textureTolerance;
 			index += 2;
 			
-			array[index] = ry * offsets[1] - tolerance;
+			array[index] = ry * offsets[1] + textureTolerance;
 			index += 2;
 			
-			array[index] = ry * offsets[3] - tolerance;
+			array[index] = ry * offsets[3] - textureTolerance;// * 2;
 			index += 2;
 		}
-		
-//		array[offset + index ++] = rx * offsets[0];
-//		array[offset + index ++] = ry * offsets[3];
-//
-//		array[offset + index ++] = rx * offsets[0];
-//		array[offset + index ++] = ry * offsets[1];
-//
-//		array[offset + index ++] = rx * offsets[2];
-//		array[offset + index ++] = ry * offsets[1];
-//
-//
-//		array[offset + index ++] = rx * offsets[0];
-//		array[offset + index ++] = ry * offsets[3];
-//
-//		array[offset + index ++] = rx * offsets[2];
-//		array[offset + index ++] = ry * offsets[1];
-//
-//		array[offset + index ++] = rx * offsets[2];
-//		array[offset + index ++] = ry * offsets[3];
 		
 		return array;
 	}

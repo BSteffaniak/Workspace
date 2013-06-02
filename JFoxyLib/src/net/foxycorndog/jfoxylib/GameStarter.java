@@ -93,12 +93,12 @@ public abstract class GameStarter
 			loop();
 			
 			GL.resetMatrix();
-			GL.initPerspective(Frame.getWidth(), Frame.getHeight(), 0.01f, 99999f);
+			GL.viewPerspective(Frame.getWidth(), Frame.getHeight(), 0.01f, 99999f);
 			
 			render3D();
 			
 			GL.resetMatrix();
-			GL.initOrtho(Frame.getWidth(), Frame.getHeight());
+			GL.viewOrtho(Frame.getWidth(), Frame.getHeight());
 //			GL11.glPushAttrib(GL11.GL_LIGHTING_BIT);
 //			{
 //				GL11.glDisable(GL11.GL_LIGHTING);
