@@ -128,8 +128,8 @@ public class GL
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);//GL_DECAL);
 		
 		glEnable(GL_BLEND);
-//		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBlendFunc(GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+//		glBlendFunc(GL_ONE, GL11.GL_ONE);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 //		glBlendFunc(GL11.GL_SRC_COLOR, GL11.GL_ONE_MINUS_CONSTANT_COLOR);
 //		GL11.glDisable(GL_BLEND);
 //		GL11.glDepthMask(true);

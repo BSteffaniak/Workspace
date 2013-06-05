@@ -1,11 +1,23 @@
 package net.foxycorndog.jfoxylib.opengl.texture;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DataBuffer;
+import java.awt.image.DataBufferByte;
 import java.awt.image.DataBufferInt;
+import java.awt.image.Raster;
+import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.IntBuffer;
+import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 
@@ -14,6 +26,7 @@ import net.foxycorndog.jfoxylib.opengl.GL;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.opengl.GL12;
 
 /**
  * 
@@ -64,7 +77,7 @@ public class Texture
 	{
 		create(image, recreate);
 	}
-	
+
 	/**
 	 * 
 	 * 
@@ -133,8 +146,6 @@ public class Texture
 	    this.width  = image.getWidth();
 	    this.height = image.getHeight();
 	    
-	    this.genTexDimensions();
-	    
 //	    temp.recycle();
 	    
 	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
@@ -151,8 +162,15 @@ public class Texture
 	    
 	    if (recreate)
 	    {
+//	    WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, width, height, 4, null);
+//	    ColorModel glAlphaColorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] { 8, 8, 8, 8 }, true, false, ComponentColorModel.TRANSLUCENT, DataBuffer.TYPE_BYTE);
+	    
+//		    BufferedImage img = new BufferedImage(glAlphaColorModel, raster, false, new Hashtable());
 		    BufferedImage img = new BufferedImage(width, height, BufferedImage.BITMASK);
-		    Graphics2D g = img.createGraphics();
+	    	
+		    Graphics g = img.getGraphics();
+		    g.setColor(new Color(0, 0, 0, 0));
+		    g.fillRect(0, 0, width, height);
 		    g.drawImage(image, 0, 0, null);
 		    g.dispose();
 		    
@@ -160,27 +178,34 @@ public class Texture
 	    }
 	    
 	    int pixels[] = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+//	    byte pixelsb[] = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
 
         ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4); // 4 for RGBA, 3 for RGB
+        buffer.order(ByteOrder.BIG_ENDIAN);
         
-        for(int y = height - 1; y >= 0; y --)
+        IntBuffer ib = buffer.asIntBuffer();
+        
+        for(int y = height - 1; y >= 0; y--)
         {
-            for(int x = 0; x < width; x ++)
+            for(int x = 0; x < width; x++)
             {
                 int pixel = pixels[x + y * width];
-                buffer.put((byte) ((pixel >> 16) & 0xFF));    // Red component
-                buffer.put((byte) ((pixel >> 8)  & 0xFF));    // Green component
-                buffer.put((byte) ((pixel)       & 0xFF));    // Blue component
-                buffer.put((byte) ((pixel >> 24) & 0xFF));    // Alpha component. Only for RGBA
+                
+                int ri = ((pixel >> 16) & 0xFF);
+                int gi = ((pixel >> 8)  & 0xFF);
+                int bi = ((pixel >> 0)  & 0xFF);
+                int ai = ((pixel >> 24) & 0xFF);
+                
+                ib.put(ri << 24 | gi << 16 | bi << 8 | ai);
             }
         }
-
-        buffer.rewind(); // FOR THE LOVE OF GOD DO NOT FORGET THIS
+        buffer.position(0);
+//        buffer.rewind(); // FOR THE LOVE OF GOD DO NOT FORGET THIS
 
         // You now have a ByteBuffer filled with the color data of each pixel.
         // Now just create a texture ID and bind it. Then you can load it using 
         // whatever OpenGL method you want, for example:
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA8, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
 	    
 //	    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, level, internalformat, id, id, border, format, type, pixels);
 	    
@@ -208,6 +233,24 @@ public class Texture
 	    genTexDimensions();
 	    
 	    return id;
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param fold
+	 * @return
+	 */
+	private int get2Fold(int fold)
+	{
+		int ret = 2;
+		
+		while (ret < fold)
+		{
+			ret *= 2;
+		}
+		
+		return ret;
 	}
 	
 	/**
