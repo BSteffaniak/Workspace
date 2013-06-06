@@ -148,10 +148,32 @@ public class TextField extends Component
 	 */
 	public void setFont(Font font)
 	{
-		this.font = font;
+		this.font    = font;
 		
-		scale = getHeight() / (float)font.getGlyphHeight();
-		scale *= 0.8f;
+		scaleFont();
+//		scale *= 0.8f;
+	}
+	
+	/**
+	 * Calculate the proper scale for the Font according to the height of
+	 * the TextField.
+	 */
+	private void scaleFont()
+	{
+		scale        = getHeight() / (float)font.getGlyphHeight();
+		
+		double floor = Math.floor(scale);
+		
+		double diff  = scale - floor;
+		
+		if (diff >= 0.5 && diff < 0.75)
+		{
+			scale = (float)(Math.floor(scale) + 0.5);
+		}
+		else
+		{
+			scale = (float)(Math.floor(scale));
+		}
 	}
 	
 	/**
@@ -178,8 +200,10 @@ public class TextField extends Component
 		
 		if (font != null)
 		{
-			scale = getHeight() / (float)font.getGlyphHeight();
-			scale *= 0.8f;
+//			scale = getHeight() / (float)font.getGlyphHeight();
+//			scale *= 0.8f;
+			
+			scaleFont();
 		}
 	}
 	

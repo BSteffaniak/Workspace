@@ -659,6 +659,7 @@ public class GL
 	
 	/**
 	 * Set the color that everything rendered will be affected by.
+	 * Accepts values (0 - 1).
 	 * 
 	 * @param r The red component (0.0 - 1.0).
 	 * @param g The green component (0.0 - 1.0).
@@ -668,6 +669,18 @@ public class GL
 	public static void setColor(float r, float g, float b, float a)
 	{
 		GL11.glColor4f(r, g, b, a);
+	}
+	
+	/**
+	 * Set the color that everything rendered will be affected by.
+	 * Accepts values (0 - 1).
+	 * 
+	 * @param color A 4 float large array that contains the (r, g, b, a)
+	 * 		values in order.
+	 */
+	public static void setColor(float color[])
+	{
+		setColor(color[0], color[1], color[2], color[3]);
 	}
 	
 	/**
