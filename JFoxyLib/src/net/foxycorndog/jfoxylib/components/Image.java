@@ -110,7 +110,7 @@ public class Image extends Component
 	{
 		texture = image;
 		
-		int width  = image.getWidth() * rx;
+		int width  = image.getWidth()  * rx;
 		int height = image.getHeight() * ry;
 		
 		setSize(width, height);

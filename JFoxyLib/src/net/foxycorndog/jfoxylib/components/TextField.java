@@ -2,6 +2,7 @@ package net.foxycorndog.jfoxylib.components;
 
 import java.io.IOException;
 
+import net.foxycorndog.jfoxylib.Color;
 import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.events.ButtonEvent;
 import net.foxycorndog.jfoxylib.events.ButtonListener;
@@ -24,6 +25,8 @@ import net.foxycorndog.jfoxylib.opengl.GL;
 public class TextField extends Component
 {
 	private	float			scale, textScale;
+	
+	private	Color			fontColor;
 	
 	private	Image			backgroundImage;
 	
@@ -237,12 +240,37 @@ public class TextField extends Component
 	}
 	
 	/**
+	 * Get the Color that the Font will be rendered in.
+	 * 
+	 * @return The Color that the Font will be rendered in.
+	 */
+	public Color getFontColor()
+	{
+		return fontColor;
+	}
+	
+	/**
+	 * Set the Color that the Font will be rendered in.
+	 * 
+	 * @param color The Color that the Font will be rendered in.
+	 */
+	public void setFontColor(Color color)
+	{
+		this.fontColor = color;
+	}
+	
+	/**
 	 * @see net.foxycorndog.jfoxylib.components.Component#render()
 	 */
 	public void render()
 	{
-		update();
+		if (!isVisible())
+		{
+			return;
+		}
 		
+		update();
+			
 		GL.pushMatrix();
 		{
 			GL.translate(getX(), getY(), 0);
@@ -253,7 +281,21 @@ public class TextField extends Component
 			{
 				float offsetY = (getHeight() / 2) - (font.getGlyphHeight() * (scale * textScale)) / 2;
 				
+				float color[] = null;
+				
+				if (fontColor != null)
+				{
+					color = GL.getColor();
+					
+					GL.setColor(fontColor.getRedf(), fontColor.getGreenf(), fontColor.getBluef(), fontColor.getAlphaf());
+				}
+				
 				font.render(builder.toString(), 2, offsetY, 0, scale * textScale, getParent());
+				
+				if (fontColor != null)
+				{
+					GL.setColor(color[0], color[1], color[2], color[3]);
+				}
 			}
 			GL.endClipping();
 		}

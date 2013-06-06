@@ -35,6 +35,7 @@ public class Color
 	
 	/**
 	 * Create a color with the specified red, green, and blue values.
+	 * (0 - 255)
 	 * 
 	 * @param r The red component for the Color.
 	 * @param g The green component for the Color.

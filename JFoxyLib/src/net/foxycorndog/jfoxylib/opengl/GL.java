@@ -636,6 +636,28 @@ public class GL
 //	}
 	
 	/**
+	 * Get the current color that is being used by OpenGL.
+	 * 
+	 * @return A float array describing the float values for the
+	 * 		(r, g, b, a) color in the current state.
+	 */
+	public static float[] getColor()
+	{
+		float color[] = new float[4];
+		
+		FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 4);
+		
+		GL11.glGetFloat(GL11.GL_CURRENT_COLOR, buffer);
+		
+		color[0] = buffer.get(0);
+		color[1] = buffer.get(1);
+		color[2] = buffer.get(2);
+		color[3] = buffer.get(3);
+		
+		return color;
+	}
+	
+	/**
 	 * Set the color that everything rendered will be affected by.
 	 * 
 	 * @param r The red component (0.0 - 1.0).
