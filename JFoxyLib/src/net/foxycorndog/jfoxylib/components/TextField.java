@@ -24,7 +24,13 @@ import net.foxycorndog.jfoxylib.opengl.GL;
  */
 public class TextField extends Component
 {
+	private	char			caretChar;
+	
+	private	int				caretPosition;
+	
 	private	float			scale, textScale;
+	
+	private	long			startTime, currentTime;
 	
 	private	Color			fontColor;
 	
@@ -61,7 +67,9 @@ public class TextField extends Component
 			
 			public void keyPressed(KeyEvent event)
 			{
-				char c = 0;
+				int  code = event.getKeyCode();
+				
+				char c    = 0;
 				
 				if (isFocused())
 				{
@@ -85,20 +93,30 @@ public class TextField extends Component
 					}
 					else
 					{
-						if (event.getKeyCode() == Keyboard.KEY_BACKSPACE)
+						boolean changed = false;
+						
+						if (code == Keyboard.KEY_BACKSPACE)
 						{
-							if (builder.length() > 0)
+							if (caretPosition > 0)
 							{
-								builder.deleteCharAt(builder.length() - 1);
+								builder.deleteCharAt(caretPosition - 1);
+								
+								changed = true;
+								
+								caretPosition--;
 							}
 						}
-						else if (event.getKeyCode() == Keyboard.KEY_SPACE)
+						else if (code == Keyboard.KEY_SPACE)
 						{
-							builder.append(' ');
+							builder.insert(caretPosition, ' ');
+							
+							caretPosition++;
+							
+							changed = true;
 						}
 						else
 						{
-							c = Keyboard.getChar(event.getKeyCode());
+							c = Keyboard.getChar(code);
 							
 							if (c != 0)
 							{
@@ -107,6 +125,11 @@ public class TextField extends Component
 									c = Keyboard.shiftKey(c);
 								}
 							}
+						}
+						
+						if (changed)
+						{
+							textUpdated();
 						}
 					}
 				}
@@ -119,7 +142,32 @@ public class TextField extends Component
 //								+ "not exist in the specified charSequence given to the Font.");
 //					}
 					
-					builder.append(c);
+					builder.insert(caretPosition, c);
+					
+					caretPosition++;
+					
+					textUpdated();
+				}
+				else
+				{
+					if (code == Keyboard.KEY_LEFT)
+					{
+						caretPosition--;
+						
+						if (caretPosition < 0)
+						{
+							caretPosition = 0;
+						}
+					}
+					else if (code == Keyboard.KEY_RIGHT)
+					{
+						caretPosition++;
+						
+						if (caretPosition > builder.length())
+						{
+							caretPosition = builder.length();
+						}
+					}
 				}
 			}
 			
@@ -128,6 +176,53 @@ public class TextField extends Component
 				
 			}
 		});
+		
+		caretChar = '|';
+	}
+	
+	/**
+	 * Called when the text in the TextField has been updated.
+	 */
+	private void textUpdated()
+	{
+		startTime = System.currentTimeMillis();
+	}
+
+	/**
+	 * Set whether to enable the Component or disable the Component.
+	 * 
+	 * @param enabled Whether to enable or disable the Component.
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		if (enabled)
+		{
+			startTime   = System.currentTimeMillis();
+			currentTime = System.currentTimeMillis();
+		}
+		
+		super.setEnabled(enabled);
+	}
+	
+	/**
+	 * Get the Character that will be blinking in the TextField.
+	 * 
+	 * @return The Character that will be blinking in the TextField.
+	 */
+	public char getCaretChar()
+	{
+		return caretChar;
+	}
+	
+	/**
+	 * Set the Character that will be blinking in the TextField.
+	 * 
+	 * @param caretChar The Character that will be blinking in the
+	 * 		TextField.
+	 */
+	public void setCaretChar(char caretChar)
+	{
+		this.caretChar = caretChar;
 	}
 	
 	/**
@@ -241,6 +336,13 @@ public class TextField extends Component
 		builder = new StringBuilder();
 		
 		builder.append(text);
+		
+		caretPosition = builder.length();
+		
+		if (caretPosition < 0)
+		{
+			caretPosition = 0;
+		}
 	}
 	
 	/**
@@ -314,7 +416,27 @@ public class TextField extends Component
 					GL.setColor(fontColor.getRedf(), fontColor.getGreenf(), fontColor.getBluef(), fontColor.getAlphaf());
 				}
 				
-				font.render(builder.toString(), 2, offsetY, 0, scale * textScale, getParent());
+				boolean tick = true;
+				
+				currentTime = System.currentTimeMillis();
+				
+				if (currentTime >= startTime + 1000)
+				{
+					startTime = currentTime;
+				}
+				else if (currentTime >= startTime + 500)
+				{
+					tick = false;
+				}
+				
+				StringBuilder finalText = new StringBuilder(builder);
+				
+				if (tick)
+				{
+					finalText.insert(caretPosition, caretChar);
+				}
+				
+				font.render(finalText.toString(), 2, offsetY, 0, scale * textScale, getParent());
 				
 				if (fontColor != null)
 				{

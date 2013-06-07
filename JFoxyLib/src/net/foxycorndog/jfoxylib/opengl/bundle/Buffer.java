@@ -6,6 +6,7 @@ import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL11.glEnableClientState;
 import static org.lwjgl.opengl.GL11.glVertexPointer;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
+import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER_BINDING;
 import static org.lwjgl.opengl.GL15.GL_DYNAMIC_DRAW;
 import static org.lwjgl.opengl.GL15.GL_WRITE_ONLY;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
@@ -167,7 +168,16 @@ public class Buffer
 	 */
 	public void beginEditing()
 	{
+		int currentlyBound = GL11.glGetInteger(GL_ARRAY_BUFFER_BINDING);
+		
+		if (currentlyBound == id)
+		{
+			return;
+		}
+		
 		glBindBuffer(GL_ARRAY_BUFFER, id);
+		
+//		System.out.println(currentlyBound + ", " + id);
 		
 		mapBuffer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY, null);
 		

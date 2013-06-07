@@ -18,27 +18,27 @@ import net.foxycorndog.jfoxylib.opengl.GL;
  */
 public abstract class Component
 {
-	private boolean	disposed;
-	private boolean	visible;
-	private	boolean	focused;
-	private	boolean	enabled;
+	private					boolean					disposed;
+	private					boolean					visible;
+	private					boolean					focused;
+	private					boolean					enabled;
 	
-	private int		x, y;
-	private int		alignX, alignY;
-	private int		width, height;
-	private int		horizontalAlignment, verticalAlignment;
+	private					int						x, y;
+	private					int						alignX, alignY;
+	private					int						width, height;
+	private					int						horizontalAlignment, verticalAlignment;
 	
-	private float	scaleX, scaleY;
-	private float	translatedX, translatedY;
+	private					float					scaleX, scaleY;
+	private					float					translatedX, translatedY;
 	
-	private Panel	parent;
+	private					Panel					parent;
 	
-	private static boolean				initialized;
+	private	static			boolean					initialized;
 	
-	private static ArrayList<Component>	components;
+	private	static			ArrayList<Component>	components;
 	
-	public static final int				LEFT = 0, CENTER = 1, RIGHT = 2,
-										BOTTOM = 0, TOP = 2;
+	public	static	final	int						LEFT = 0, CENTER = 1, RIGHT = 2,
+													BOTTOM = 0, TOP = 2;
 	
 	/**
 	 * Initialize the Component class stuff.

@@ -5,6 +5,7 @@ import java.io.IOException;
 
 import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
+import net.foxycorndog.jfoxylib.opengl.texture.SpriteSheet;
 import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 
 /**
@@ -18,9 +19,14 @@ import net.foxycorndog.jfoxylib.opengl.texture.Texture;
  */
 public class Image extends Component
 {
-	private Texture	texture;
+	private	int		x, y;
+	private	int		cols, rows;
+	private	int		rx, ry;
+	private	int		offset;
 	
-	private Bundle	bundle;
+	private	Texture	texture;
+	
+	private	Bundle	bundle;
 	
 	/**
 	 * Construct an Image in the specified parent Panel.
@@ -29,9 +35,121 @@ public class Image extends Component
 	 */
 	public Image(Panel parent)
 	{
+		this(parent, new Bundle(3 * 2, 2, true, false), 0);
+	}
+	
+	/**
+	 * Construct an Image in the specified parent Panel with the specified
+	 * Bundle instance.
+	 * 
+	 * @param parent The Panel that is to be the parent of this Image.
+	 * @param bundle The Bundle to use to store and render the Image.
+	 * @param offset The offset in the Bundle in which to add the Image.
+	 * 		An Image takes up 12 values in the Bundle.
+	 */
+	public Image(Panel parent, Bundle bundle, int offset)
+	{
 		super(parent);
 		
-		bundle = new Bundle(3 * 2, 2, true, false);
+		this.bundle = bundle;
+		
+		this.offset = offset;
+	}
+	
+	/**
+	 * Get the column that this Image is located on in the SpriteSheet
+	 * Texture.
+	 * 
+	 * @return The column that this Image is located on in the SpriteSheet
+	 * 		Texture.
+	 */
+	public int getSpriteX()
+	{
+		return x;
+	}
+
+	/**
+	 * Set the column that this Image is located on in the SpriteSheet
+	 * Texture.
+	 * 
+	 * @param rows The column that this Image is located on in the
+	 * 		SpriteSheet Texture.
+	 */
+	public void setSpriteX(int x)
+	{
+		this.x = x;
+	}
+	
+	/**
+	 * Get the row that this Image is located on in the SpriteSheet
+	 * Texture.
+	 * 
+	 * @return The row that this Image is located on in the SpriteSheet
+	 * 		Texture.
+	 */
+	public int getSpriteY()
+	{
+		return y;
+	}
+	
+	/**
+	 * Set the row that this Image is located on in the SpriteSheet
+	 * Texture.
+	 * 
+	 * @param rows The row that this Image is located on in the
+	 * 		SpriteSheet Texture.
+	 */
+	public void setSpriteY(int y)
+	{
+		this.y = y;
+	}
+	
+	/**
+	 * Get the number of columns that this Image takes up on the
+	 * SpriteSheet Texture.
+	 * 
+	 * @return The number of columns that this Image takes up on the
+	 * 		SpriteSheet Texture.
+	 */
+	public int getSpriteCols()
+	{
+		return cols;
+	}
+
+	/**
+	 * Set the number of columns that this Image takes up on the
+	 * SpriteSheet Texture.
+	 * 
+	 * @param rows The number of columns that this Image takes up on the
+	 * 		SpriteSheet Texture.
+	 */
+	public void setSpriteCols(int cols)
+	{
+		this.cols = cols;
+	}
+	
+	/**
+	 * Get the number of rows that this Image takes up on the
+	 * SpriteSheet Texture.
+	 * 
+	 * @return The number of rows that this Image takes up on the
+	 * 		SpriteSheet Texture.
+	 */
+	public int getSpriteRows()
+	{
+		return rows;
+	}
+	
+	/**
+	 * Set the number of rows that this Image takes up on the SpriteSheet
+	 * Texture.
+	 * 
+	 * @param rows The number of rows that this Image takes up on the
+	 * 		SpriteSheet Texture.
+	 */
+	public void setSpriteRows(int rows)
+	{
+		this.rows = rows;
 	}
 	
 	/**
@@ -53,7 +171,7 @@ public class Image extends Component
 	 */
 	public void setImage(String location) throws IOException
 	{
-		setImage(new Texture(location), 1, 1);
+		setImage(new Texture(location), 1, 1, true);
 	}
 	
 	/**
@@ -63,7 +181,7 @@ public class Image extends Component
 	 */
 	public void setImage(BufferedImage image)
 	{
-		setImage(image, 1, 1);
+		setImage(image, 1, 1, true);
 	}
 	
 	/**
@@ -73,7 +191,7 @@ public class Image extends Component
 	 */
 	public void setImage(Texture image)
 	{
-		setImage(image, 1, 1);
+		setImage(image, 1, 1, true);
 	}
 	
 	/**
@@ -85,18 +203,7 @@ public class Image extends Component
 	 */
 	public void setImage(BufferedImage image, int rx, int ry)
 	{
-		texture = new Texture(image);
-		
-		int width  = image.getWidth() * rx;
-		int height = image.getHeight() * ry;
-		
-		setSize(width, height);
-		
-		bundle.beginEditingTextures();
-		{
-			bundle.setTextures(0, GL.genRectTextures(texture.getImageOffsets(), rx, ry));
-		}
-		bundle.endEditingTextures();
+		setImage(image, rx, ry, true);
 	}
 	
 	/**
@@ -108,18 +215,167 @@ public class Image extends Component
 	 */
 	public void setImage(Texture image, int rx, int ry)
 	{
+		setImage(image, rx, ry, true);
+	}
+	
+	/**
+	 * Set the Image of this Image Component by giving the location
+	 * of the image.
+	 * 
+	 * @param location The location of the Image.
+	 * @param beginEditingBundle Whether or not to tell the Bundle
+	 * 		instance to begin editing the Textures.
+	 * @throws IOException If there was any trouble reading the image.
+	 */
+	public void setImage(String location, boolean beginEditingBundle) throws IOException
+	{
+		setImage(new Texture(location), 1, 1, beginEditingBundle);
+	}
+	
+	/**
+	 * Set the Image of this Image Component.
+	 * 
+	 * @param image The new Image of this Image Component.
+	 */
+	public void setImage(BufferedImage image, boolean beginEditingBundle)
+	{
+		setImage(image, 1, 1, beginEditingBundle);
+	}
+	
+	/**
+	 * Set the Texture of this Image Component.
+	 * 
+	 * @param image The new Texture of this Image Component.
+	 * @param beginEditingBundle Whether or not to tell the Bundle
+	 * 		instance to begin editing the Textures.
+	 */
+	public void setImage(Texture image, boolean beginEditingBundle)
+	{
+		setImage(image, 1, 1, beginEditingBundle);
+	}
+	
+	/**
+	 * Set the Image of this Image Component.
+	 * 
+	 * @param image The new Image of this Image Component.
+	 * @param rx The amount of times to repeat the Image horizontally.
+	 * @param ry The amount of times to repeat the Image vertically.
+	 * @param beginEditingBundle Whether or not to tell the Bundle
+	 * 		instance to begin editing the Textures.
+	 */
+	public void setImage(BufferedImage image, int rx, int ry, boolean beginEditingBundle)
+	{
+		setImage(new Texture(image), rx, ry, beginEditingBundle);
+	}
+	
+	/**
+	 * Set the Texture of this Image Component.
+	 * 
+	 * @param image The new Texture of this Image Component.
+	 * @param rx The amount of times to repeat the Texture horizontally.
+	 * @param ry The amount of times to repeat the Texture vertically.
+	 * @param beginEditingBundle Whether or not to tell the Bundle
+	 * 		instance to begin editing the Textures.
+	 */
+	public void setImage(Texture image, int rx, int ry, boolean beginEditingBundle)
+	{
 		texture = image;
 		
-		int width  = image.getWidth()  * rx;
-		int height = image.getHeight() * ry;
+		this.rx = rx;
+		this.ry = ry;
 		
-		setSize(width, height);
-		
-		bundle.beginEditingTextures();
+		updateTexture(beginEditingBundle);
+	}
+	
+	/**
+	 * Remove the Image and make this Image instance show nothing.
+	 */
+	public void removeImage()
+	{
+		removeImage(true);
+	}
+	
+	/**
+	 * Remove the Image and make this Image instance show nothing.
+	 * 
+	 * @param beginEditingBundle Whether or not to tell the Bundle
+	 * 		instance to begin editing the Textures.
+	 */
+	public void removeImage(boolean beginEditingBundle)
+	{
+		if (beginEditingBundle)
 		{
-			bundle.setTextures(0, GL.genRectTextures(texture.getImageOffsets(), rx, ry));
+			bundle.beginEditingTextures();
 		}
-		bundle.endEditingTextures();
+		
+		bundle.setTextures(offset, new float[3 * 2 * 2]);
+		
+		if (beginEditingBundle)
+		{
+			bundle.endEditingTextures();
+		}
+		
+		texture = null;
+		
+		x       = 0;
+		y       = 0;
+		cols    = 0;
+		rows    = 0;
+	}
+	
+	/**
+	 * Update the Texture in case the SpriteSheet properties
+	 * (x, y, cols, rows) were changed.
+	 */
+	public void updateTexture()
+	{
+		updateTexture(true);
+	}
+	
+	/**
+	 * Update the Texture in case the SpriteSheet properties
+	 * (x, y, cols, rows) were changed.
+	 * 
+	 * @param beginEditingBundle Whether or not to tell the Bundle
+	 * 		instance to begin editing the Textures.
+	 */
+	public void updateTexture(boolean beginEditingBundle)
+	{
+		int width  = texture.getWidth()  * rx;
+		int height = texture.getHeight() * ry;
+		
+		float offsets[] = null;
+		
+		if (cols != 0 && rows != 0)
+		{
+			SpriteSheet sprites = (SpriteSheet)texture;
+			
+			offsets = sprites.getImageOffsets(x, y, cols, rows);
+			
+			width  /= sprites.getCols();
+			height /= sprites.getRows();
+			
+			width  *= cols;
+			height *= rows;
+		}
+		else
+		{
+			offsets = texture.getImageOffsets();
+		}
+		
+		if (beginEditingBundle)
+		{
+			setSize(width, height);
+			
+			bundle.beginEditingTextures();
+		}
+		
+		bundle.setTextures(offset, GL.genRectTextures(offsets, rx, ry));
+		
+		if (beginEditingBundle)
+		{
+			bundle.endEditingTextures();
+		}
 	}
 	
 	/**
@@ -127,6 +383,8 @@ public class Image extends Component
 	 * 
 	 * @param width The new horizontal size of the Image.
 	 * @param height The new vertical size of the Image.
+	 * @param beginEditingBundle Whether or not to tell the Bundle
+	 * 		instance to begin editing the Textures.
 	 */
 	public void setSize(int width, int height)
 	{
@@ -155,7 +413,7 @@ public class Image extends Component
 		{
 			GL.translate(getX(), getY(), 0);
 			
-			bundle.render(GL.TRIANGLES, texture);
+			bundle.render(GL.TRIANGLES, offset, 3 * 2 * 2, texture);
 		}
 		GL.popMatrix();
 	}

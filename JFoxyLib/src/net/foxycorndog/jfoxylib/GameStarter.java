@@ -67,62 +67,69 @@ public abstract class GameStarter
 		long newOldTime = System.nanoTime();
 		long oldTime    = newOldTime;
 		
-		while (!Display.isCloseRequested() && running)
+		try
 		{
-			long newTime = System.currentTimeMillis();
-			
-			if (fps == 0 && dfps > 0)
+			while (!Display.isCloseRequested() && running)
 			{
-				newOldTime = System.nanoTime();
+				long newTime = System.currentTimeMillis();
 				
-				int change = (int)(newOldTime - oldTime);
-				
-				if (change != 0)
+				if (fps == 0 && dfps > 0)
 				{
-					pred = 1000000000 / change;
+					newOldTime = System.nanoTime();
 					
-					Frame.setFPS(pred);
+					int change = (int)(newOldTime - oldTime);
+					
+					if (change != 0)
+					{
+						pred = 1000000000 / change;
+						
+						Frame.setFPS(pred);
+					}
+				
+					oldTime = newOldTime;
 				}
-			
-				oldTime = newOldTime;
-			}
-			
-			GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
-
-			Frame.loop();
-			loop();
-			
-			GL.resetMatrix();
-			GL.viewPerspective(Frame.getWidth(), Frame.getHeight(), 0.01f, 99999f);
-			
-			render3D();
-			
-			GL.resetMatrix();
-			GL.viewOrtho(Frame.getWidth(), Frame.getHeight());
-//			GL11.glPushAttrib(GL11.GL_LIGHTING_BIT);
-//			{
-//				GL11.glDisable(GL11.GL_LIGHTING);
-				render2D();
-//			}
-//			GL11.glPopAttrib();
-			
-			dfps++;
-			
-			if (startTime + 1000 <= newTime)
-			{
-				fps  = dfps;
-				dfps = 0;
 				
-				startTime = newTime;
+				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+	
+				Frame.loop();
+				loop();
 				
-				Frame.setFPS(fps);
+				GL.resetMatrix();
+				GL.viewPerspective(Frame.getWidth(), Frame.getHeight(), 0.01f, 99999f);
+				
+				render3D();
+				
+				GL.resetMatrix();
+				GL.viewOrtho(Frame.getWidth(), Frame.getHeight());
+	//			GL11.glPushAttrib(GL11.GL_LIGHTING_BIT);
+	//			{
+	//				GL11.glDisable(GL11.GL_LIGHTING);
+					render2D();
+	//			}
+	//			GL11.glPopAttrib();
+				
+				dfps++;
+				
+				if (startTime + 1000 <= newTime)
+				{
+					fps  = dfps;
+					dfps = 0;
+					
+					startTime = newTime;
+					
+					Frame.setFPS(fps);
+				}
+				
+				Mouse.update();
+				Keyboard.update();
+				
+				Display.sync(Frame.getTargetFPS());
+				Display.update();
 			}
-			
-			Mouse.update();
-			Keyboard.update();
-			
-			Display.sync(Frame.getTargetFPS());
-			Display.update();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
 		}
 		
 		Keyboard.destroy();

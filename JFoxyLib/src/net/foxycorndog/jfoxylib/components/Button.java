@@ -8,6 +8,7 @@ import net.foxycorndog.jfoxylib.events.ButtonEvent;
 import net.foxycorndog.jfoxylib.events.ButtonListener;
 import net.foxycorndog.jfoxylib.font.Font;
 import net.foxycorndog.jfoxylib.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
 import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 
 /**
@@ -40,6 +41,28 @@ public class Button extends Image
 	{
 		super(parent);
 		
+		initButton();
+	}
+	
+	/**
+	 * Construct a Button in the specified parent Panel with the specified
+	 * Bundle instance.
+	 * 
+	 * @param parent The Panel that is to be the parent of this Button.
+	 * @param bundle The Bundle to use to store and render the Button.
+	 * @param offset The offset in the Bundle in which to add the Button.
+	 * 		A Button takes up 12 values in the Bundle.
+	 */
+	public Button(Panel parent, Bundle bundle, int offset)
+	{
+		super(parent, bundle, offset);
+	}
+	
+	/**
+	 * Initialize the things needed for a functional Button.
+	 */
+	private void initButton()
+	{
 		buttonListeners = new ArrayList<ButtonListener>();
 		
 		Frame.add(this);
@@ -70,7 +93,7 @@ public class Button extends Image
 			{
 				if (hoverTexture != null)
 				{
-					setImage(hoverTexture, false);
+					setNormalImage(hoverTexture, false);
 				}
 				
 				hovered = true;
@@ -85,7 +108,7 @@ public class Button extends Image
 	 */
 	public void setImage(BufferedImage image)
 	{
-		setImage(image, true);
+		setNormalImage(image, true);
 	}
 	
 	/**
@@ -95,7 +118,7 @@ public class Button extends Image
 	 */
 	public void setImage(Texture image)
 	{
-		setImage(image, true);
+		setNormalImage(image, true);
 	}
 	
 	/**
@@ -105,7 +128,7 @@ public class Button extends Image
 	 */
 	public void setImage(Image image)
 	{
-		setImage(image.getTexture(), true);
+		setNormalImage(image.getTexture(), true);
 	}
 	
 	/**
@@ -115,14 +138,9 @@ public class Button extends Image
 	 * @param set Whether or not to set the local variable of the normal
 	 * 		Image.
 	 */
-	private void setImage(BufferedImage image, boolean set)
+	private void setNormalImage(BufferedImage image, boolean set)
 	{
-		super.setImage(image);
-		
-		if (set)
-		{
-			normalTexture = new Texture(image);
-		}
+		setNormalImage(new Texture(image), set);
 	}
 	
 	/**
@@ -132,7 +150,7 @@ public class Button extends Image
 	 * @param set Whether or not to set the local variable of the normal
 	 * 		Image.
 	 */
-	private void setImage(Texture image, boolean set)
+	private void setNormalImage(Texture image, boolean set)
 	{
 		super.setImage(image);
 		

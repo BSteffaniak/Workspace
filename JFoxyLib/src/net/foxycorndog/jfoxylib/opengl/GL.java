@@ -123,7 +123,7 @@ public class GL
 		setTextureWrapTMethod(GL.REPEAT);
 		
 		setTextureTolerance(0.0001f);
-		setVertexTolerance(0.001f);
+//		setVertexTolerance(0.001f);
 		
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);//GL_DECAL);
 		
