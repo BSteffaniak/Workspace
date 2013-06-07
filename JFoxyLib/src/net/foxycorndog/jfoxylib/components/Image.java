@@ -383,18 +383,35 @@ public class Image extends Component
 	 * 
 	 * @param width The new horizontal size of the Image.
 	 * @param height The new vertical size of the Image.
-	 * @param beginEditingBundle Whether or not to tell the Bundle
-	 * 		instance to begin editing the Textures.
 	 */
 	public void setSize(int width, int height)
 	{
+		setSize(width, height, true);
+	}
+	
+	/**
+	 * Set the size of this Image to the specified size.
+	 * 
+	 * @param width The new horizontal size of the Image.
+	 * @param height The new vertical size of the Image.
+	 * @param beginEditingBundle Whether or not to tell the Bundle
+	 * 		instance to begin editing the Vertices.
+	 */
+	public void setSize(int width, int height, boolean beginEditingBuffer)
+	{
 		super.setSize(width, height);
 		
-		bundle.beginEditingVertices();
+		if (beginEditingBuffer)
 		{
-			bundle.setVertices(0, GL.genRectVerts(0, 0, width, height));
+			bundle.beginEditingVertices();
 		}
-		bundle.endEditingVertices();
+		
+		bundle.setVertices(0, GL.genRectVerts(0, 0, width, height));
+		
+		if (beginEditingBuffer)
+		{
+			bundle.endEditingVertices();
+		}
 	}
 
 	/**

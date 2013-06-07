@@ -56,6 +56,8 @@ public class Button extends Image
 	public Button(Panel parent, Bundle bundle, int offset)
 	{
 		super(parent, bundle, offset);
+		
+		initButton();
 	}
 	
 	/**
