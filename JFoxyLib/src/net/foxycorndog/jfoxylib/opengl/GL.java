@@ -61,6 +61,7 @@ import java.util.ArrayList;
 
 
 import net.foxycorndog.jfoxylib.opengl.texture.Texture;
+import net.foxycorndog.jfoxyutil.Stack;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
@@ -81,22 +82,24 @@ import org.lwjgl.opengl.GL43;
  */
 public class GL
 {
-	private static boolean	inited;
+	private	static boolean	inited;
 	
-	private static float	zClose, zFar;
-	private static float	fov;
-	private static float	textureTolerance, vertexTolerance;
+	private	static float	zClose, zFar;
+	private	static float	fov;
+	private	static float	textureTolerance, vertexTolerance;
 	
-	private static int		textureScaleMinMethod, textureScaleMagMethod, textureWrapSMethod, textureWrapTMethod;
+	private	static int		textureScaleMinMethod, textureScaleMagMethod, textureWrapSMethod, textureWrapTMethod;
 	
-	public static final int	POINTS = GL11.GL_POINTS, LINES = GL11.GL_LINES, TRIANGLES = GL11.GL_TRIANGLES;//, QUADS = GL11.GL_QUADS;
+	private	static Stack<float[]>	amountScaled, amountTranslated, amountRotated, colorStack;
 	
-	public static final int ALL_ATTRIB_BITS = GL_ALL_ATTRIB_BITS, ENABLE_BIT = GL_ENABLE_BIT, FOG_BIT = GL_FOG_BIT,
+	public	static final int	POINTS = GL11.GL_POINTS, LINES = GL11.GL_LINES, TRIANGLES = GL11.GL_TRIANGLES;//, QUADS = GL11.GL_QUADS;
+	
+	public	static final int ALL_ATTRIB_BITS = GL_ALL_ATTRIB_BITS, ENABLE_BIT = GL_ENABLE_BIT, FOG_BIT = GL_FOG_BIT,
 			LIGHTING_BIT = GL_LIGHTING_BIT, LINE_BIT = GL_LINE_BIT, POINT_BIT = GL_POINT_BIT,
 			POLYGON_BIT = GL_POLYGON_BIT, TEXTURE_BIT = GL_TEXTURE_BIT,
 			COLOR_BUFFER_BIT = GL_COLOR_BUFFER_BIT, CURRENT_BIT = GL_CURRENT_BIT;
 	
-	public static final int LINEAR = GL11.GL_LINEAR, NEAREST = GL11.GL_NEAREST, REPEAT = GL11.GL_REPEAT, CLAMP = GL11.GL_CLAMP;
+	public	static final int LINEAR = GL11.GL_LINEAR, NEAREST = GL11.GL_NEAREST, REPEAT = GL11.GL_REPEAT, CLAMP = GL11.GL_CLAMP;
 	
 	/**
 	 * Initialize all of the OpenGL states that are required before
@@ -133,6 +136,18 @@ public class GL
 //		glBlendFunc(GL11.GL_SRC_COLOR, GL11.GL_ONE_MINUS_CONSTANT_COLOR);
 //		GL11.glDisable(GL_BLEND);
 //		GL11.glDepthMask(true);
+		
+		amountScaled = new Stack<float[]>();
+		amountScaled.push(new float[] { 1, 1, 1 });
+
+		amountTranslated = new Stack<float[]>();
+		amountTranslated.push(new float[] { 0, 0, 0 });
+
+		amountRotated = new Stack<float[]>();
+		amountRotated.push(new float[] { 0, 0, 0 });
+
+		colorStack = new Stack<float[]>();
+		colorStack.push(new float[] { 1, 1, 1, 1 });
 	}
 	
 	/**
@@ -433,6 +448,10 @@ public class GL
 	public static void pushMatrix()
 	{
 		GL11.glPushMatrix();
+		
+		amountScaled.push(amountScaled.peek().clone());
+		amountTranslated.push(amountTranslated.peek().clone());
+		amountRotated.push(amountRotated.peek().clone());
 	}
 	
 	/**
@@ -443,6 +462,10 @@ public class GL
 	public static void popMatrix()
 	{
 		GL11.glPopMatrix();
+		
+		amountScaled.pop();
+		amountTranslated.pop();
+		amountRotated.pop();
 	}
 	
 	/**
@@ -459,6 +482,12 @@ public class GL
 		GL11.glRotatef(x, 1, 0, 0);
 		GL11.glRotatef(y, 0, 1, 0);
 		GL11.glRotatef(z, 0, 0, 1);
+		
+		float array[] = amountRotated.peek();
+		
+		array[0] += x;
+		array[1] += y;
+		array[2] += z;
 	}
 	
 	/**
@@ -473,6 +502,12 @@ public class GL
 	public static void translate(float x, float y, float z)
 	{
 		GL11.glTranslatef(x, y, z);
+		
+		float array[] = amountTranslated.peek();
+		
+		array[0] += x;
+		array[1] += y;
+		array[2] += z;
 	}
 	
 	/**
@@ -487,6 +522,12 @@ public class GL
 	public static void scale(float x, float y, float z)
 	{
 		GL11.glScalef(x, y, z);
+		
+		float array[] = amountScaled.peek();
+		
+		array[0] *= x;
+		array[1] *= y;
+		array[2] *= z;
 	}
 	
 	/**
@@ -498,15 +539,15 @@ public class GL
 	 */
 	public static float[] getAmountScaled()
 	{
-		float scaled[] = new float[3];
+		float scaled[] = amountScaled.peek().clone();//new float[3];
 		
-		FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 4);
-		
-		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, buffer);
-		
-		scaled[0] = buffer.get(0);
-		scaled[1] = buffer.get(1 + 1 * 4);
-		scaled[2] = buffer.get(2 + 2 * 4);
+//		FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 4);
+//		
+//		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, buffer);
+//		
+//		scaled[0] = buffer.get(0);
+//		scaled[1] = buffer.get(1 + 1 * 4);
+//		scaled[2] = buffer.get(2 + 2 * 4);
 		
 		return scaled;
 	}
@@ -520,15 +561,15 @@ public class GL
 	 */
 	public static float[] getAmountTranslated()
 	{
-		float translated[] = new float[3];
+		float translated[] = amountTranslated.peek().clone();//new float[3];
 		
-		FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 4);
-		
-		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, buffer);
-		
-		translated[0] = buffer.get(0 + 3 * 4);
-		translated[1] = buffer.get(1 + 3 * 4);
-		translated[2] = buffer.get(2 + 3 * 4);
+//		FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 4);
+//		
+//		GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, buffer);
+//		
+//		translated[0] = buffer.get(0 + 3 * 4);
+//		translated[1] = buffer.get(1 + 3 * 4);
+//		translated[2] = buffer.get(2 + 3 * 4);
 		
 		return translated;
 	}
@@ -643,16 +684,16 @@ public class GL
 	 */
 	public static float[] getColor()
 	{
-		float color[] = new float[4];
+		float color[] = colorStack.peek().clone();//new float[4];
 		
-		FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 4);
-		
-		GL11.glGetFloat(GL11.GL_CURRENT_COLOR, buffer);
-		
-		color[0] = buffer.get(0);
-		color[1] = buffer.get(1);
-		color[2] = buffer.get(2);
-		color[3] = buffer.get(3);
+//		FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 4);
+//		
+//		GL11.glGetFloat(GL11.GL_CURRENT_COLOR, buffer);
+//		
+//		color[0] = buffer.get(0);
+//		color[1] = buffer.get(1);
+//		color[2] = buffer.get(2);
+//		color[3] = buffer.get(3);
 		
 		return color;
 	}
@@ -669,6 +710,13 @@ public class GL
 	public static void setColor(float r, float g, float b, float a)
 	{
 		GL11.glColor4f(r, g, b, a);
+		
+		float array[] = colorStack.peek();
+		
+		array[0] = r;
+		array[1] = g;
+		array[2] = b;
+		array[3] = a;
 	}
 	
 	/**

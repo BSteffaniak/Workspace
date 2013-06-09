@@ -19,7 +19,10 @@ import net.foxycorndog.jfoxylib.opengl.texture.Texture;
  */
 public class Image extends Component
 {
+	private	boolean	indirectBundle;
+	
 	private	int		x, y;
+	private	int		bundleX, bundleY;
 	private	int		cols, rows;
 	private	int		rx, ry;
 	private	int		offset;
@@ -36,6 +39,8 @@ public class Image extends Component
 	public Image(Panel parent)
 	{
 		this(parent, new Bundle(3 * 2, 2, true, false), 0);
+		
+		this.indirectBundle = false;
 	}
 	
 	/**
@@ -51,9 +56,11 @@ public class Image extends Component
 	{
 		super(parent);
 		
-		this.bundle = bundle;
+		this.bundle         = bundle;
 		
-		this.offset = offset;
+		this.offset         = offset;
+		
+		this.indirectBundle = true;
 	}
 	
 	/**
@@ -290,9 +297,9 @@ public class Image extends Component
 	/**
 	 * Remove the Image and make this Image instance show nothing.
 	 */
-	public void removeImage()
+	public void disposeImage()
 	{
-		removeImage(true);
+		disposeImage(true);
 	}
 	
 	/**
@@ -301,7 +308,7 @@ public class Image extends Component
 	 * @param beginEditingBundle Whether or not to tell the Bundle
 	 * 		instance to begin editing the Textures.
 	 */
-	public void removeImage(boolean beginEditingBundle)
+	public void disposeImage(boolean beginEditingBundle)
 	{
 		if (beginEditingBundle)
 		{
@@ -379,6 +386,45 @@ public class Image extends Component
 	}
 	
 	/**
+	 * Set the location of this Image to the specified location.
+	 * 
+	 * @param x The new horizontal location of the Image.
+	 * @param y The new vertical location of the Image.
+	 */
+	public void setLocation(int x, int y)
+	{
+		setLocation(x, y, true);
+	}
+	
+	/**
+	 * Set the location of this Image to the specified location.
+	 * 
+	 * @param x The new horizontal location of the Image.
+	 * @param y The new vertical location of the Image.
+	 * @param beginEditingBundle Whether or not to tell the Bundle
+	 * 		instance to begin editing the Vertices.
+	 */
+	public void setLocation(int x, int y, boolean beginEditingBuffer)
+	{
+		super.setLocation(x, y);
+		
+		if (indirectBundle)
+		{
+			if (beginEditingBuffer)
+			{
+				bundle.beginEditingVertices();
+			}
+			
+			bundle.setVertices(offset, GL.genRectVerts(x, y, getWidth(), getHeight()));
+			
+			if (beginEditingBuffer)
+			{
+				bundle.endEditingVertices();
+			}
+		}
+	}
+	
+	/**
 	 * Set the size of this Image to the specified size.
 	 * 
 	 * @param width The new horizontal size of the Image.
@@ -406,7 +452,7 @@ public class Image extends Component
 			bundle.beginEditingVertices();
 		}
 		
-		bundle.setVertices(0, GL.genRectVerts(0, 0, width, height));
+		bundle.setVertices(offset, GL.genRectVerts(0, 0, width, height));
 		
 		if (beginEditingBuffer)
 		{

@@ -18,7 +18,7 @@ public class Queue<E>
 	private	ArrayList<E>	queue;
 	
 	/**
-	 * Instantiate the ArrayList that will be used as a queue.
+	 * Instantiate the ArrayList that will be used as a Queue.
 	 */
 	public Queue()
 	{
@@ -26,7 +26,7 @@ public class Queue<E>
 	}
 	
 	/**
-	 * Enqueue an element to the end of the queue.
+	 * Enqueue an element to the end of the Queue.
 	 * 
 	 * @param element The element to enqueue.
 	 * @return Whether the element was successfully enqueued or not.
@@ -43,7 +43,7 @@ public class Queue<E>
 	
 	/**
 	 * Dequeue the first element added (that has yet to be removed)
-	 * from the queue and return it to you.
+	 * from the Queue and return it to you.
 	 * 
 	 * @return The first element that has yet to be removed.
 	 */
@@ -111,7 +111,7 @@ public class Queue<E>
 	 * Return whether or not the Queue contains the specific Element
 	 * instance.
 	 * 
-	 * @param element The Element to check if the queue contains.
+	 * @param element The Element to check if the Queue contains.
 	 * @return Whether or not the Queue contains the specific Element
 	 * 		instance.
 	 */

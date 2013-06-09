@@ -168,12 +168,12 @@ public class Buffer
 	 */
 	public void beginEditing()
 	{
-		int currentlyBound = GL11.glGetInteger(GL_ARRAY_BUFFER_BINDING);
-		
-		if (currentlyBound == id)
-		{
-			return;
-		}
+//		int currentlyBound = GL11.glGetInteger(GL_ARRAY_BUFFER_BINDING);
+//		
+//		if (currentlyBound == id)
+//		{
+//			return;
+//		}
 		
 		glBindBuffer(GL_ARRAY_BUFFER, id);
 		

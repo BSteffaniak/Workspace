@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/LWJGL/LWJGL/lwjgl-2.9.0/jar/lwjgl_util.jar"/>
 	<classpathentry kind="lib" path="/LWJGL/LWJGL/lwjgl-2.9.0/jar/lwjgl.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/JFoxyUtil"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
