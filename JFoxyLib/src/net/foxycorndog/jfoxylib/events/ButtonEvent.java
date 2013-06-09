@@ -1,6 +1,7 @@
 package net.foxycorndog.jfoxylib.events;
 
 import net.foxycorndog.jfoxylib.components.Button;
+import net.foxycorndog.jfoxylib.input.Mouse;
 
 /**
  * Class used for each Button Event that is dispatched.
@@ -13,20 +14,22 @@ import net.foxycorndog.jfoxylib.components.Button;
  */
 public class ButtonEvent extends Event
 {
+	private	int		button;
+	
 	private Button	source;
 	
-	private boolean	buttons[];
+	public	static	final	int	LEFT_MOUSE_BUTTON = Mouse.LEFT_MOUSE_BUTTON, RIGHT_MOUSE_BUTTON = Mouse.RIGHT_MOUSE_BUTTON, MOUSE_WHEEL_BUTTON = Mouse.MOUSE_WHEEL_BUTTON;
 	
 	/**
 	 * Create a ButtonEvent with the specified source.
 	 * 
 	 * @param source The Button that had an action performed on it.
 	 */
-	public ButtonEvent(Button source, boolean buttons[])
+	public ButtonEvent(Button source, int button)
 	{
 		this.source  = source;
 		
-		this.buttons = buttons;
+		this.button  = button;
 	}
 	
 	/**
@@ -40,13 +43,12 @@ public class ButtonEvent extends Event
 	}
 	
 	/**
-	 * Get what buttons were pressed during the event.
+	 * Get what button was pressed during the event.
 	 * 
-	 * @return A boolean array with a description of what buttons were
-	 * 		pressed during the event. (LMB = 0, RMB = 1, Wheel = 2)
+	 * @return An integer that represents the Button pressed.
 	 */
-	public boolean[] getButtons()
+	public int getButton()
 	{
-		return buttons;
+		return button;
 	}
 }

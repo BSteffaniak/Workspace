@@ -40,4 +40,18 @@ public interface ButtonListener
 	 * @param event The ButtonEvent instance linked with this event.
 	 */
 	public void buttonUnHovered(ButtonEvent event);
+	
+	/**
+	 * Event called whenever the specified Button is not pressed down.
+	 * 
+	 * @param event The ButtonEvent instance linked with this event.
+	 */
+	public void buttonUp(ButtonEvent event);
+
+	/**
+	 * Event called whenever the specified Button is pressed down.
+	 * 
+	 * @param event The ButtonEvent instance linked with this event.
+	 */
+	public void buttonDown(ButtonEvent event);
 }

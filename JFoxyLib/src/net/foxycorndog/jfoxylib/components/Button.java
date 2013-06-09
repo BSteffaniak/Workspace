@@ -100,6 +100,16 @@ public class Button extends Image
 				
 				hovered = true;
 			}
+
+			public void buttonUp(ButtonEvent event)
+			{
+				
+			}
+
+			public void buttonDown(ButtonEvent event)
+			{
+				
+			}
 		});
 	}
 	

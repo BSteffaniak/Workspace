@@ -28,7 +28,7 @@ public class TextField extends Component
 	
 	private	int				caretPosition;
 	
-	private	float			scale, textScale;
+	private	float			textScale;
 	
 	private	long			startTime, currentTime;
 	
@@ -255,19 +255,19 @@ public class TextField extends Component
 	 */
 	private void scaleFont()
 	{
-		scale        = getHeight() / (float)font.getGlyphHeight();
+		textScale        = getHeight() / (float)font.getGlyphHeight();
 		
-		double floor = Math.floor(scale);
+		float floor = (float)Math.floor(textScale);
 		
-		double diff  = scale - floor;
+		float diff  = textScale - floor;
 		
 		if (diff >= 0.5 && diff < 0.75)
 		{
-			scale = (float)(Math.floor(scale) + 0.5);
+			textScale = floor + 0.5f;
 		}
 		else
 		{
-			scale = (float)(Math.floor(scale));
+			textScale = floor;
 		}
 	}
 	
@@ -350,7 +350,7 @@ public class TextField extends Component
 	 * 
 	 * @return The scale that the text will be rendered in.
 	 */
-	public float getScale()
+	public float getTextScale()
 	{
 		return textScale;
 	}
@@ -360,7 +360,7 @@ public class TextField extends Component
 	 * 
 	 * @param scale The scale that the text will be rendered in.
 	 */
-	public void setScale(float scale)
+	public void setTextScale(float scale)
 	{
 		this.textScale = scale;
 	}
@@ -403,9 +403,9 @@ public class TextField extends Component
 			
 			backgroundImage.render();
 			
-			GL.beginClipping(0, 0, getWidth(), getHeight());
-			{
-				float offsetY = (getHeight() / 2) - (font.getGlyphHeight() * (scale * textScale)) / 2;
+//			GL.beginClipping(0, 0, getWidth(), getHeight());
+//			{
+				float offsetY = (getHeight() / 2) - (font.getGlyphHeight() * (textScale)) / 2;
 				
 				float color[] = null;
 				
@@ -413,7 +413,7 @@ public class TextField extends Component
 				{
 					color = GL.getColor();
 					
-					GL.setColor(fontColor.getRedf(), fontColor.getGreenf(), fontColor.getBluef(), fontColor.getAlphaf());
+					GL.setColor(fontColor);
 				}
 				
 				boolean tick = true;
@@ -436,14 +436,14 @@ public class TextField extends Component
 					finalText.insert(caretPosition, caretChar);
 				}
 				
-				font.render(finalText.toString(), 2, offsetY, 0, scale * textScale, getParent());
+				font.render(finalText.toString(), 2, offsetY, 0, textScale, getParent());
 				
 				if (fontColor != null)
 				{
-					GL.setColor(color[0], color[1], color[2], color[3]);
+					GL.setColor(color);
 				}
-			}
-			GL.endClipping();
+//			}
+//			GL.endClipping();
 		}
 		GL.popMatrix();
 	}

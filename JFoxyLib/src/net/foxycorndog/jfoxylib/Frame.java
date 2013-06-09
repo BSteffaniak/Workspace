@@ -229,8 +229,6 @@ public class Frame
 					
 					boolean intersects = intersectsMouse(comp);
 					
-					boolean buttons[] = new boolean[] { Mouse.isButtonDown(0), Mouse.isButtonDown(1), Mouse.isButtonDown(2) };
-					
 					if (comp instanceof Button)
 					{
 						Button button = (Button)comp;
@@ -243,7 +241,7 @@ public class Frame
 							{
 								ButtonListener listener = buttonListeners.get(n);
 								
-								ButtonEvent buttonEvent = new ButtonEvent(button, buttons);
+								ButtonEvent buttonEvent = new ButtonEvent(button, event.getButton());
 								
 								listener.buttonReleased(buttonEvent);
 							}
@@ -269,8 +267,6 @@ public class Frame
 
 					boolean intersects = intersectsMouse(comp);
 					
-					boolean buttons[] = new boolean[] { Mouse.isButtonDown(0), Mouse.isButtonDown(1), Mouse.isButtonDown(2) };
-					
 					if (intersects && comp.isEnabled())
 					{
 						if (comp instanceof Button)
@@ -285,7 +281,7 @@ public class Frame
 								{
 									ButtonListener listener = buttonListeners.get(n);
 									
-									ButtonEvent buttonEvent = new ButtonEvent(button, buttons);
+									ButtonEvent buttonEvent = new ButtonEvent(button, event.getButton());
 									
 									listener.buttonPressed(buttonEvent);
 								}
@@ -312,8 +308,6 @@ public class Frame
 					
 					boolean intersects = intersectsMouse(comp);
 					
-					boolean buttons[] = new boolean[] { Mouse.isButtonDown(0), Mouse.isButtonDown(1), Mouse.isButtonDown(2) };
-					
 					if (comp instanceof Button)
 					{
 						Button button = (Button)comp;
@@ -326,7 +320,7 @@ public class Frame
 							{
 								ButtonListener listener = buttonListeners.get(n);
 								
-								ButtonEvent buttonEvent = new ButtonEvent(button, buttons);
+								ButtonEvent buttonEvent = new ButtonEvent(button, event.getButton());
 								
 								if (intersects && !button.isHovered())
 								{
@@ -344,7 +338,43 @@ public class Frame
 			
 			public void mouseDown(MouseEvent event)
 			{
-				
+				for (int i = 0; i < components.size(); i++)
+				{
+					Component comp = components.get(i);
+					
+					if (comp.isDisposed())
+					{
+						continue;
+					}
+					
+					boolean intersects = intersectsMouse(comp);
+					
+					if (comp instanceof Button)
+					{
+						Button button = (Button)comp;
+						
+						if (button.isEnabled())
+						{
+							ArrayList<ButtonListener> buttonListeners = button.getButtonListeners();
+							
+							for (int n = buttonListeners.size() - 1; n >= 0; n--)
+							{
+								ButtonListener listener = buttonListeners.get(n);
+								
+								ButtonEvent buttonEvent = new ButtonEvent(button, event.getButton());
+								
+								if (intersects)
+								{
+									listener.buttonDown(buttonEvent);
+								}
+								else if (!intersects)
+								{
+									listener.buttonUp(buttonEvent);
+								}
+							}
+						}
+					}
+				}
 			}
 
 			public void mouseEntered(MouseEvent event)
@@ -365,8 +395,6 @@ public class Frame
 					
 					boolean intersects = intersectsMouse(comp);
 					
-					boolean buttons[] = new boolean[] { Mouse.isButtonDown(0), Mouse.isButtonDown(1), Mouse.isButtonDown(2) };
-					
 					if (comp instanceof Button)
 					{
 						Button button = (Button)comp;
@@ -379,7 +407,7 @@ public class Frame
 							{
 								ButtonListener listener = buttonListeners.get(n);
 								
-								ButtonEvent buttonEvent = new ButtonEvent(button, buttons);
+								ButtonEvent buttonEvent = new ButtonEvent(button, event.getButton());
 								
 								listener.buttonUnHovered(buttonEvent);
 							}

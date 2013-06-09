@@ -60,6 +60,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 
+import net.foxycorndog.jfoxylib.Color;
 import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 import net.foxycorndog.jfoxyutil.Stack;
 
@@ -497,7 +498,7 @@ public class GL
 	 * 
 	 * @param x The amount to translate along the x (horizontal) axis.
 	 * @param y The amount to translate along the y (vertical) axis.
-	 * @param z The amount to translate along the z (onlique) axis.
+	 * @param z The amount to translate along the z (oblique) axis.
 	 */
 	public static void translate(float x, float y, float z)
 	{
@@ -717,6 +718,17 @@ public class GL
 		array[1] = g;
 		array[2] = b;
 		array[3] = a;
+	}
+	
+	/**
+	 * Set the color that everything rendered will be affected by.
+	 * Accepts values (0 - 1).
+	 * 
+	 * @param color A Color instance that describes a rgba Color.
+	 */
+	public static void setColor(Color color)
+	{
+		setColor(color.getRedf(), color.getGreenf(), color.getBluef(), color.getAlphaf());
 	}
 	
 	/**
