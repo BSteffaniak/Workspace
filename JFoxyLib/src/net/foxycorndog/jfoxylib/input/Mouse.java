@@ -38,7 +38,7 @@ public class Mouse
 	private static int						dWheel;
 	private static int						forcedX, forcedY;
 	
-	private static PointerInfo				pointerInfo;
+//	private static PointerInfo				pointerInfo;
 	
 	private static Robot					robot;
 	
@@ -138,7 +138,7 @@ public class Mouse
 			able[i] = true;
 		}
 		
-		pointerInfo = MouseInfo.getPointerInfo();
+//		pointerInfo = MouseInfo.getPointerInfo();
 	}
 	
 	/**
@@ -150,15 +150,15 @@ public class Mouse
 	 */
 	public static void setLocation(int x, int y)
 	{
-		pointerInfo = MouseInfo.getPointerInfo();
+//		pointerInfo = MouseInfo.getPointerInfo();
 		
-		int offX = x - getDisplayX();
-		int offY = -(y - getDisplayY());
+//		int offX = x - getDisplayX();
+//		int offY = -(y - getDisplayY());
 		
 		robot.mouseMove(x, y);
 		
-		forcedX = offX;
-		forcedY = offY;
+//		forcedX = offX;
+//		forcedY = offY;
 		
 //		System.out.println("offsets: " + offX + ", " + offY);
 	}
@@ -185,25 +185,25 @@ public class Mouse
 		return mouse.getY();
 	}
 	
-	/**
-	 * Get the pointers horizontal location in the Monitors Display.
-	 * 
-	 * @return The pointers horizontal location in the Monitors Display.
-	 */
-	public static int getDisplayX()
-	{
-		return pointerInfo.getLocation().x;
-	}
+//	/**
+//	 * Get the pointers horizontal location in the Monitors Display.
+//	 * 
+//	 * @return The pointers horizontal location in the Monitors Display.
+//	 */
+//	public static int getDisplayX()
+//	{
+//		return pointerInfo.getLocation().x;
+//	}
 	
-	/**
-	 * Get the pointers vertical location in the Monitors Display.
-	 * 
-	 * @return The pointers vertical location in the Monitors Display.
-	 */
-	public static int getDisplayY()
-	{
-		return pointerInfo.getLocation().y;
-	}
+//	/**
+//	 * Get the pointers vertical location in the Monitors Display.
+//	 * 
+//	 * @return The pointers vertical location in the Monitors Display.
+//	 */
+//	public static int getDisplayY()
+//	{
+//		return pointerInfo.getLocation().y;
+//	}
 	
 	/**
 	 * Get the displacement horizontal value of the cursor since the
@@ -303,12 +303,12 @@ public class Mouse
 	 */
 	public static void update()
 	{
-		pointerInfo = MouseInfo.getPointerInfo();
+//		pointerInfo = MouseInfo.getPointerInfo();
 		
 		boolean newInFrame = mouse.isInsideWindow();
 		
-		dx = pointerInfo.getLocation().x - oldX;
-		dy = pointerInfo.getLocation().y - oldY;
+		dx = mouse.getX() - oldX;//pointerInfo.getLocation().x - oldX;
+		dy = mouse.getY() - oldY;//pointerInfo.getLocation().y - oldY;
 		
 		dWheel = mouse.getDWheel();
 		
@@ -388,8 +388,8 @@ public class Mouse
 		dx -= forcedX;
 		dy -= forcedY;
 		
-		oldX = pointerInfo.getLocation().x;
-		oldY = pointerInfo.getLocation().y;
+		oldX = mouse.getX();
+		oldY = mouse.getY();
 		
 		forcedX = 0;
 		forcedY = 0;

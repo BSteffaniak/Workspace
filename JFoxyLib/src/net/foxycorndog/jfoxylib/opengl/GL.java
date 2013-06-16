@@ -450,9 +450,9 @@ public class GL
 	{
 		GL11.glPushMatrix();
 		
-		amountScaled.push(amountScaled.peek().clone());
-		amountTranslated.push(amountTranslated.peek().clone());
-		amountRotated.push(amountRotated.peek().clone());
+		amountScaled.push(getAmountScaled());
+		amountTranslated.push(getAmountTranslated());
+		amountRotated.push(getAmountRotated());
 	}
 	
 	/**
@@ -540,7 +540,14 @@ public class GL
 	 */
 	public static float[] getAmountScaled()
 	{
-		float scaled[] = amountScaled.peek().clone();//new float[3];
+		float copy[] = amountScaled.peek();
+		
+		float dest[] = new float[copy.length];//new float[3];
+		
+		for (int i = 0; i < copy.length; i++)
+		{
+			dest[i] = copy[i];
+		}
 		
 //		FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 4);
 //		
@@ -550,7 +557,7 @@ public class GL
 //		scaled[1] = buffer.get(1 + 1 * 4);
 //		scaled[2] = buffer.get(2 + 2 * 4);
 		
-		return scaled;
+		return dest;
 	}
 	
 	/**
@@ -562,7 +569,14 @@ public class GL
 	 */
 	public static float[] getAmountTranslated()
 	{
-		float translated[] = amountTranslated.peek().clone();//new float[3];
+		float copy[] = amountTranslated.peek();
+		
+		float dest[] = new float[copy.length];//new float[3];
+		
+		for (int i = 0; i < copy.length; i++)
+		{
+			dest[i] = copy[i];
+		}
 		
 //		FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 4);
 //		
@@ -572,7 +586,28 @@ public class GL
 //		translated[1] = buffer.get(1 + 3 * 4);
 //		translated[2] = buffer.get(2 + 3 * 4);
 		
-		return translated;
+		return dest;
+	}
+	
+	/**
+	 * Get the amount that the current matrix has been rotated by up
+	 * to this method call.
+	 * 
+	 * @return A float array containing three values that correspond
+	 * 		to the (x, y, z) amount rotated.
+	 */
+	public static float[] getAmountRotated()
+	{
+		float copy[] = amountRotated.peek();
+		
+		float dest[] = new float[copy.length];//new float[3];
+		
+		for (int i = 0; i < copy.length; i++)
+		{
+			dest[i] = copy[i];
+		}
+		
+		return dest;
 	}
 	
 	/**
@@ -685,7 +720,14 @@ public class GL
 	 */
 	public static float[] getColor()
 	{
-		float color[] = colorStack.peek().clone();//new float[4];
+		float copy[] = colorStack.peek();
+		
+		float dest[] = new float[copy.length];//new float[3];
+		
+		for (int i = 0; i < copy.length; i++)
+		{
+			dest[i] = copy[i];
+		}
 		
 //		FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 4);
 //		
@@ -696,7 +738,7 @@ public class GL
 //		color[2] = buffer.get(2);
 //		color[3] = buffer.get(3);
 		
-		return color;
+		return dest;
 	}
 	
 	/**

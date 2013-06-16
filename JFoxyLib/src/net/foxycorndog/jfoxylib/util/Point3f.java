@@ -180,17 +180,6 @@ public class Point3f implements Cloneable
 	 */
 	public Point3f clone()
 	{
-		Point3f clone = null;
-		
-		try
-		{
-			clone = (Point3f)super.clone();
-		}
-		catch (CloneNotSupportedException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return clone;
+		return new Point3f(x, y, z);
 	}
 }
