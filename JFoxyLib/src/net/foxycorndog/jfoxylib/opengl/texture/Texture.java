@@ -27,6 +27,7 @@ import net.foxycorndog.jfoxylib.opengl.GL;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
+import org.lwjgl.opengl.GL15;
 
 /**
  * 
@@ -39,10 +40,14 @@ import org.lwjgl.opengl.GL12;
  */
 public class Texture
 {
-	private int		id;
-	private int		width, height;
+	private int			id;
+	private int			width, height;
 	
-	private float	texWid, texHei;
+	private float		texWid, texHei;
+	
+	private	IntBuffer	intBuffer;
+	
+	private	byte		pixels[];
 	
 	/**
 	 * 
@@ -88,7 +93,9 @@ public class Texture
 	{
 		GL.pushAttrib(GL.ALL_ATTRIB_BITS);
 		{
-			id = loadTexture(image, recreate);
+			id = newTextureId();
+			
+			loadTexture(image, recreate);
 		}
 		GL.popAttrib();
 	}
@@ -122,10 +129,9 @@ public class Texture
 	 * @param recreate
 	 * @return
 	 */
-	private int loadTexture(BufferedImage image, boolean recreate)
+	private void loadTexture(BufferedImage image, boolean recreate)
 	{
 		// In which ID will we be storing this texture?
-	    int id = newTextureId();
 	    
 	    // We need to flip the textures vertically:
 //	    Matrix flip = new Matrix();
@@ -148,7 +154,7 @@ public class Texture
 	    
 //	    temp.recycle();
 	    
-	    GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+	    bind();
 	    
 	    // Set all of our texture parameters:
 //	    GLES10.glTexParameterf(GLES10.GL_TEXTURE_2D, GLES10.GL_TEXTURE_MIN_FILTER, GLES10.GL_LINEAR_MIPMAP_NEAREST);
@@ -162,13 +168,13 @@ public class Texture
 	    
 	    if (recreate)
 	    {
-//	    WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, width, height, 4, null);
-//	    ColorModel glAlphaColorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] { 8, 8, 8, 8 }, true, false, ComponentColorModel.TRANSLUCENT, DataBuffer.TYPE_BYTE);
-	    
+//		    WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, width, height, 4, null);
+//		    ColorModel glAlphaColorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[] { 8, 8, 8, 8 }, true, false, ComponentColorModel.TRANSLUCENT, DataBuffer.TYPE_BYTE);
+//	    
 //		    BufferedImage img = new BufferedImage(glAlphaColorModel, raster, false, new Hashtable());
-		    BufferedImage img = new BufferedImage(width, height, BufferedImage.BITMASK);
+		    BufferedImage img = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
 	    	
-		    Graphics g = img.getGraphics();
+		    Graphics g = img.createGraphics();
 		    g.setColor(new Color(0, 0, 0, 0));
 		    g.fillRect(0, 0, width, height);
 		    g.drawImage(image, 0, 0, null);
@@ -177,35 +183,90 @@ public class Texture
 		    image = img;
 	    }
 	    
-	    int pixels[] = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
-//	    byte pixelsb[] = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
-
-        ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * 4); // 4 for RGBA, 3 for RGB
-        buffer.order(ByteOrder.BIG_ENDIAN);
-        
-        IntBuffer ib = buffer.asIntBuffer();
-        
-        for(int y = height - 1; y >= 0; y--)
+//	    int pixels[] = ((DataBufferInt)image.getRaster().getDataBuffer()).getData();
+	    byte pixels[] = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
+	    
+        // Flip the data vertically.
+	    for (int y = 0; y < height / 2; y++)
         {
-            for(int x = 0; x < width; x++)
+            for (int x = 0; x < width; x++)
             {
-                int pixel = pixels[x + y * width];
-                
-                int ri = ((pixel >> 16) & 0xFF);
-                int gi = ((pixel >> 8)  & 0xFF);
-                int bi = ((pixel >> 0)  & 0xFF);
-                int ai = ((pixel >> 24) & 0xFF);
-                
-                ib.put(ri << 24 | gi << 16 | bi << 8 | ai);
+            	int offset  = (x + y * width) * 4;
+            	int offset2 = (x + (height - y - 1) * width) * 4;
+            	
+            	for (int i = 0; i < 4; i++)
+            	{
+	                byte temp = pixels[offset + i];
+	                pixels[offset + i] = pixels[offset2 + i];
+	                pixels[offset2 + i] = temp;
+            	}
             }
         }
-        buffer.position(0);
-//        buffer.rewind(); // FOR THE LOVE OF GOD DO NOT FORGET THIS
-
-        // You now have a ByteBuffer filled with the color data of each pixel.
+	    
+	    // Put the data in the right order (From ABGR to RGBA (Reverse it)).
+	    for (int y = 0; y < height; y++)
+	    {
+	    	for (int x = 0; x < width; x++)
+	    	{
+            	int offset  = (x + y * width) * 4;
+            	
+	    		for (int i = 0; i < 2; i++)
+            	{
+	                byte temp = pixels[offset + i];
+	                pixels[offset + i] = pixels[offset + 4 - i - 1];
+	                pixels[offset + 4 - i - 1] = temp;
+            	}
+	    	}
+	    }
+	    
+	    this.pixels = pixels;
+	    
+	    loadTexture();
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param pixels
+	 * @return
+	 */
+	private void loadTexture()
+	{
+		bind();
+	    
+	    ByteBuffer byteBuffer = BufferUtils.createByteBuffer(pixels.length); // 4 for RGBA, 3 for RGB
+       
+	    byteBuffer.order(ByteOrder.nativeOrder());//.BIG_ENDIAN);
+		byteBuffer.put(pixels);
+		byteBuffer.position(0);
+		
+//	    byte pixelsb[] = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
+        
+//        intBuffer = byteBuffer.asIntBuffer();
+//        
+//        for(int y = height - 1; y >= 0; y--)
+//        {
+//            for(int x = 0; x < width; x++)
+//            {
+//                int pixel = pixels[x + y * width];
+//                
+//                int ri = ((pixel >> 16) & 0xFF);
+//                int gi = ((pixel >> 8)  & 0xFF);
+//                int bi = ((pixel >> 0)  & 0xFF);
+//                int ai = ((pixel >> 24) & 0xFF);
+////                if ((ri << 24 | gi << 16 | bi << 8 | ai) != 0)
+////                System.out.println(ri << 24 | gi << 16 | bi << 8 | ai);
+//                
+//                intBuffer.put(ri << 24 | gi << 16 | bi << 8 | ai);
+//            }
+//        }
+//        
+//        intBuffer.position(0);
+//        buffer.rewind(); // FOR THE LOVE OF GOD DO NOT FORGET TH
+        // You now have a ByteBuffer filled with the color data of each pixel.0
         // Now just create a texture ID and bind it. Then you can load it using 
         // whatever OpenGL method you want, for example:
-        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buffer);
+        GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, byteBuffer);
 	    
 //	    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, level, internalformat, id, id, border, format, type, pixels);
 	    
@@ -231,8 +292,220 @@ public class Texture
 //	    }
 	    
 	    genTexDimensions();
-	    
-	    return id;
+	}
+	
+//	/**
+//	 * Get the integer array that holds the values of the colors for
+//	 * the colors in the Texture.
+//	 * 
+//	 * @return The integer array instance.
+//	 */
+//	public byte[] getPixels()
+//	{
+//		return pixels;
+//	}
+	
+	public int getPixel(int x, int y)
+	{
+		int pixel = 0;
+		
+		int r = pixels[(x + y * width) * 4 + 0];
+		int g = pixels[(x + y * width) * 4 + 1];
+		int b = pixels[(x + y * width) * 4 + 2];
+		int a = pixels[(x + y * width) * 4 + 3];
+		
+		if (r < 0)
+		{
+			r += 256;
+		}
+		if (g < 0)
+		{
+			g += 256;
+		}
+		if (b < 0)
+		{
+			b += 256;
+		}
+		if (a < 0)
+		{
+			a += 256;
+		}
+		
+		a *= 0x1000000;
+		r *= 0x10000;
+		g *= 0x100;
+		b *= 0x1;
+		
+		pixel = r + g + b + a;
+		
+		return pixel;
+	}
+	
+	public int[] getPixels(int x, int y, int width, int height)
+	{
+		int data[] = new int[width * height];
+		
+//		byteBuffer.position((x + y * width) * 4);
+//			
+//		for (int i = 0; i < height; i++)
+//		{
+//			byteBuffer.get(data, i * width * 4, width * 4);
+//		}
+		
+		for (int y2 = 0; y2 < height; y2++)
+		{
+			for (int x2 = 0; x2 < width; x2++)
+			{
+				data[(x2 + y2 * width)] = getPixel(x2 + x, y2 + y);
+			}
+		}
+		
+		return data;
+	}
+	
+	public void setPixel(int x, int y, int value)
+	{
+		bind();
+		
+		byte values[] = new byte[4];
+		
+		byte r = (byte)((value >> 16) & 0xFF);
+		byte g = (byte)((value >>  8) & 0xFF);
+		byte b = (byte)((value >>  0) & 0xFF);
+		byte a = (byte)((value >> 24) & 0xFF);
+
+		values[0] = r;
+		values[1] = g;
+		values[2] = b;
+		values[3] = a;
+		
+		for (int i = 0; i < 4; i++)
+		{
+			pixels[(x + y * width) * 4 + i] = values[i];
+		}
+		
+		ByteBuffer buf = BufferUtils.createByteBuffer(4);
+		
+		buf.put(values);
+		
+		buf.position(0);
+		
+		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, 1, 1, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
+	}
+	
+	public void setPixels(int x, int y, int width, int height, int values[])
+	{
+		bind();
+		
+		byte bytes[] = new byte[width * height * 4];
+		
+		for (int i = 0; i < bytes.length; i += 4)
+		{
+			byte r = (byte)((values[i / 4] >> 16) & 0xFF);
+			byte g = (byte)((values[i / 4] >>  8) & 0xFF);
+			byte b = (byte)((values[i / 4] >>  0) & 0xFF);
+			byte a = (byte)((values[i / 4] >> 24) & 0xFF);
+	
+			bytes[i + 0] = r;
+			bytes[i + 1] = g;
+			bytes[i + 2] = b;
+			bytes[i + 3] = a;
+		}
+		
+		for (int y2 = 0; y2 < height; y2++)
+		{
+			for (int x2 = 0; x2 < width; x2++)
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = bytes[(x2 + y2 * height) * 4 + i];
+				}
+			}
+		}
+		
+		ByteBuffer buf = BufferUtils.createByteBuffer(width * height * 4);
+		
+		buf.put(bytes);
+		
+		buf.position(0);
+		
+		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
+	}
+	
+	public byte[] getPixelBytes(int x, int y)
+	{
+		byte data[] = new byte[4];
+		
+		for (int i = 0; i < 4; i++)
+		{
+			data[i] = pixels[(x + y * width) * 4];
+		}
+		
+		return data;
+	}
+	
+	public byte[] getPixelsBytes(int x, int y, int width, int height)
+	{
+		byte data[] = new byte[width * height * 4];
+		
+//		byteBuffer.position((x + y * width) * 4);
+//			
+//		for (int i = 0; i < height; i++)
+//		{
+//			byteBuffer.get(data, i * width * 4, width * 4);
+//		}
+		
+		for (int y2 = 0; y2 < height; y2++)
+		{
+			for (int x2 = 0; x2 < width; x2++)
+			{
+				byte d[] = getPixelBytes(x2 + x, y2 + y);
+				
+				for (int i = 0; i < 4; i++)
+				{
+					data[(x2 + y2 * width) * 4 + i] = d[i];
+				}
+			}
+		}
+		
+		return data;
+	}
+	
+	public void setPixelBytes(int x, int y, byte values[])
+	{
+		bind();
+		
+		ByteBuffer buf = BufferUtils.createByteBuffer(4);
+		
+		buf.put(values);
+		
+		buf.position(0);
+		
+		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, 1, 1, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
+	}
+	
+	public void setPixelsBytes(int x, int y, int width, int height, byte values[])
+	{
+		bind();
+		
+		for (int y2 = 0; y2 < height; y2++)
+		{
+			for (int x2 = 0; x2 < width; x2++)
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = values[(x2 + y2 * height) * 4 + i];
+				}
+			}
+		}
+		
+		ByteBuffer buf = BufferUtils.createByteBuffer(width * height * 4);
+		
+		buf.put(values);
+		
+		buf.position(0);
+		
+		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
 	}
 	
 	/**

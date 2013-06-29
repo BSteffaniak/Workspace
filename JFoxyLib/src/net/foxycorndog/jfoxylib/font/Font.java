@@ -3,7 +3,10 @@ package net.foxycorndog.jfoxylib.font;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Set;
 
 import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.components.Panel;
@@ -11,7 +14,10 @@ import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.opengl.bundle.Buffer;
 import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
 import net.foxycorndog.jfoxylib.opengl.texture.SpriteSheet;
+import net.foxycorndog.jfoxylib.util.Bounds;
 import net.foxycorndog.jfoxylib.util.Bounds2f;
+import net.foxycorndog.jfoxylib.util.ResourceLocator;
+import net.foxycorndog.jfoxyutil.Queue;
 
 import org.lwjgl.opengl.GL11;
 
@@ -28,21 +34,55 @@ import org.lwjgl.opengl.GL11;
  */
 public class Font
 {
-	private int							cols, rows;
-	private int							yOff, xOff;
-	private int							width, height;
-	private int							glyphWidth, glyphHeight;
-	private int							ids;
-	private int							letterMargin, lineOffset;
+	private 				int							cols, rows;
+	private 				int							yOff, xOff;
+	private 				int							width, height;
+	private 				int							glyphWidth, glyphHeight;
+	private 				int							ids;
 	
-	private SpriteSheet					characters;
+	private 				float						letterMargin, lineOffset;
 	
-	private int							idArray[][];
+	private 				SpriteSheet					characters;
 	
-	private HashMap<Character, int[]>	charSequence;
-	private HashMap<String, int[]>		history;
+	private 				int							idArray[][];
 	
-	public static final int				LEFT = 0, CENTER = 1, RIGHT = 2, BOTTOM = 0, TOP = 2;
+	private 				HashMap<Character, int[]>	charSequence;
+	private		 			HashMap<String, FontText>	history;
+	private					HashMap<Character, Bounds>	charBounds;
+	
+	private	static	final	ArrayList<Font>				fonts;
+	
+	private	static	final	Font						DEFAULT_FONT;
+	
+	public	static	final	int							LEFT = 0, CENTER = 1, RIGHT = 2, BOTTOM = 0, TOP = 2;
+	
+	static
+	{
+		fonts = new ArrayList<Font>();
+		
+		SpriteSheet sprites = null;
+		
+		try
+		{
+			sprites = new SpriteSheet(ResourceLocator.getProjectDirectory() + "res/images/fonts/font.png", 26, 4);
+		}
+		catch (IOException e)
+		{
+			e.printStackTrace();
+		}
+		
+		DEFAULT_FONT = new Font(sprites,
+				new char[]
+				{
+					'A', 'B', 'C', 'D', 'E', 'F',  'G', 'H', 'I', 'J', 'K', 'L',  'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+					'a', 'b', 'c', 'd', 'e', 'f',  'g', 'h', 'i', 'j', 'k', 'l',  'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+					'0', '1', '2', '3', '4', '5',  '6', '7', '8', '9', '_', '-',  '+', '=', '~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
+					'?', '>', '<', ';', ':', '\'', '"', '{', '}', '[', ']', '\\', '|', ',', '.', '/', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
+				});
+		
+		DEFAULT_FONT.setLetterMargin(1);
+		DEFAULT_FONT.setTrimBounds(true);
+	}
 	
 	/**
 	 * Create a Font from the image at the specified location. The Font
@@ -59,10 +99,27 @@ public class Font
 	 */
 	public Font(String location, int cols, int rows, char charSequence[]) throws IOException
 	{
-		this.cols         = cols;
-		this.rows         = rows;
+		this(new SpriteSheet(location, cols, rows), charSequence);
+	}
+	
+	/**
+	 * Create a Font from the specified SpriteSheet. Each of the
+	 * characters will correspond with the given charSequence char
+	 * array.
+	 * 
+	 * @param sprites The SpriteSheet that holds all of the characters.
+	 * 		It must be split into the correct divisions for each letter
+	 * 		to work properly.
+	 * @param charSequence The character array that corresponds with each
+	 * 		Character in the Font image.
+	 * @throws IOException Thrown if the Font image file was not found.
+	 */
+	public Font(SpriteSheet sprites, char charSequence[])
+	{
+		characters        = sprites;
 		
-		characters        = new SpriteSheet(location, cols, rows);
+		this.cols         = characters.getCols();
+		this.rows         = characters.getRows();
 		
 		this.width        = characters.getWidth();
 		this.height       = characters.getHeight();
@@ -71,7 +128,7 @@ public class Font
 		this.glyphHeight  = height / rows;
 		
 		this.charSequence = new HashMap<Character, int[]>();
-		this.history      = new HashMap<String, int[]>();
+		this.history      = new HashMap<String, FontText>();
 		
 		this.idArray      = new int[100][];
 		
@@ -94,6 +151,191 @@ public class Font
 		}
 		
 		lineOffset = 1;
+		
+		fonts.add(this);
+	}
+	
+	public boolean doesTrimBounds()
+	{
+		return charBounds != null;
+	}
+	
+	public void setTrimBounds(boolean trim)
+	{
+		if (trim)
+		{
+			charBounds = new HashMap<Character, Bounds>();
+			
+			Set<Character> chars = charSequence.keySet();
+			
+			Iterator<Character> i = chars.iterator();
+			
+			while (i.hasNext())
+			{
+				Character c      = i.next();
+				
+				Bounds  bounds   = new Bounds();
+				
+				if (c == ' ')
+				{
+					bounds.setWidth(glyphWidth);
+//					bounds.setHeight(glyphHeight);
+					bounds.setY(glyphHeight);
+					
+					charBounds.put(c, bounds);
+					
+					continue;
+				}
+				
+				int     x        = charSequence.get(c)[0];
+				int     y        = characters.getRows() - charSequence.get(c)[1] - 1;
+				
+				x               *= glyphWidth;
+				y               *= glyphHeight;
+				
+				byte    pixels[] = characters.getPixelsBytes(x, y, glyphWidth, glyphHeight);
+				
+				boolean begin    = true;
+				
+				int     left     = 0;
+				int     right    = 0;
+				int     top      = 0;
+				int     bottom   = 0;
+				
+				for (int x2 = 0; x2 < glyphWidth; x2++)
+				{
+					int num = 0;
+					
+					for (int y2 = 0; y2 < glyphHeight; y2++)
+					{
+						if (pixels[(x2 + y2 * glyphWidth) * 4 + 3] != 0)
+						{
+							begin = false;
+							
+							break;
+						}
+						
+						num++;
+					}
+					
+					if (num >= glyphHeight)
+					{
+						if (begin)
+						{
+							left++;
+						}
+						else
+						{
+							break;
+						}
+					}
+				}
+				
+				begin = true;
+				
+				for (int x2 = glyphWidth - 1; x2 > left; x2--)
+				{
+					int num = 0;
+					
+					for (int y2 = 0; y2 < glyphHeight; y2++)
+					{
+						if (pixels[(x2 + y2 * glyphWidth) * 4 + 3] != 0)
+						{
+							begin = false;
+							
+							break;
+						}
+						
+						num++;
+					}
+					
+					if (num >= glyphHeight)
+					{
+						if (begin)
+						{
+							right++;
+						}
+						else
+						{
+							break;
+						}
+					}
+				}
+				
+				begin = true;
+				
+				for (int y2 = 0; y2 < glyphHeight; y2++)
+				{
+					int num = 0;
+
+					for (int x2 = 0; x2 < glyphWidth; x2++)
+					{
+						if (pixels[(x2 + y2 * glyphWidth) * 4 + 3] != 0)
+						{
+							begin = false;
+							
+							break;
+						}
+						
+						num++;
+					}
+					
+					if (num >= glyphWidth)
+					{
+						if (begin)
+						{
+							bottom++;
+						}
+						else
+						{
+							break;
+						}
+					}
+				}
+				
+				begin = true;
+				
+				for (int y2 = glyphHeight - 1; y2 > bottom; y2--)
+				{
+					int num = 0;
+					
+					for (int x2 = 0; x2 < glyphWidth; x2++)
+					{
+						if (pixels[(x2 + y2 * glyphWidth) * 4 + 3] != 0)
+						{
+							begin = false;
+							
+							break;
+						}
+						
+						num++;
+					}
+					
+					if (num >= glyphWidth)
+					{
+						if (begin)
+						{
+							top++;
+						}
+						else
+						{
+							break;
+						}
+					}
+				}
+				
+				bounds.setX(left);
+				bounds.setY(bottom);
+				bounds.setWidth(glyphWidth - left - right);
+				bounds.setHeight(glyphHeight - bottom - top);
+				
+				charBounds.put(c, bounds);
+			}
+		}
+		else
+		{
+			charBounds = null;
+		}
 	}
 	
 	/**
@@ -121,41 +363,13 @@ public class Font
 		
 		float glScale[] = GL.getAmountScaled();
 		
-		float scaleX = glScale[0];
-		float scaleY = glScale[1];
+		float scaleX    = glScale[0];
+		float scaleY    = glScale[1];
 		
-		char chars[]    = text.toCharArray();
+		float width     = getWidth(text);
+		float height    = getHeight(text);
 		
-		String lines[]  = null;
-		
-		int longestLine = 0;
-		int count       = 0;
-		
-		ArrayList<String> tempLines = new ArrayList<String>();
-		
-		StringBuilder builder = new StringBuilder();
-		
-		for (int i = 0; i < chars.length; i++)
-		{
-			if (chars[i] != '\n')
-			{
-				count++;
-				
-				longestLine = count > longestLine ? count : longestLine;
-				
-				builder.append(chars[i]);
-			}
-			else
-			{
-				count = 0;
-				
-				tempLines.add(builder.toString());
-			}
-		}
-		
-		lines = tempLines.toArray(new String[0]);
-		
-		int numLines = lines.length + 1;
+		int   numLines  = getNumLines(text);
 		
 		if (horizontalAlignment == CENTER)
 		{
@@ -168,7 +382,7 @@ public class Font
 				x += (Frame.getWidth() / scaleX) / 2;
 			}
 			
-			x -= ((longestLine * glyphWidth) * (scale / 2));
+			x -= (width * (scale / 2));
 		}
 		else if (horizontalAlignment == RIGHT)
 		{
@@ -181,7 +395,7 @@ public class Font
 				x += Frame.getWidth() / scaleX;
 			}
 			
-			x -= longestLine * glyphWidth * scale;
+			x -= width * scale;
 		}
 		if (verticalAlignment == CENTER)
 		{
@@ -212,8 +426,8 @@ public class Font
 		
 		bounds.setX(x * scaleX);
 		bounds.setY(y * scaleY);
-		bounds.setWidth(longestLine * glyphWidth * scaleX);
-		bounds.setHeight(numLines * (glyphHeight + 1) * scaleY);
+		bounds.setWidth(width * scaleX);
+		bounds.setHeight(height * scaleY);
 		
 		return bounds;
 	}
@@ -232,7 +446,26 @@ public class Font
 	 */
 	public Bounds2f render(String text, float x, float y, float z, Panel panel)
 	{
-		return render(text, x, y, z, 1, panel);
+		return render(text, x, y, z, panel, true);
+	}
+	
+	/**
+	 * Render the text at the specified location to the specified Panel.
+	 * 
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @param saveHistory Whether or not to save the specified text to the
+	 * 		history buffer.
+	 * @return The Bounds that the text was rendered inside of.
+	 */
+	public Bounds2f render(String text, float x, float y, float z, Panel panel, boolean saveHistory)
+	{
+		return render(text, x, y, z, 1, panel, saveHistory);
 	}
 	
 	/**
@@ -250,7 +483,27 @@ public class Font
 	 */
 	public Bounds2f render(String text, float x, float y, float z, float scale, Panel panel)
 	{
-		return render(text, x, y, z, scale, LEFT, BOTTOM, panel);
+		return render(text, x, y, z, scale, panel, true);
+	}
+	
+	/**
+	 * Render the text at the specified location to the specified Panel.
+	 * 
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param scale The scale to render the text by.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @param saveHistory Whether or not to save the specified text to the
+	 * 		history buffer.
+	 * @return The Bounds that the text was rendered inside of.
+	 */
+	public Bounds2f render(String text, float x, float y, float z, float scale, Panel panel, boolean saveHistory)
+	{
+		return render(text, x, y, z, scale, LEFT, BOTTOM, panel, saveHistory);
 	}
 	
 	/**
@@ -271,7 +524,30 @@ public class Font
 	 */
 	public Bounds2f render(String text, float x, float y, float z, int horizontalAlignment, int verticalAlignment, Panel panel)
 	{
-		return render(text, x, y, z, 1, horizontalAlignment, verticalAlignment, panel);
+		return render(text, x, y, z, horizontalAlignment, verticalAlignment, panel, true);
+	}
+	
+	/**
+	 * Render the text at the specified location to the specified Panel.
+	 * 
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param horizontalAlignment The horizontal alignment that the text
+	 * 		will be aligned by.
+	 * @param verticalAlignment The vertical alignment that the text will
+	 * 		be aligned by.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @param saveHistory Whether or not to save the specified text to the
+	 * 		history buffer.
+	 * @return The Bounds that the text was rendered inside of.
+	 */
+	public Bounds2f render(String text, float x, float y, float z, int horizontalAlignment, int verticalAlignment, Panel panel, boolean saveHistory)
+	{
+		return render(text, x, y, z, 1, horizontalAlignment, verticalAlignment, panel, saveHistory);
 	}
 	
 	/**
@@ -293,7 +569,31 @@ public class Font
 	 */
 	public Bounds2f render(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Panel panel)
 	{
-		return renderVertexBuffer(text, x, y, z, scale, horizontalAlignment, verticalAlignment, panel);
+		return render(text, x, y, z, scale, horizontalAlignment, verticalAlignment, panel, true);
+	}
+	
+	/**
+	 * Render the text at the specified location to the specified Panel.
+	 * 
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param scale The scale to render the text by.
+	 * @param horizontalAlignment The horizontal alignment that the text
+	 * 		will be aligned by.
+	 * @param verticalAlignment The vertical alignment that the text will
+	 * 		be aligned by.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @param saveHistory Whether or not to save the specified text to the
+	 * 		history buffer.
+	 * @return The Bounds that the text was rendered inside of.
+	 */
+	public Bounds2f render(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Panel panel, boolean saveHistory)
+	{
+		return renderVertexBuffer(text, x, y, z, scale, horizontalAlignment, verticalAlignment, panel, saveHistory);
 	}
 	
 	/**
@@ -315,7 +615,31 @@ public class Font
 	 */
 	private Bounds2f renderVertexBuffer(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Panel panel)
 	{
-		return renderVertexBuffer(text, x, y, z, scale, horizontalAlignment, verticalAlignment, null, null, panel);
+		return renderVertexBuffer(text, x, y, z, scale, horizontalAlignment, verticalAlignment, panel, true);
+	}
+	
+	/**
+	 * Render the text at the specified location to the specified Panel.
+	 * 
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param scale The scale to render the text by.
+	 * @param horizontalAlignment The horizontal alignment that the text
+	 * 		will be aligned by.
+	 * @param verticalAlignment The vertical alignment that the text will
+	 * 		be aligned by.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @param saveHistory Whether or not to save the specified text to the
+	 * 		history buffer.
+	 * @return The Bounds that the text was rendered inside of.
+	 */
+	private Bounds2f renderVertexBuffer(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Panel panel, boolean saveHistory)
+	{
+		return renderVertexBuffer(text, x, y, z, scale, horizontalAlignment, verticalAlignment, null, null, panel, saveHistory);
 	}
 	
 	/**
@@ -342,21 +666,53 @@ public class Font
 	 */
 	private Bounds2f renderVertexBuffer(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Buffer vertices, Buffer textures, Panel panel)
 	{
-		int vId  = 0;
-		int tId  = 0;
-		int viId = 0;
-		int size = 0;
+		return renderVertexBuffer(text, x, y, z, scale, horizontalAlignment, verticalAlignment, vertices, textures, panel, true);
+	}
+	
+	/**
+	 * Render the text at the specified location to the specified Panel
+	 * using vertex buffers.
+	 * 
+	 * @param text The text to render to the Panel.
+	 * @param x The horizontal location to render the text.
+	 * @param y The vertical location to render the text.
+	 * @param z The oblique location to render the text.
+	 * @param scale The scale to render the text by.
+	 * @param horizontalAlignment The horizontal alignment that the text
+	 * 		will be aligned by.
+	 * @param verticalAlignment The vertical alignment that the text will
+	 * 		be aligned by.
+	 * @param vertices The Buffer that holds the vertices used for
+	 * 		rendering the Font.
+	 * @param textures The Buffer that holds the Textures used for
+	 * 		each of the letters in the text.
+	 * @param panel The Panel to render the text inside of. Passing a
+	 * 		null value here will result in the Panel being
+	 * 		treated of as the Frame.
+	 * @param saveHistory Whether or not to save the specified text to the
+	 * 		history buffer.
+	 * @return The Bounds that the text was rendered inside of.
+	 */
+	private Bounds2f renderVertexBuffer(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Buffer vertices, Buffer textures, Panel panel, boolean saveHistory)
+	{
+		int      vId       = 0;
+		int      tId       = 0;
+		int      viId      = 0;
+		int      size      = 0;
 		
-		float glScale[] = GL.getAmountScaled();
+		float    glScale[] = GL.getAmountScaled();
 		
-		float scaleX = glScale[0];
-		float scaleY = glScale[1];
+		float    scaleX    = glScale[0];
+		float    scaleY    = glScale[1];
 		
-		Bundle bundle = null;
+		Bundle   bundle    = null;
 		
-		char chars[]    = text.toCharArray();
+		char     chars[]   = text.toCharArray();
 		
-		Bounds2f bounds = getRenderBounds(text, x, y, scale, horizontalAlignment, verticalAlignment, panel);
+		Bounds2f bounds    = getRenderBounds(text, x, y, scale, horizontalAlignment, verticalAlignment, panel);
+		
+//		x = Math.round(bounds.getX() / scaleX);
+//		y = Math.round(bounds.getY() / scaleY);
 		
 		x = bounds.getX() / scaleX;
 		y = bounds.getY() / scaleY;
@@ -364,12 +720,12 @@ public class Font
 //		x /= scaleX;
 //		y /= scaleY;
 		
-		if (history.containsKey(text) && history.get(text)[1] == 1)
+		if (history.containsKey(text))
 		{
-			vId  = history.get(text)[2];
-			tId  = history.get(text)[3];
-			viId = history.get(text)[4];
-			size = history.get(text)[5];
+			vId  = history.get(text).vertexBufferId;
+			tId  = history.get(text).texturesBufferId;
+			viId = history.get(text).vertexIndicesBuffer;
+			size = history.get(text).size;
 		}
 		else
 		{
@@ -398,13 +754,65 @@ public class Font
 //				}
 //			}
 			
-			float yOffset = 0;
-			float xOffset = 0;
+			int      line      = 0;
+			int      lines     = getNumLines(text);
+			
+			Bounds2f heights[] = new Bounds2f[lines];
+			
+			float    yOffset   = 0;
+			float    xOffset   = 0;
+			
+			if (lines > 1)
+			{
+				if (verticalAlignment == BOTTOM)
+				{
+					String lastLines = text.substring(text.indexOf('\n') + 1);
+					
+					yOffset = getHeight(lastLines);
+				}
+				else if (verticalAlignment == TOP)
+				{
+					yOffset -= lineOffset;
+				}
+			}
+			
+			if (charBounds != null)
+			{
+				heights = getLineHeights(text);
+				
+				if (verticalAlignment == BOTTOM)
+				{
+					yOffset -= glyphHeight - heights[line].getHeight();
+				}
+				
+				if (lines > 1)
+				{
+					yOffset += lineOffset;
+				}
+			}
 			
 			for (int i = 0; i < chars.length; i ++)
 			{
-				if (chars[i] != '\n')
+				if (chars[i] == '\n')
 				{
+					line++;
+					
+					yOffset -= glyphHeight + lineOffset;
+					xOffset  = 0;
+
+					if (charBounds != null)
+					{
+						yOffset += glyphHeight - (heights[line].getHeight() + heights[line].getY());
+						yOffset += heights[line - 1].getY();
+					}
+				}
+				else
+				{
+					int   charX     = 0;
+					int   charY     = 0;
+					
+					float offsets[] = null;
+					
 					try
 					{
 						if (!charSequence.containsKey(chars[i]))	
@@ -412,43 +820,65 @@ public class Font
 							continue;
 						}
 						
-						int charX       = charSequence.get(chars[i])[0];
-						int charY       = charSequence.get(chars[i])[1];
+						charX   = charSequence.get(chars[i])[0];
+						charY   = charSequence.get(chars[i])[1];
 						
-						float offsets[] = characters.getImageOffsets(charX, charY, 1, 1);
-						
-						vertices.beginEditing();
-						{
-							vertices.setData(i * 3 * 2 * 2, GL.genRectVerts(xOffset, yOffset, glyphWidth, glyphHeight));
-						}
-						vertices.endEditing();
-						
-						textures.beginEditing();
-						{
-							textures.setData(i * 3 * 2 * 2, GL.genRectTextures(offsets));
-						}
-						textures.endEditing();
-						
-						xOffset += glyphWidth + letterMargin;
+						offsets = characters.getImageOffsets(charX, charY, 1, 1);
 					}
 					catch (NullPointerException e)
 					{
-						if (chars[i] == ' ')
-						{
-							
-						}
-						else
-						{
-							addToHistory(text, vId, tId, viId, size);
-							
-							return null;
-						}
+//						if (chars[i] == ' ')
+//						{
+//							
+//						}
+//						else
+//						{
+//							addToHistory(text, vId, tId, viId, size);
+//							
+//							return null;
+//						}
+						
+						chars[i] = ' ';
+						
+						charX    = charSequence.get(chars[i])[0];
+						charY    = charSequence.get(chars[i])[1];
+						
+						offsets  = characters.getImageOffsets(charX, charY, 1, 1);
 					}
-				}
-				else
-				{
-					yOffset -= glyphHeight + lineOffset;
-					xOffset  = 0;
+					
+					int cleft  = 0;
+					int cwidth = 0;
+					
+					if (charBounds != null)
+					{
+						cleft    = charBounds.get(chars[i]).getX();
+						cwidth   = charBounds.get(chars[i]).getWidth();
+						
+						xOffset -= charBounds.get(chars[i]).getX();
+					}
+					
+					vertices.beginEditing();
+					{
+						vertices.setData(i * 3 * 2 * 2, GL.genRectVerts(xOffset, yOffset, glyphWidth, glyphHeight));
+					}
+					vertices.endEditing();
+					
+					textures.beginEditing();
+					{
+						textures.setData(i * 3 * 2 * 2, GL.genRectTextures(offsets));
+					}
+					textures.endEditing();
+					
+					if (charBounds != null)
+					{
+						xOffset += cwidth + cleft;
+					}
+					else
+					{
+						xOffset += glyphWidth;
+					}
+					
+					xOffset += letterMargin;
 				}
 			}
 			
@@ -458,7 +888,10 @@ public class Font
 			tId  = textures.getId();
 //			viId = vertices.getIndicesId(0);
 			
-			addToHistory(text, vId, tId, viId, size);
+			if (saveHistory)
+			{
+				addToHistory(text, vId, tId, viId, size);
+			}
 		}
 		
 		bundle = new Bundle(vId, tId, 0, size / 2, 2);
@@ -471,6 +904,11 @@ public class Font
 			bundle.render(GL.TRIANGLES, characters);
 		}
 		GL.popMatrix();
+		
+		if (history.containsKey(text))
+		{
+			history.get(text).lastRendered = System.currentTimeMillis();
+		}
 		
 		return bounds;
 	}
@@ -494,7 +932,7 @@ public class Font
 	 * @return The amount of pixels that there will be between a new-line
 	 * 		in a String of text rendered.
 	 */
-	public int getLineOffset()
+	public float getLineOffset()
 	{
 		return lineOffset;
 	}
@@ -506,9 +944,36 @@ public class Font
 	 * @param lineOffset The amount of pixels that there will be between
 	 * 		a new-line in a String of text rendered.
 	 */
-	public void setLineOffset(int lineOffset)
+	public void setLineOffset(float lineOffset)
 	{
 		this.lineOffset = lineOffset;
+	}
+	
+	/**
+	 * Get the number of lines that the specified String of text takes
+	 * up on the Display.
+	 * 
+	 * @param text The String of text to get the number of lines from.
+	 * @return The number of lines in the String of text.
+	 */
+	public int getNumLines(String text)
+	{
+		if (text.length() <= 0)
+		{
+			return 0;
+		}
+		
+		int   numLines  = 1;
+		
+		for (int i = 0; i < text.length(); i++)
+		{
+			if (text.charAt(i) == '\n')
+			{
+				numLines++;
+			}
+		}
+		
+		return numLines;
 	}
 	
 //	/**
@@ -744,19 +1209,9 @@ public class Font
 	 */
 	private void addToHistory(String text, int vId, int tId, int viId, int size)
 	{
-		ids = ids + 1 < 100 ? ids + 1 : 0;
+		ids = ids + 1;// < 100 ? ids + 1 : 0;
 		
-//		if (idArray[ids] != null)
-//		{
-//			GL15.glDeleteBuffers(idArray[ids][0]);
-//			GL15.glDeleteBuffers(idArray[ids][1]);
-//			GL15.glDeleteBuffers(idArray[ids][2]);
-//		}
-//		
-//		idArray[ids] = new int[] { vId, tId, viId };
-		
-		history.put(text, new int[] { ids, 1, vId, tId, viId, size });
-//		history2.put(text, new LightBuffer[] { s, s2, s3 });
+		history.put(text, new FontText(text, vId, tId, viId, size));
 	}
 	
 	/**
@@ -767,23 +1222,55 @@ public class Font
 	 * @return The amount of pixels that the specified String would take
 	 * 		up horizontally.
 	 */
-	public int getWidth(String text)
+	public float getWidth(String text)
 	{
-		int width = 0;
+		float width  = 0;
+		
+		float max    = 0;
+		
+		int   cwidth = 0;
 		
 		for (int i = 0; i < text.length(); i ++)
 		{
-			if (text.charAt(i) == ' ')
+			char c = text.charAt(i);
+			
+			if (c == '\n')
 			{
-				width += glyphWidth;
+				if (i > 0 && max == width)
+				{
+					max -= letterMargin;
+				}
+				
+				width = 0;
 			}
 			else
 			{
-				width += glyphWidth;
+				if (charBounds != null)
+				{
+					cwidth = charBounds.get(c).getWidth();
+					
+					width += cwidth;
+				}
+				else
+				{
+					width += glyphWidth;
+				}
+				
+				width += letterMargin;
+			
+				if (width > max)
+				{
+					max = width;
+				}
 			}
 		}
 		
-		return width;
+		if (max > 0 && max == width)
+		{
+			max -= letterMargin;
+		}
+		
+		return max;
 	}
 	
 	/**
@@ -794,25 +1281,93 @@ public class Font
 	 * @return The amount of pixels that the specified String would take
 	 * 		up vertically.
 	 */
-	public int getHeight(String text)
+	public float getHeight(String text)
 	{
-		int height = 0;
+		float height = 0;
 		
-		String lines[] = text.split("\n");
-		
-		int numLines = lines.length;
-		
-		if (lines[lines.length - 1].length() <= 0)
+		if (charBounds == null)
 		{
-			numLines--;
+			int numLines = getNumLines(text);
+			
+			if (numLines > 0)
+			{
+				height = (glyphHeight + lineOffset) * numLines - lineOffset;
+			}
 		}
-		
-		if (numLines > 0)
+		else
 		{
-			height = (getGlyphHeight() + lineOffset) * numLines - lineOffset;
+			Bounds2f heights[] = getLineHeights(text);
+			
+			for (int i = 0; i < heights.length; i++)
+			{
+				height += heights[i].getHeight() + lineOffset;
+			}
+			
+			if (heights.length > 0)
+			{
+				height -= lineOffset;
+			}
 		}
 		
 		return height;
+	}
+	
+	/**
+	 * Get the height of each line in order of an array.
+	 * 
+	 * @param text The text to get the height of each line from.
+	 * @return An array containing float values that represent the
+	 * 		height of each line of the text.
+	 */
+	private Bounds2f[] getLineHeights(String text)
+	{
+		Bounds2f heights[] = new Bounds2f[getNumLines(text)];
+		
+		int line = 0;
+		int min  = glyphHeight;
+		int max  = 0;
+		
+		for (int i = 0; i < text.length(); i++)
+		{
+			char c = text.charAt(i);
+			
+			if (c == '\n')
+			{
+				heights[line] = new Bounds2f();
+				
+				heights[line].setY(min);
+				heights[line].setHeight(max - min);
+				
+				max = 0;
+				min = glyphHeight;
+				
+				line++;
+			}
+			else
+			{
+				int y = charBounds.get(c).getY();
+				int h = charBounds.get(c).getHeight();
+				
+				if (y < min)
+				{
+					min = y;
+				}
+				if (y + h > max)
+				{
+					max = y + h;
+				}
+			}
+		}
+		
+		if (min < glyphHeight || max > 0)
+		{
+			heights[line] = new Bounds2f();
+			
+			heights[line].setY(min);
+			heights[line].setHeight(max - min);
+		}
+		
+		return heights;
 	}
 	
 	/**
@@ -842,7 +1397,7 @@ public class Font
 	 * @return The amount of pixels that the letters will be spaced by when
 	 * 		rendered.
 	 */
-	public int getLetterMargin()
+	public float getLetterMargin()
 	{
 		return letterMargin;
 	}
@@ -854,8 +1409,100 @@ public class Font
 	 * @param letterMargin The amount of pixels that the letters will be
 	 * 		spaced by when rendered.
 	 */
-	public void setLetterMargin(int letterMargin)
+	public void setLetterMargin(float letterMargin)
 	{
 		this.letterMargin = letterMargin;
+	}
+	
+	/**
+	 * Get the default Font that is used in this library.
+	 * 
+	 * @return The default Font that is used in this library.
+	 */
+	public static Font getDefaultFont()
+	{
+		return DEFAULT_FONT;
+	}
+	
+	/**
+	 * Updates the Font class. Removes any old Strings in the history
+	 * that need to be removed.
+	 */
+	public static void update()
+	{
+		long current = System.currentTimeMillis();
+		
+		for (int i = 0; i < fonts.size(); i++)
+		{
+			Font font = fonts.get(i);
+			
+			Collection<FontText> values = font.history.values();
+			
+			Queue<String>	remove = new Queue<String>();
+			
+			Iterator<FontText> it = values.iterator();
+			
+			while (it.hasNext())
+			{
+				FontText ft = it.next();
+				
+				if (current - ft.lastRendered >= 10000)
+				{
+					remove.enqueue(ft.text);
+				}
+			}
+			
+			while (!remove.isEmpty())
+			{
+				String text = remove.dequeue();
+				
+				font.history.remove(text);
+			}
+		}
+	}
+	
+	/**
+	 * Class used to store Font text in the history for later use
+	 * if needed.
+	 * 
+	 * @author	Braden Steffaniak
+	 * @since	Jun 28, 2013 at 11:17:13 PM
+	 * @since	v0.2
+	 * @version	Jun 28, 2013 at 11:17:13 PM
+	 * @version	v0.2
+	 */
+	private class FontText
+	{
+		private	int		vertexBufferId, texturesBufferId, vertexIndicesBuffer;
+		private	int		size;
+		private	int		id;
+		
+		private	long	lastRendered;
+		
+		private	String	text;
+		
+		/**
+		 * Create an instance of FontText to keep track of a String of
+		 * text that was recently added to the history.
+		 * 
+		 * @param text The String of text to add to the history.
+		 * @param vId The vertex buffer's id.
+		 * @param tId The texture buffer's id.
+		 * @param viId The vertex indices buffer's id.
+		 * @param size the size of the buffer that is being added to the
+		 * 		history.
+		 */
+		public FontText(String text, int vId, int tId, int viId, int size)
+		{
+			this.id                  = ids;
+			
+			this.text                = text;
+			
+			this.vertexBufferId      = vId;
+			this.texturesBufferId    = tId;
+			this.vertexIndicesBuffer = viId;
+			
+			this.size                = size;
+		}
 	}
 }

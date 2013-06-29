@@ -247,7 +247,7 @@ public class Button extends Image
 
 		if (normalTexture == null && font != null && text != null)
 		{
-			setSize(font.getWidth(text), font.getHeight(text));
+			setSize((int)Math.ceil(font.getWidth(text)), (int)Math.ceil(font.getHeight(text)));
 		}
 	}
 	
@@ -272,7 +272,7 @@ public class Button extends Image
 		
 		if (normalTexture == null && font != null && text != null)
 		{
-			setSize(font.getWidth(text), font.getHeight(text));
+			setSize((int)Math.ceil(font.getWidth(text)), (int)Math.ceil(font.getHeight(text)));
 		}
 	}
 	

@@ -23,6 +23,7 @@ import net.foxycorndog.jfoxylib.events.MouseListener;
 import net.foxycorndog.jfoxylib.input.Mouse;
 import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.util.Intersects;
+import net.foxycorndog.jfoxylib.util.ResourceLocator;
 
 import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
@@ -49,114 +50,6 @@ public class Frame
 	
 	private static ArrayList<Component>		components;
 	private static ArrayList<FrameListener>	frameListeners;
-	
-	/**
-	 * Locate the native files needed to run the LWJGL library. They
-	 * should be located in a folder labeled "native" in the same
-	 * directory that the JFoxyLib is located in.
-	 */
-	private static void locateNatives()
-	{
-		String paths[] = System.getProperty("java.class.path").split(";");
-		
-		String nativeLocation = null;
-		
-		File binFile = null;
-		
-		try
-		{
-			String classLoc = GL.class.getResource("GL.class").toString();
-			
-			boolean jar = classLoc.startsWith("jar:") || classLoc.startsWith("rsrc:");
-			
-//			if (jar)
-//			{
-//				resLoc = new File(new File(System.getProperty("java.class.path")).getCanonicalPath()).getParentFile().getCanonicalPath();
-//			}
-			
-			String os = System.getProperty("os.name").toLowerCase();
-			
-			if (os.startsWith("win"))
-			{
-				os = "windows";
-			}
-			else if (os.startsWith("mac"))
-			{
-				os = "macosx";
-			}
-			else if (os.startsWith("lin"))
-			{
-				os = "linux";
-			}
-			else if (os.startsWith("sol"))
-			{
-				os = "solaris";
-			}
-			else
-			{
-				throw new RuntimeException("Unknown operating system!");
-			}
-			
-			if (jar)
-			{
-				String workingDirectory = null;
-				
-				if (classLoc.startsWith("rsrc:"))
-				{
-					try
-					{
-						workingDirectory = new File(GL.class.getProtectionDomain().getCodeSource().getLocation().getFile()).getCanonicalPath();
-					}
-					catch (IOException e)
-					{
-						e.printStackTrace();
-					}
-				}
-				else
-				{
-					// Maybe use canonical path instead.
-					workingDirectory = new File(classLoc.substring(9, classLoc.lastIndexOf('!'))).getParentFile().getAbsolutePath();
-				}
-					
-				try
-				{
-					workingDirectory = java.net.URLDecoder.decode(workingDirectory, "UTF-8");
-				}
-				catch (UnsupportedEncodingException e)
-				{
-					e.printStackTrace();
-				}
-				
-				nativeLocation = workingDirectory + "/native/" + os;
-			}
-			else
-			{
-				File f = new File(GL.class.getProtectionDomain().getCodeSource().getLocation().toURI());
-			
-				File parent = f.getParentFile();
-				
-				String resLoc = null;
-				
-				try
-				{
-					resLoc = parent.getCanonicalPath();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
-			
-				nativeLocation = resLoc.replace('\\', '/') + "/native/" + os;
-			}
-		}
-		catch (URISyntaxException e)
-		{
-			e.printStackTrace();
-		}
-		
-//		System.setProperty("java.library.path", System.getProperty("java.library.path") + ";" + nativeLocation + ";");
-		System.setProperty("org.lwjgl.librarypath", nativeLocation);
-	}
 	
 	/**
 	 * Returns whether or not the Frame has been created.
@@ -190,7 +83,7 @@ public class Frame
 			throw new IllegalArgumentException("The width and height of the Frame must both be > 0");
 		}
 		
-		locateNatives();
+		ResourceLocator.locateNatives();
 		
 		try
 		{

@@ -1,11 +1,21 @@
 package net.foxycorndog.jfoxylib;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 
+import net.foxycorndog.jfoxylib.font.Font;
 import net.foxycorndog.jfoxylib.input.Keyboard;
 import net.foxycorndog.jfoxylib.input.Mouse;
 import net.foxycorndog.jfoxylib.opengl.GL;
@@ -24,16 +34,90 @@ import net.foxycorndog.jfoxylib.opengl.GL;
  */
 public abstract class GameStarter
 {
-	private boolean	running;
+	private boolean			running;
 	
-	private Frame	mainFrame;
+	private	int				totalFPS, fpsAmount, maxFPS, minFPS;
+	
+	private	long			startTime;
+	
+	private	String			date;
+	
+	private	DateFormat		dateFormat;
+	private	Calendar		calendar;
+	
+	private	ArrayList<File>	debugFiles;
 	
 	/**
 	 * Initializes all of the necessary OpenGL components.
 	 */
 	public GameStarter()
 	{
+		debugFiles = new ArrayList<File>();
 		
+		dateFormat = new SimpleDateFormat("M/d/yyyy H:mm:ss");
+		calendar   = Calendar.getInstance();
+		
+		date       = dateFormat.format(calendar.getTime()) + " " + (calendar.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM");
+		
+		startTime  = System.currentTimeMillis();
+		
+		minFPS     = Integer.MAX_VALUE;
+	}
+	
+	public void outputDebugging(String location)
+	{
+		debugFiles.add(new File(location));
+	}
+	
+	private void outputDebugging()
+	{
+		long now = System.currentTimeMillis();
+		
+		if (debugFiles.size() > 0)
+		{
+			for (int i = 0; i < debugFiles.size(); i++)
+			{
+				File file = debugFiles.get(i);
+				
+				try
+				{
+					BufferedReader reader = new BufferedReader(new FileReader(file));
+					
+					StringBuilder previousText = new StringBuilder();
+
+					String line = reader.readLine();
+					
+					while (line != null)
+					{
+						previousText.append(line + "\r\n");
+						
+						line = reader.readLine();
+					}
+					
+					reader.close();
+					
+					PrintWriter writer = new PrintWriter(new FileWriter(file));
+					
+					if (previousText.length() > 0)
+					{
+						writer.print(previousText);
+					}
+					
+					writer.println("--Debugging run on " + date + "--");
+					writer.println("Maximum FPS: " + maxFPS);
+					writer.println("Minimum FPS: " + minFPS);
+					writer.println("Average FPS: " + ((float)totalFPS / fpsAmount));
+					writer.println("Time Elapsed: " + (now - startTime) / 1000.0 + " seconds");
+					writer.println();
+					
+					writer.close();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 	
 	/**
@@ -118,10 +202,23 @@ public abstract class GameStarter
 					startTime = newTime;
 					
 					Frame.setFPS(fps);
+					
+					totalFPS += fps;
+					fpsAmount++;
+					
+					if (fps > maxFPS)
+					{
+						maxFPS = fps;
+					}
+					if (fps < minFPS)
+					{
+						minFPS = fps;
+					}
 				}
 				
 				Mouse.update();
 				Keyboard.update();
+				Font.update();
 				
 				Display.sync(Frame.getTargetFPS());
 				Display.update();
@@ -134,6 +231,8 @@ public abstract class GameStarter
 		
 		Keyboard.destroy();
 		Display.destroy();
+		
+		outputDebugging();
 		
 //		if (System.getProperty("os.name").toLowerCase().contains("mac"))
 //		{

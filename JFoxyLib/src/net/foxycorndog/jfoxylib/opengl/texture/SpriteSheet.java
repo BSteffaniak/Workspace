@@ -75,9 +75,9 @@ public class SpriteSheet extends Texture
 	}
 	
 	/**
+	 * Get the number of columns that are in the SpriteSheet.
 	 * 
-	 * 
-	 * @return
+	 * @return The number of columns that are in the SpriteSheet.
 	 */
 	public int getCols()
 	{
@@ -85,12 +85,22 @@ public class SpriteSheet extends Texture
 	}
 	
 	/**
+	 * Get the number of rows that are in the SpriteSheet.
 	 * 
-	 * 
-	 * @return
+	 * @return The number of rows that are in the SpriteSheet.
 	 */
 	public int getRows()
 	{
 		return rows;
+	}
+	
+	public int getColSize()
+	{
+		return getWidth() / cols;
+	}
+	
+	public int getRowSize()
+	{
+		return getHeight() / rows;
 	}
 }

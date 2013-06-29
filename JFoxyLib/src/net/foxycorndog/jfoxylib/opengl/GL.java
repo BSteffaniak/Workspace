@@ -51,6 +51,8 @@ import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
 import static org.lwjgl.opengl.GL11.glScissor;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -83,24 +85,45 @@ import org.lwjgl.opengl.GL43;
  */
 public class GL
 {
-	private	static boolean	inited;
+	private	static			boolean			inited;
 	
-	private	static float	zClose, zFar;
-	private	static float	fov;
-	private	static float	textureTolerance, vertexTolerance;
+	private	static			float			zClose, zFar;
+	private	static			float			fov;
+	private	static			float			textureTolerance, vertexTolerance;
 	
-	private	static int		textureScaleMinMethod, textureScaleMagMethod, textureWrapSMethod, textureWrapTMethod;
+	private	static			int				textureScaleMinMethod, textureScaleMagMethod, textureWrapSMethod, textureWrapTMethod;
 	
-	private	static Stack<float[]>	amountScaled, amountTranslated, amountRotated, colorStack;
+	private	static			Stack<float[]>	amountScaled, amountTranslated, amountRotated, colorStack;
 	
-	public	static final int	POINTS = GL11.GL_POINTS, LINES = GL11.GL_LINES, TRIANGLES = GL11.GL_TRIANGLES;//, QUADS = GL11.GL_QUADS;
+	public	static	final	int				POINTS = GL11.GL_POINTS, LINES = GL11.GL_LINES, TRIANGLES = GL11.GL_TRIANGLES;//, QUADS = GL11.GL_QUADS;
 	
-	public	static final int ALL_ATTRIB_BITS = GL_ALL_ATTRIB_BITS, ENABLE_BIT = GL_ENABLE_BIT, FOG_BIT = GL_FOG_BIT,
-			LIGHTING_BIT = GL_LIGHTING_BIT, LINE_BIT = GL_LINE_BIT, POINT_BIT = GL_POINT_BIT,
-			POLYGON_BIT = GL_POLYGON_BIT, TEXTURE_BIT = GL_TEXTURE_BIT,
-			COLOR_BUFFER_BIT = GL_COLOR_BUFFER_BIT, CURRENT_BIT = GL_CURRENT_BIT;
+	public	static	final	int				 ALL_ATTRIB_BITS = GL_ALL_ATTRIB_BITS, ENABLE_BIT = GL_ENABLE_BIT, FOG_BIT = GL_FOG_BIT,
+						LIGHTING_BIT = GL_LIGHTING_BIT, LINE_BIT = GL_LINE_BIT, POINT_BIT = GL_POINT_BIT,
+						POLYGON_BIT = GL_POLYGON_BIT, TEXTURE_BIT = GL_TEXTURE_BIT,
+						COLOR_BUFFER_BIT = GL_COLOR_BUFFER_BIT, CURRENT_BIT = GL_CURRENT_BIT;
 	
-	public	static final int LINEAR = GL11.GL_LINEAR, NEAREST = GL11.GL_NEAREST, REPEAT = GL11.GL_REPEAT, CLAMP = GL11.GL_CLAMP;
+	public	static	final	int 			LINEAR = GL11.GL_LINEAR, NEAREST = GL11.GL_NEAREST, REPEAT = GL11.GL_REPEAT, CLAMP = GL11.GL_CLAMP;
+	
+	public	static	final	int				CLEAR = GL11.GL_CLEAR, SET = GL11.GL_SET, COPY = GL11.GL_COPY, COPY_INVERTED = GL11.GL_COPY_INVERTED,
+						NOOP = GL11.GL_NOOP, INVERT = GL11.GL_INVERT, AND = GL11.GL_AND, NAND = GL11.GL_NAND, OR = GL11.GL_OR, NOR = GL11.GL_NOR,
+						XOR = GL11.GL_XOR, EQUIV = GL11.GL_EQUIV, AND_REVERSE = GL11.GL_AND_REVERSE, AND_INVERTED = GL11.GL_AND_INVERTED,
+						OR_REVERSE = GL11.GL_OR_REVERSE, OR_INVERTED = GL11.GL_OR_INVERTED;
+	
+	private	static	final	String			VERSION = "0.2";
+	
+	public	static	final	Texture			WHITE;
+	
+	static
+	{
+		BufferedImage image = new BufferedImage(1, 1, BufferedImage.BITMASK);
+		
+		Graphics g = image.createGraphics();
+		g.setColor(new Color(255, 255, 255, 255));
+		g.fillRect(0, 0, 1, 1);
+		g.dispose();
+		
+		WHITE = new Texture(image);
+	}
 	
 	/**
 	 * Initialize all of the OpenGL states that are required before
@@ -342,6 +365,78 @@ public class GL
 		
 	    GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WRAP_T, method);
 	}
+
+	/**
+	 * Enables the ability to invert anything rendered.
+	 */
+	public static void enableInverting()
+	{
+		glEnable(GL11.GL_COLOR_LOGIC_OP);
+	}
+	
+	/**
+	 * Begin inverting everything rendered with the specified mode.<br>
+	 * The modes include:<br>
+	 *
+	 * CLEAR - <br>
+	 * SET - <br>
+	 * COPY - <br>
+	 * COPY_INVERTED - <br>
+	 * NOOP - <br>
+	 * INVERT - <br>
+	 * AND - <br>
+	 * NAND - <br>
+	 * OR - <br>
+	 * NOR - <br>
+	 * XOR - <br>
+	 * EQUIV - <br>
+	 * AND_REVERSE - <br>
+	 * AND_INVERTED - <br>
+	 * OR_REVERSE - <br>
+	 * OR_INVERTED  - 
+	 * 
+	 * @param mode The mode in which to begin inverting.
+	 */
+	public static void beginInverting(int mode)
+	{
+		enableInverting();
+		
+		GL11.glLogicOp(mode);
+	}
+	
+	/**
+	 * Begin inverting everything rendered according to the opposite
+	 * of their rgb values.
+	 */
+	public static void beginInvertingNormal()
+	{
+		beginInverting(COPY_INVERTED);
+	}
+	
+	/**
+	 * Begins inverting everything rendered according to whatever is
+	 * being rendered behind it.
+	 */
+	public static void beginInvertingBackground()
+	{
+		beginInverting(GL11.GL_INVERT);
+	}
+	
+	/**
+	 * Begins inverting everything by XORing them.
+	 */
+	public static void beginInvertingXOR()
+	{
+		beginInverting(GL11.GL_XOR);
+	}
+	
+	/**
+	 * Ends the ability to invert anything rendered.
+	 */
+	public static void endInverting()
+	{
+		glDisable(GL11.GL_COLOR_LOGIC_OP);
+	}
 	
 	/**
 	 * Enable the use of clipping the rendering to the screen.
@@ -419,9 +514,19 @@ public class GL
 	 * 
 	 * @return The current version of OpenGL.
 	 */
-	public static String getVersion()
+	public static String getOpenGLVersion()
 	{
 		return GL11.glGetString(GL11.GL_VERSION);
+	}
+	
+	/**
+	 * Get the current version of OpenGL.
+	 * 
+	 * @return The current version of OpenGL.
+	 */
+	public static String getVersion()
+	{
+		return VERSION;
 	}
 	
 	/**
@@ -715,10 +820,24 @@ public class GL
 	/**
 	 * Get the current color that is being used by OpenGL.
 	 * 
+	 * @return A Color instance holding the values.
+	 */
+	public static Color getColor()
+	{
+		float copy[] = colorStack.peek();
+		
+		Color color = new Color((int)(copy[0] * 255), (int)(copy[1] * 255), (int)(copy[2] * 255), (int)(copy[3] * 255));
+		
+		return color;
+	}
+	
+	/**
+	 * Get the current color that is being used by OpenGL.
+	 * 
 	 * @return A float array describing the float values for the
 	 * 		(r, g, b, a) color in the current state.
 	 */
-	public static float[] getColor()
+	public static float[] getColorArray()
 	{
 		float copy[] = colorStack.peek();
 		

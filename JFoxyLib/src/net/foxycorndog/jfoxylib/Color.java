@@ -12,14 +12,36 @@ package net.foxycorndog.jfoxylib;
  * @version	Apr 23, 2013 at 6:59:15 AM
  * @version	v0.1
  */
-public class Color
+public class Color extends java.awt.Color
 {
-	private	int					red, green, blue, alpha;
+	private	int					r, g, b, a;
 	
-	public static final Color	MAGENTA = new Color(157, 0, 159),
-			YELLOW = new Color(220, 212, 0), RED = new Color(159, 0, 30),
-			BLUE = new Color(0, 0, 165), ORANGE = new Color(196, 106, 0),
-			CYAN = new Color(0, 196, 175), GREEN = new Color(0, 196, 55);
+	public static final Color white = new Color(255, 255, 255);
+	public static final Color WHITE = white;
+	public static final Color lightGray = new Color(192, 192, 192);
+	public static final Color LIGHT_GRAY = lightGray;
+	public static final Color gray = new Color(128, 128, 128);
+	public static final Color GRAY = gray;
+	public static final Color darkGray = new Color(64, 64, 64);
+	public static final Color DARK_GRAY = darkGray;
+	public static final Color black = new Color(0, 0, 0);
+	public static final Color BLACK = black;
+	public static final Color red = new Color(255, 0, 0);
+	public static final Color RED = red;
+	public static final Color pink = new Color(255, 175, 175);
+	public static final Color PINK = pink;
+	public static final Color orange = new Color(255, 200, 0);
+	public static final Color ORANGE = orange;
+	public static final Color yellow = new Color(255, 255, 0);
+	public static final Color YELLOW = yellow;
+	public static final Color green = new Color(0, 255, 0);
+	public static final Color GREEN = green;
+	public static final Color magenta = new Color(255, 0, 255);
+	public static final Color MAGENTA = magenta;
+	public static final Color cyan = new Color(0, 255, 255);
+	public static final Color CYAN = cyan;
+	public static final Color blue = new Color(0, 0, 255);
+	public static final Color BLUE = blue;
 	
 	/**
 	 * Create a color with the specified red, green, and blue values.
@@ -44,6 +66,8 @@ public class Color
 	 */
 	public Color(int r, int g, int b, int a)
 	{
+		super(r, g, b, a);
+		
 		setData(r, g, b, a);
 	}
 	
@@ -54,7 +78,7 @@ public class Color
 	 */
 	public int getRed()
 	{
-		return red;
+		return r;
 	}
 
 	/**
@@ -64,7 +88,7 @@ public class Color
 	 */
 	public int getGreen()
 	{
-		return green;
+		return g;
 	}
 
 	/**
@@ -74,7 +98,7 @@ public class Color
 	 */
 	public int getBlue()
 	{
-		return blue;
+		return b;
 	}
 
 	/**
@@ -84,7 +108,7 @@ public class Color
 	 */
 	public int getAlpha()
 	{
-		return alpha;
+		return a;
 	}
 	
 	/**
@@ -95,7 +119,7 @@ public class Color
 	 */
 	public float getRedf()
 	{
-		return red / 255f;
+		return r / 255f;
 	}
 	
 	/**
@@ -106,7 +130,7 @@ public class Color
 	 */
 	public float getGreenf()
 	{
-		return green / 255f;
+		return g / 255f;
 	}
 	
 	/**
@@ -117,7 +141,7 @@ public class Color
 	 */
 	public float getBluef()
 	{
-		return blue / 255f;
+		return b / 255f;
 	}
 	
 	/**
@@ -128,7 +152,7 @@ public class Color
 	 */
 	public float getAlphaf()
 	{
-		return alpha / 255f;
+		return a / 255f;
 	}
 	
 	/**
@@ -142,10 +166,10 @@ public class Color
 	 */
 	public void setData(int r, int g, int b, int a)
 	{
-		this.red   = r;
-		this.green = g;
-		this.blue  = b;
-		this.alpha = a;
+		this.r   = r;
+		this.g = g;
+		this.b  = b;
+		this.a = a;
 		
 		checkBounds();
 	}
@@ -165,10 +189,10 @@ public class Color
 	 */
 	public void brighten(int r, int g, int b, int a)
 	{
-		this.red   += r;
-		this.green += g;
-		this.blue  += b;
-		this.alpha += a;
+		this.r   += r;
+		this.g += g;
+		this.b  += b;
+		this.a += a;
 		
 		checkBounds();
 	}
@@ -197,38 +221,38 @@ public class Color
 	 */
 	private void checkBounds()
 	{
-		if (red < 0)
+		if (r < 0)
 		{
-			red = 0;
+			r = 0;
 		}
-		if (green < 0)
+		if (g < 0)
 		{
-			green = 0;
+			g = 0;
 		}
-		if (blue < 0)
+		if (b < 0)
 		{
-			blue = 0;
+			b = 0;
 		}
-		if (alpha < 0)
+		if (a < 0)
 		{
-			alpha = 0;
+			a = 0;
 		}
 		
-		if (red >= 256)
+		if (r >= 256)
 		{
-			red = 255;
+			r = 255;
 		}
-		if (green >= 256)
+		if (g >= 256)
 		{
-			green = 255;
+			g = 255;
 		}
-		if (blue >= 256)
+		if (b >= 256)
 		{
-			blue = 255;
+			b = 255;
 		}
-		if (alpha >= 256)
+		if (a >= 256)
 		{
-			alpha = 255;
+			a = 255;
 		}
 	}
 }

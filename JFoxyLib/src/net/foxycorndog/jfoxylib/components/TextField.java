@@ -407,7 +407,7 @@ public class TextField extends Component
 //			{
 				float offsetY = (getHeight() / 2) - (font.getGlyphHeight() * (textScale)) / 2;
 				
-				float color[] = null;
+				Color color = null;
 				
 				if (fontColor != null)
 				{

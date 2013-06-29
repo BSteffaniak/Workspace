@@ -98,7 +98,7 @@ public class Bounds
 	/**
 	 * Sets the horizontal size of this Bounds.
 	 * 
-	 * @param x The horizontal size.
+	 * @param width The horizontal size.
 	 */
 	public void setWidth(int width)
 	{
@@ -116,7 +116,7 @@ public class Bounds
 	/**
 	 * Sets the vertical size of this Bounds.
 	 * 
-	 * @param y The vertical size.
+	 * @param height The vertical size.
 	 */
 	public void setHeight(int height)
 	{
@@ -126,8 +126,8 @@ public class Bounds
 	/**
 	 * Method to set the size of the Bounds with (width, height).
 	 * 
-	 * @param x The horizontal size.
-	 * @param y The vertical size.
+	 * @param width The horizontal size.
+	 * @param height The vertical size.
 	 */
 	public void setSize(int width, int height)
 	{

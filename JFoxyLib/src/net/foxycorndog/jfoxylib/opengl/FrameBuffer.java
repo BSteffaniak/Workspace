@@ -19,7 +19,7 @@ public class FrameBuffer
 	{
 		if (!isSupported())
 		{
-			throw new UnsupportedOperationException("You must have OpenGL version 3.0 or greater to use FrameBuffers. (You have " + GL.getVersion() + ")");
+			throw new UnsupportedOperationException("You must have OpenGL version 3.0 or greater to use FrameBuffers. (You have " + GL.getOpenGLVersion() + ")");
 		}
 	}
 	
@@ -32,6 +32,6 @@ public class FrameBuffer
 	 */
 	private static boolean isSupported()
 	{
-		return GL.getVersion().compareTo("3.0") >= 0;
+		return GL.getOpenGLVersion().compareTo("3.0") >= 0;
 	}
 }
