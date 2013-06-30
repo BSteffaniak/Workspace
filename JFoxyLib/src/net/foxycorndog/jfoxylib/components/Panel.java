@@ -16,6 +16,8 @@ import net.foxycorndog.jfoxylib.opengl.GL;
  */
 public class Panel extends Component
 {
+	private	boolean					independentSize;
+	
 	private ArrayList<Component>	children;
 	
 	/**
@@ -29,6 +31,30 @@ public class Panel extends Component
 		super(parent);
 		
 		children = new ArrayList<Component>();
+	}
+	
+	/**
+	 * Get whether or not the size of the Panel is independent to
+	 * the scale that the OpenGL matrix has at the rendering time.
+	 * 
+	 * @return Whether or not the size of the Panel is independent to
+	 * 		scale at render time.
+	 */
+	public boolean isIndependentSize()
+	{
+		return independentSize;
+	}
+	
+	/**
+	 * Set whether or not the size of the Panel should be independent to
+	 * the scale that the OpenGL matrix has at the rendering time.
+	 * 
+	 * @param independentSize Whether or not to set the size of the Panel
+	 * 		to be independent to scale at render time.
+	 */
+	public void setIndependentSize(boolean independentSize)
+	{
+		this.independentSize = independentSize;
 	}
 	
 	/**
@@ -65,7 +91,23 @@ public class Panel extends Component
 		
 		return disposed;
 	}
-
+	
+	/**
+	 * Render all of the Components within the Panel to the Display.
+	 */
+	public void renderComponents()
+	{
+		for (int i = children.size() - 1; i >= 0; i--)
+		{
+			Component child = children.get(i);
+			
+			if (child.isVisible())
+			{
+				child.render();
+			}
+		}
+	}
+	
 	/**
 	 * Renders the Component to the screen.
 	 */
@@ -75,20 +117,21 @@ public class Panel extends Component
 		{
 			GL.pushMatrix();
 			{
-				GL.translate(getX(), getY(), 0);
-				
-				GL.beginClipping(0, 0, getWidth(), getHeight());
+				if (independentSize)
 				{
-					for (int i = children.size() - 1; i >= 0; i--)
-					{
-						Component child = children.get(i);
-						
-						if (child.isVisible())
-						{
-							child.render();
-						}
-					}
+					GL.translateIgnoreScale(getX(), getY(), 0);
+					
+					GL.beginFrameClipping(getX(), getY(), getWidth(), getHeight());
 				}
+				else
+				{
+					GL.translate(getX(), getY(), 0);
+				
+					GL.beginClipping(0, 0, getWidth(), getHeight());
+				}
+				
+				renderComponents();
+				
 				GL.endClipping();
 			}
 			GL.popMatrix();

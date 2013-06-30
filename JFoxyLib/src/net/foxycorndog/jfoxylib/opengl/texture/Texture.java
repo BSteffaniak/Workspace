@@ -40,14 +40,16 @@ import org.lwjgl.opengl.GL15;
  */
 public class Texture
 {
-	private int			id;
-	private int			width, height;
+	private		 int			id;
+	private		 int			width, height;
 	
-	private float		texWid, texHei;
+	private 		float		texWid, texHei;
 	
-	private	IntBuffer	intBuffer;
+	private			IntBuffer	intBuffer;
 	
-	private	byte		pixels[];
+	private			byte		pixels[];
+	
+	private	static	int			currentId;
 	
 	/**
 	 * 
@@ -365,7 +367,10 @@ public class Texture
 	
 	public void setPixel(int x, int y, int value)
 	{
-		bind();
+		if (!isBound())
+		{
+			throw new UnboundTextureException("The Texture must be bound before editing the pixels.");
+		}
 		
 		byte values[] = new byte[4];
 		
@@ -395,7 +400,10 @@ public class Texture
 	
 	public void setPixels(int x, int y, int width, int height, int values[])
 	{
-		bind();
+		if (!isBound())
+		{
+			throw new UnboundTextureException("The Texture must be bound before editing the pixels.");
+		}
 		
 		byte bytes[] = new byte[width * height * 4];
 		
@@ -473,7 +481,10 @@ public class Texture
 	
 	public void setPixelBytes(int x, int y, byte values[])
 	{
-		bind();
+		if (!isBound())
+		{
+			throw new UnboundTextureException("The Texture must be bound before editing the pixels.");
+		}
 		
 		ByteBuffer buf = BufferUtils.createByteBuffer(4);
 		
@@ -486,7 +497,10 @@ public class Texture
 	
 	public void setPixelsBytes(int x, int y, int width, int height, byte values[])
 	{
-		bind();
+		if (!isBound())
+		{
+			throw new UnboundTextureException("The Texture must be bound before editing the pixels.");
+		}
 		
 		for (int y2 = 0; y2 < height; y2++)
 		{
@@ -571,11 +585,24 @@ public class Texture
 	}
 	
 	/**
+	 * Get whether or not the Texture is currently bound and ready to
+	 * be rendered with.
 	 * 
+	 * @return Whether the Texture is bound or not.
+	 */
+	public boolean isBound()
+	{
+		return currentId == id;
+	}
+	
+	/**
+	 * Bind the Texture as the current Texture to be rendered with.
 	 */
 	public void bind()
 	{
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, id);
+		
+		bind(id);
 	}
 	
 	/**
@@ -604,5 +631,15 @@ public class Texture
 	public static void unbind()
 	{
 		GL11.glBindTexture(GL11.GL_TEXTURE_2D, 0);
+	}
+	
+	/**
+	 * Method to keep track of which Texture is currently bound.
+	 * 
+	 * @param id The id of the Texture that is being bound.
+	 */
+	private static void bind(int id)
+	{
+		Texture.currentId = id;
 	}
 }

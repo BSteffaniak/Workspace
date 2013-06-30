@@ -617,6 +617,30 @@ public class GL
 	}
 	
 	/**
+	 * Translate everything that is rendered after this method call
+	 * the specified x, y, and z amounts.<br>
+	 * Translates the current matrix configuration the specified amounts.<br>
+	 * <br>
+	 * The difference between this and the translate() method is that this
+	 * method translates on a pixel basis, not on a scaled basis. What
+	 * this means is that no matter what the scale is, this will translate
+	 * the scene the same amount.<br>
+	 * <br>
+	 * This is essentially the same as calling this method:<br>
+	 * translate(x / scaleX, y / scaleY, z / scaleZ);
+	 * 
+	 * @param x The amount to translate along the x (horizontal) axis.
+	 * @param y The amount to translate along the y (vertical) axis.
+	 * @param z The amount to translate along the z (oblique) axis.
+	 */
+	public static void translateIgnoreScale(float x, float y, float z)
+	{
+		float scaled[] = getAmountScaled();
+		
+		translate(x / scaled[0], y / scaled[1], z / scaled[2]);
+	}
+	
+	/**
 	 * Scale everything that is rendered after this method call
 	 * the specified amount int the x, y, and z axis.<br>
 	 * Scales the current matrix configuration the specified amounts.
