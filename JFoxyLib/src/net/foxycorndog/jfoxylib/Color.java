@@ -14,7 +14,7 @@ package net.foxycorndog.jfoxylib;
  */
 public class Color extends java.awt.Color
 {
-	private	int					r, g, b, a;
+	private	float	r, g, b, a;
 	
 	public static final Color white = new Color(255, 255, 255);
 	public static final Color WHITE = white;
@@ -66,6 +66,32 @@ public class Color extends java.awt.Color
 	 */
 	public Color(int r, int g, int b, int a)
 	{
+		this(r / 255f, g / 255f, b / 255f, a / 255f);
+	}
+	
+	/**
+	 * Create a color with the specified red, green, and blue values.
+	 * 
+	 * @param r The red component for the Color.
+	 * @param g The green component for the Color.
+	 * @param b The blue component for the Color.
+	 */
+	public Color(float r, float g, float b)
+	{
+		this(r, g, b, 1);
+	}
+	
+	/**
+	 * Create a color with the specified red, green, and blue values.
+	 * (0 - 255)
+	 * 
+	 * @param r The red component for the Color.
+	 * @param g The green component for the Color.
+	 * @param b The blue component for the Color.
+	 * @param a The alpha component for the Color.
+	 */
+	public Color(float r, float g, float b, float a)
+	{
 		super(r, g, b, a);
 		
 		setData(r, g, b, a);
@@ -78,7 +104,7 @@ public class Color extends java.awt.Color
 	 */
 	public int getRed()
 	{
-		return r;
+		return Math.round(r * 255);
 	}
 
 	/**
@@ -88,7 +114,7 @@ public class Color extends java.awt.Color
 	 */
 	public int getGreen()
 	{
-		return g;
+		return Math.round(g * 255);
 	}
 
 	/**
@@ -98,7 +124,7 @@ public class Color extends java.awt.Color
 	 */
 	public int getBlue()
 	{
-		return b;
+		return Math.round(b * 255);
 	}
 
 	/**
@@ -108,7 +134,7 @@ public class Color extends java.awt.Color
 	 */
 	public int getAlpha()
 	{
-		return a;
+		return Math.round(a * 255);
 	}
 	
 	/**
@@ -119,7 +145,7 @@ public class Color extends java.awt.Color
 	 */
 	public float getRedf()
 	{
-		return r / 255f;
+		return r;
 	}
 	
 	/**
@@ -130,7 +156,7 @@ public class Color extends java.awt.Color
 	 */
 	public float getGreenf()
 	{
-		return g / 255f;
+		return g;
 	}
 	
 	/**
@@ -141,7 +167,7 @@ public class Color extends java.awt.Color
 	 */
 	public float getBluef()
 	{
-		return b / 255f;
+		return b;
 	}
 	
 	/**
@@ -152,7 +178,7 @@ public class Color extends java.awt.Color
 	 */
 	public float getAlphaf()
 	{
-		return a / 255f;
+		return a;
 	}
 	
 	/**
@@ -166,9 +192,28 @@ public class Color extends java.awt.Color
 	 */
 	public void setData(int r, int g, int b, int a)
 	{
-		this.r   = r;
+		this.r = r;
 		this.g = g;
-		this.b  = b;
+		this.b = b;
+		this.a = a;
+		
+		checkBounds();
+	}
+	
+	/**
+	 * Set the Color's red, green, and blue components to the specified
+	 * values.
+	 * 
+	 * @param r The new red component.
+	 * @param g The new green component.
+	 * @param b The new blue component.
+	 * @param a The new alpha component.
+	 */
+	public void setData(float r, float g, float b, float a)
+	{
+		this.r = r;
+		this.g = g;
+		this.b = b;
 		this.a = a;
 		
 		checkBounds();
@@ -189,9 +234,9 @@ public class Color extends java.awt.Color
 	 */
 	public void brighten(int r, int g, int b, int a)
 	{
-		this.r   += r;
+		this.r += r;
 		this.g += g;
-		this.b  += b;
+		this.b += b;
 		this.a += a;
 		
 		checkBounds();
@@ -238,21 +283,21 @@ public class Color extends java.awt.Color
 			a = 0;
 		}
 		
-		if (r >= 256)
+		if (r > 1)
 		{
-			r = 255;
+			r = 1;
 		}
-		if (g >= 256)
+		if (g > 1)
 		{
-			g = 255;
+			g = 1;
 		}
-		if (b >= 256)
+		if (b > 1)
 		{
-			b = 255;
+			b = 1;
 		}
-		if (a >= 256)
+		if (a > 1)
 		{
-			a = 255;
+			a = 1;
 		}
 	}
 }

@@ -54,7 +54,7 @@ public abstract class GameStarter
 	{
 		debugFiles = new ArrayList<File>();
 		
-		dateFormat = new SimpleDateFormat("M/d/yyyy H:mm:ss");
+		dateFormat = new SimpleDateFormat("M/d/yyyy h:mm:ss");
 		calendar   = Calendar.getInstance();
 		
 		date       = dateFormat.format(calendar.getTime()) + " " + (calendar.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM");
@@ -176,7 +176,7 @@ public abstract class GameStarter
 				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 	
 				Frame.loop();
-				loop();
+				update();
 				
 				GL.resetMatrix();
 				GL.viewPerspective(Frame.getWidth(), Frame.getHeight(), 0.01f, 99999f);
@@ -269,5 +269,5 @@ public abstract class GameStarter
 	 * Method that is right before the render methods are called.
 	 * All calculations should be done in here.
 	 */
-	public abstract void loop();
+	public abstract void update();
 }
