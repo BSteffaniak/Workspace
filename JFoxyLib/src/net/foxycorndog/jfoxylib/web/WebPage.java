@@ -10,7 +10,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 /**
- * 
+ * Class used to get Output from web-pages on a Server.
  * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 11:26:27 PM
@@ -55,10 +55,11 @@ public class WebPage
 	}
 	
 	/**
+	 * Get all of the lines of output from the web-page at the URL given.
 	 * 
-	 * 
-	 * @param url
-	 * @return
+	 * @param url The URL of the web-page.
+	 * @return A String array of each line of the output from the
+	 * 		web-page at the specified URL.
 	 */
 	public static String[] getOutput(String url)
 	{

@@ -2,8 +2,9 @@ package net.foxycorndog.jfoxylib.components;
 
 import java.util.ArrayList;
 
-import net.foxycorndog.jfoxylib.Frame;
+import net.foxycorndog.jfoxylib.Color;
 import net.foxycorndog.jfoxylib.opengl.GL;
+import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
 
 /**
  * Class that is used to contain other Components.
@@ -16,9 +17,35 @@ import net.foxycorndog.jfoxylib.opengl.GL;
  */
 public class Panel extends Component
 {
-	private	boolean					independentSize;
+	private					boolean					independentSize;
 	
-	private ArrayList<Component>	children;
+	private					float					backgroundIndex;
+	
+	private					Color					backgroundColor;
+	
+	private					ArrayList<Component>	children;
+	
+	private	static	final	Bundle					backgroundBundle;
+	
+	/**
+	 * Initialize the backgroundBundle.
+	 */
+	static
+	{
+		backgroundBundle = new Bundle(3 * 2, 2, true, false);
+		
+		backgroundBundle.beginEditingVertices();
+		{
+			backgroundBundle.addVertices(GL.genRectVerts(0, 0, 1, 1));
+		}
+		backgroundBundle.endEditingVertices();
+		
+		backgroundBundle.beginEditingTextures();
+		{
+			backgroundBundle.addTextures(GL.WHITE.getImageOffsets());
+		}
+		backgroundBundle.endEditingTextures();
+	}
 	
 	/**
 	 * Construct a Panel that is used to hold Components with the
@@ -55,6 +82,46 @@ public class Panel extends Component
 	public void setIndependentSize(boolean independentSize)
 	{
 		this.independentSize = independentSize;
+	}
+	
+	/**
+	 * Get the z-index of the Background.
+	 * 
+	 * @return The z-index of the Background;
+	 */
+	public float getBackgroundIndex()
+	{
+		return backgroundIndex;
+	}
+	
+	/**
+	 * Set the z-index of the background.
+	 * 
+	 * @param backgroundIndex The z-index of the background.
+	 */
+	public void setBackgroundIndex(float backgroundIndex)
+	{
+		this.backgroundIndex = backgroundIndex;
+	}
+	
+	/**
+	 * Get the Color that is rendered as the background.
+	 * 
+	 * @return The Color instance that is rendered as the background.
+	 */
+	public Color getBackgroundColor()
+	{
+		return backgroundColor;
+	}
+	
+	/**
+	 * Set the Color that the background will render in.
+	 * 
+	 * @param color The Color to set as the background Color.
+	 */
+	public void setBackgroundColor(Color color)
+	{
+		this.backgroundColor = color;
 	}
 	
 	/**
@@ -128,6 +195,24 @@ public class Panel extends Component
 					GL.translate(getX(), getY(), 0);
 				
 					GL.beginClipping(0, 0, getWidth(), getHeight());
+				}
+				
+				if (backgroundColor != null)
+				{
+					GL.pushMatrix();
+					{
+						GL.translate(0, 0, backgroundIndex);
+						GL.unscale();
+						GL.scale(getWidth(), getHeight(), 1);
+						
+						Color current = GL.getColor();
+						
+						GL.setColor(backgroundColor);
+						backgroundBundle.render(GL.TRIANGLES, GL.WHITE);
+						
+						GL.setColor(current);
+					}
+					GL.popMatrix();
 				}
 				
 				renderComponents();

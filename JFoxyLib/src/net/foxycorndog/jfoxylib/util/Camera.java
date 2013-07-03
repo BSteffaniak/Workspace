@@ -1,49 +1,49 @@
 package net.foxycorndog.jfoxylib.util;
 
-import static org.lwjgl.opengl.GL11.glRotatef;
-import static org.lwjgl.opengl.GL11.glTranslatef;
-
 import net.foxycorndog.jfoxylib.opengl.GL;
 
-import org.lwjgl.util.vector.Vector3f;
-
 /**
- * 
+ * Class used to manipulate how a perspective is viewed.
  * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 11:17:22 PM
  * @since	v0.1
- * @version	Apr 26, 2013 at 11:17:22 PM
+ * @version	Jul 2, 2013 at 6:41:22 PM
  * @version	v0.2
  */
 public class Camera implements Cloneable
 {
-	private int      cameraMode;
+	private					int		cameraMode;
+	
+	private					float	yaw, maxYaw, minYaw;
+	private					float	roll, maxRoll, minRoll;
+	private					float	pitch, maxPitch, minPitch;
 	
 	// 3d vector to store the camera's position in
-	private Point3f location;
+	private					Point3f	location;
 	
-	// the rotation around the Y axis of the camera
-	private float	 yaw, maxYaw, minYaw;
+	public	static	final	int		FORWARD = 0, BACKWARD = 1, LEFT = 2, RIGHT = 3, UP = 4, DOWN = 5;
 	
-	// the rotation around the Z axis of the camera
-	private float	 roll, maxRoll, minRoll;
-	
-	// the rotation around the X axis of the camera
-	private float  	 pitch, maxPitch, minPitch;
-	
-	public static final int FORWARD = 0, BACKWARD = 1, LEFT = 2, RIGHT = 3, UP = 4, DOWN = 5;
-	
-	public static final int FREE = 1, XZ_ONLY = 2;
+	public	static	final	int		FREE = 1, XZ_ONLY = 2;
 	
 	/**
-	 * 
+	 * Create a Camera instance at the location (0, 0, 0).
 	 */
 	public Camera()
 	{
-		location = new Point3f(0, 0, 0);
-//		// instantiate position Vector3f to the x y z params.
-//		location = new Vector3f(0, 0, 0);
+		this(0, 0, 0);
+	}
+	
+	/**
+	 * Constructor that takes the starting x, y, z location of the camera
+	 * 
+	 * @param x The horizontal location of the Camera.
+	 * @param y The vertical location of the Camera.
+	 * @param z The depth (oblique) location of the Camera.
+	 */
+	public Camera(float x, float y, float z)
+	{
+		location = new Point3f(x, y, z);
 		
 		this.cameraMode = FREE;
 		
@@ -56,26 +56,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
-	 * Constructor that takes the starting x, y, z location of the camera
+	 * Set the minimum value that the yaw can reach.
 	 * 
-	 * @param x
-	 * @param y
-	 * @param z
-	 */
-	public Camera(float x, float y, float z)
-	{
-		this();
-		
-		location = new Point3f(x, y, z);
-		
-//		// instantiate position Vector3f to the x y z params.
-//		location = new Vector3f(x, y, z);
-	}
-	
-	/**
-	 * 
-	 * 
-	 * @param minYaw
+	 * @param minYaw The minimum value that the yaw can reach.
 	 */
 	public void setMinYaw(float minYaw)
 	{
@@ -83,9 +66,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Set the maximum value that the yaw can reach.
 	 * 
-	 * 
-	 * @param maxYaw
+	 * @param maxYaw The maximum value that the yaw can reach.
 	 */
 	public void setMaxYaw(float maxYaw)
 	{
@@ -93,9 +76,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Set the minimum value that the pitch can reach.
 	 * 
-	 * 
-	 * @param minPitch
+	 * @param minPitch The minimum value that the pitch can reach.
 	 */
 	public void setMinPitch(float minPitch)
 	{
@@ -103,9 +86,9 @@ public class Camera implements Cloneable
 	}
 
 	/**
+	 * Set the maximum value that the pitch can reach.
 	 * 
-	 * 
-	 * @param maxPitch
+	 * @param maxPitch The maximum value that the pitch can reach.
 	 */
 	public void setMaxPitch(float maxPitch)
 	{
@@ -113,9 +96,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Set the minimum value that the roll can reach.
 	 * 
-	 * 
-	 * @param minRoll
+	 * @param minRoll The minimum value that the roll can reach.
 	 */
 	public void setMinRoll(float minRoll)
 	{
@@ -123,9 +106,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Set the maximum value that the roll can reach.
 	 * 
-	 * 
-	 * @param maxRoll
+	 * @param maxRoll The maximum value that the roll can reach.
 	 */
 	public void setMaxRoll(float maxRoll)
 	{
@@ -133,9 +116,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Get the current yaw value of the Camera.
 	 * 
-	 * 
-	 * @return
+	 * @return The current yaw of the Camera.
 	 */
 	public float getYaw()
 	{
@@ -143,9 +126,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
-	 * 
-	 * 
-	 * @param yaw
+	 * Set the new yaw value of the Camera.
+	 *  
+	 * @param yaw The new yaw value.
 	 */
 	public void setYaw(float yaw)
 	{
@@ -166,7 +149,7 @@ public class Camera implements Cloneable
 	/**
 	 * Increment the camera's current yaw rotation.
 	 * 
-	 * @param amount
+	 * @param amount The amount to increment the yaw by.
 	 */
 	public void yaw(float amount)
 	{
@@ -188,9 +171,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Get the current pitch value of the Camera.
 	 * 
-	 * 
-	 * @return
+	 * @return The current pitch of the Camera.
 	 */
 	public float getPitch()
 	{
@@ -198,9 +181,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
-	 * 
-	 * 
-	 * @param pitch
+	 * Set the new pitch value of the Camera.
+	 *  
+	 * @param pitch The new pitch value.
 	 */
 	public void setPitch(float pitch)
 	{
@@ -219,9 +202,9 @@ public class Camera implements Cloneable
 	}
 	 
 	/**
-	 * Increment the camera's current yaw rotation.
+	 * Increment the camera's current pitch rotation.
 	 * 
-	 * @param amount
+	 * @param amount The amount to increment the pitch by.
 	 */
 	public void pitch(float amount)
 	{
@@ -243,9 +226,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Get the current roll value of the Camera.
 	 * 
-	 * 
-	 * @return
+	 * @return The current roll of the Camera.
 	 */
 	public float getRoll()
 	{
@@ -253,9 +236,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
-	 * 
-	 * 
-	 * @param roll
+	 * Set the new pitch value of the Camera.
+	 *  
+	 * @param pitch The new pitch value.
 	 */
 	public void setRoll(float roll)
 	{
@@ -276,7 +259,7 @@ public class Camera implements Cloneable
 	/**
 	 * Increment the camera's current roll rotation.
 	 * 
-	 * @param amount
+	 * @param amount The amount to increment the roll by.
 	 */
 	public void roll(float amount)
 	{
@@ -298,11 +281,12 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Rotate the camera the specified amount for the pitch, yaw, and
+	 * roll.
 	 * 
-	 * 
-	 * @param pitch
-	 * @param yaw
-	 * @param roll
+	 * @param pitch The amount to rotate around the x axis.
+	 * @param yaw The amount to rotate around the y axis.
+	 * @param roll The amount to rotate around teh z axis.
 	 */
 	public void rotate(float pitch, float yaw, float roll)
 	{
@@ -347,11 +331,11 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Set the location of the Camera in the scene.
 	 * 
-	 * 
-	 * @param x
-	 * @param y
-	 * @param z
+	 * @param x The horizontal location of the Camera.
+	 * @param y The vertical location of the Camera.
+	 * @param z The depth (oblique) location of the Camera.
 	 */
 	public void setLocation(float x, float y, float z)
 	{
@@ -363,11 +347,15 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Move the Camera the specified amount in the direction of
+	 * (dx, dy, dz) in the scene.
 	 * 
-	 * 
-	 * @param dx
-	 * @param dy
-	 * @param dz
+	 * @param dx The amount to move the Camera in the horizontal
+	 * 		direction.
+	 * @param dy The amount to move the Camera in the vertical
+	 * 		direction.
+	 * @param dz The amount to move the Camera in the oblique (depth)
+	 * 		direction.
 	 */
 	public void move(float dx, float dy, float dz)
 	{
@@ -379,13 +367,21 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Move the Camera along the specified direction (dx, dy, dz).
+	 * The movement is based upon the yaw, pitch, and roll. The movement
+	 * moves along the slope that these values have set.<br>
+	 * <br>
+	 * For example:<br>
+	 * If the pitch of the Camera is -90 (facing down) and
+	 * moveDirection(1, 0, 0) is called, you will move 1 unit
+	 * righward. Likewise, if you called moveDirection(0, 1, 0),
+	 * you would move forward one (because you are facing downward).
 	 * 
-	 * 
-	 * @param distX
-	 * @param distY
-	 * @param distZ
+	 * @param dx The amount to move forward by.
+	 * @param dy The amount to move upward by.
+	 * @param dz The amount to move rightward by.
 	 */
-	public void moveDirection(float distX, float distY, float distZ)
+	public void moveDirection(float dx, float dy, float dz)
 	{
 //		float zOff = -distZ * (float)Math.cos(Math.toRadians(yaw));
 //		
@@ -409,9 +405,9 @@ public class Camera implements Cloneable
 //		
 //		location.z += zOff;
 		
-		float xOff = -distX * (float)Math.sin(Math.toRadians(yaw + 90)) + distZ * (float)Math.sin(Math.toRadians(yaw)); 
+		float xOff = -dx * (float)Math.sin(Math.toRadians(yaw + 90)) + dz * (float)Math.sin(Math.toRadians(yaw)); 
 		float yOff = 0;
-		float zOff = -distZ * (float)Math.cos(Math.toRadians(yaw))      + distX * (float)Math.cos(Math.toRadians(yaw + 90));
+		float zOff = -dz * (float)Math.cos(Math.toRadians(yaw))      + dx * (float)Math.cos(Math.toRadians(yaw + 90));
 		
 		if (cameraMode == FREE)
 		{
@@ -419,13 +415,13 @@ public class Camera implements Cloneable
 			
 			xOff *= slope;
 //			location.y -= distY * (float)Math.sin(Math.toRadians(pitch));
-			location.move(0, -distY * (float)Math.sin(Math.toRadians(pitch)), 0);
+			location.move(0, -dy * (float)Math.sin(Math.toRadians(pitch)), 0);
 			zOff *= slope;
 		}
 		else
 		{
 //			location.y -= distY;
-			location.move(0, -distY, 0);
+			location.move(0, -dy, 0);
 		}
 		
 //		location.x += xOff;
@@ -435,10 +431,20 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Move the Camera in the specified direction the specified amount
+	 * of units.<br>
+	 * Options for the direction includes:<br>
+	 * 	<ul>
+	 * 		<li>FORWARD</li>
+	 * 		<li>BACKWARD</li>
+	 * 		<li>LEFT</li>
+	 * 		<li>RIGHT</li>
+	 * 		<li>UP</li>
+	 * 		<li>DOWN</li>
+	 * 	</ul>
 	 * 
-	 * 
-	 * @param direction
-	 * @param distance
+	 * @param direction The direction in which to move the Camera.
+	 * @param distance The amount of units to move the Camera.
 	 */
 	public void move(int direction, float distance)
 	{
@@ -542,9 +548,10 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Get the Point3f instance that hold the location of the Camera at
+	 * the current time.
 	 * 
-	 * 
-	 * @return
+	 * @return The current Location Point3f instance.
 	 */
 	public Point3f getLocation()
 	{
@@ -552,9 +559,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Get the current horizontal location of the Camera.
 	 * 
-	 * 
-	 * @return
+	 * @return The current horizontal location of the Camera.
 	 */
 	public float getX()
 	{
@@ -562,9 +569,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Get the current vertical location of the Camera.
 	 * 
-	 * 
-	 * @return
+	 * @return The current vertical location of the Camera.
 	 */
 	public float getY()
 	{
@@ -572,9 +579,9 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Get the current oblique (depth) location of the Camera.
 	 * 
-	 * 
-	 * @return
+	 * @return The current oblique (depth) location of the Camera.
 	 */
 	public float getZ()
 	{
@@ -582,9 +589,17 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Set the Camera movement method.<br>
+	 * Options include:<br>
+	 * 	<ul>
+	 * 		<li>FREE: Allow the Camera to move in all directions.</li>
+	 * 		<li>
+	 * 			XZ_ONLY: Restrict the Camera movement to the horizontal
+	 * 			and oblique (depth) axiis.
+	 * 		</li>
+	 * 	</ul>
 	 * 
-	 * 
-	 * @param mode
+	 * @param mode The mode to set the Camera movement as.
 	 */
 	public void setCameraMode(int mode)
 	{
@@ -592,30 +607,14 @@ public class Camera implements Cloneable
 	}
 	
 	/**
+	 * Generate a String representation of the Camera by showing
+	 * the location of the Camera.
 	 * 
-	 */
-	public Camera clone()
-	{
-		try
-		{
-			return (Camera)super.clone();
-		}
-		catch (CloneNotSupportedException e)
-		{
-			e.printStackTrace();
-		}
-		
-		return null;
-	}
-	
-	/**
-	 * 
-	 * 
-	 * @return 
+	 * @return The String representation of the Camera instance.
 	 */
 	public String toString()
 	{
-		return "[ " + getX() + ", " + getY() + ", " + getZ() + " ]";
+		return this.getClass().getSimpleName() + " { " + getX() + ", " + getY() + ", " + getZ() + " }";
 	}
 }
 

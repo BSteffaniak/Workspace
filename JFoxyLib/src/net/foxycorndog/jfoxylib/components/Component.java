@@ -33,8 +33,6 @@ public abstract class Component
 	
 	private					Panel					parent;
 	
-	private	static			boolean					initialized;
-	
 	private	static			ArrayList<Component>	components;
 	
 	public	static	final	int						LEFT = 0, CENTER = 1, RIGHT = 2,
@@ -43,13 +41,8 @@ public abstract class Component
 	/**
 	 * Initialize the Component class stuff.
 	 */
-	private static void init()
+	static
 	{
-		if (initialized)
-		{
-			return;
-		}
-		
 		components = new ArrayList<Component>();
 	}
 	
@@ -60,7 +53,10 @@ public abstract class Component
 	 */
 	public Component(Panel parent)
 	{
-		init();
+		if (parent == null)
+		{
+			parent = Frame.getPanel();
+		}
 		
 		components.add(this);
 		

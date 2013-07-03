@@ -5,7 +5,17 @@ import java.util.ArrayList;
 import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
 
-public class MenuBar extends Component
+/**
+ * Class used to create an organized bar used as a menu for any
+ * specific purpose or another.
+ * 
+ * @author	Braden Steffaniak
+ * @since	Jun 30, 2013 at 10:33:27 PM
+ * @since	v0.2
+ * @version	Jun 30, 2013 at 10:33:27 PM
+ * @version	v0.2
+ */
+public class MenuBar extends Panel
 {
 	private	boolean				autoResize;
 	
@@ -61,6 +71,12 @@ public class MenuBar extends Component
 		update();
 	}
 	
+	/**
+	 * Get whether or not the MenuBar will dynamically change the size
+	 * whenever MenuItems are added or removed from the bar.
+	 * 
+	 * @return Whether or not the MenuBar auto-resizes.
+	 */
 	public boolean doesAutoResize()
 	{
 		return autoResize;
@@ -81,6 +97,6 @@ public class MenuBar extends Component
 	 */
 	public void render()
 	{
-//		bundle.render(GL.QUADS, null);
+		bundle.render(GL.TRIANGLES, GL.WHITE);
 	}
 }

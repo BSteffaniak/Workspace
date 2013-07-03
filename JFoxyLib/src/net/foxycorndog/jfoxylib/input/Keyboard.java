@@ -1,21 +1,9 @@
 package net.foxycorndog.jfoxylib.input;
 
-import java.awt.DefaultKeyboardFocusManager;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyEventPostProcessor;
-import java.awt.KeyboardFocusManager;
-import java.awt.Toolkit;
-import java.io.File;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Queue;
 
 import net.foxycorndog.jfoxylib.events.KeyEvent;
 import net.foxycorndog.jfoxylib.events.KeyListener;
-import net.foxycorndog.jfoxylib.opengl.GL;
 
 import org.lwjgl.LWJGLException;
 

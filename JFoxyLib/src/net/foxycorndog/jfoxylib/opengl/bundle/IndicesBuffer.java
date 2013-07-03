@@ -11,7 +11,6 @@ import static org.lwjgl.opengl.GL15.glUnmapBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
 import org.lwjgl.BufferUtils;

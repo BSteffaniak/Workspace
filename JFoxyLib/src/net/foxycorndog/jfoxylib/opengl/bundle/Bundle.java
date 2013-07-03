@@ -7,7 +7,6 @@ import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL11.glEnableClientState;
 import static org.lwjgl.opengl.GL11.glTexCoordPointer;
 import static org.lwjgl.opengl.GL11.glVertexPointer;
-
 import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 
@@ -356,7 +355,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Bind the VerticesBuffer and allow it to be modified.
 	 */
 	public void beginEditingVertices()
 	{
@@ -364,7 +363,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Unbind the VerticesBuffer and restrict it from being modified.
 	 */
 	public void endEditingVertices()
 	{
@@ -372,7 +371,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Bind the TexturesBuffer and allow it to be modified.
 	 */
 	public void beginEditingTextures()
 	{
@@ -380,7 +379,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Unbind the TexturesBuffer and restrict it from being modified.
 	 */
 	public void endEditingTextures()
 	{
@@ -388,7 +387,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Bind the ColorsBuffer and allow it to be modified.
 	 */
 	public void beginEditingColors()
 	{
@@ -396,7 +395,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Unbind the ColorsBuffer and restrict it from being modified.
 	 */
 	public void endEditingColors()
 	{
@@ -404,10 +403,12 @@ public class Bundle
 	}
 	
 	/**
+	 * Render all of the contents in the Bundle to the specified shape
+	 * and Texture.
 	 * 
-	 * 
-	 * @param shape
-	 * @param texture
+	 * @param shape The shape of the polygons that the Bundle contains.
+	 * @param texture The Texture instance that is wrapped on the
+	 * 		polygons.
 	 */
 	public void render(int shape, Texture texture)
 	{
@@ -415,12 +416,17 @@ public class Bundle
 	}
 	
 	/**
+	 * Render a portion of the contents from the Bundle to the specified
+	 * shape and Texture.
 	 * 
-	 * 
-	 * @param shape
-	 * @param start
-	 * @param amount
-	 * @param texture
+	 * @param shape The shape of the polygons that the portion of the
+	 * 		Bundle contains.
+	 * @param start The start index of the first vertex of the polygons
+	 * 		to render.
+	 * @param amount The amount of vertices to render starting at the
+	 * 		start index.
+	 * @param texture The Texture to wrap all of the polygons within
+	 * 		the portion of the Bundle with.
 	 */
 	public void render(int shape, int start, int amount, Texture texture)
 	{
@@ -440,7 +446,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Bind the VertexBuffer and set it up for drawing.
 	 */
 	private void beginVerticesDraw()
 	{
@@ -454,7 +460,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Unbind the VertexBuffer and restrict the drawing with it.
 	 */
 	private void endVerticesDraw()
 	{
@@ -466,7 +472,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Bind the TexturesBuffer and set it up for drawing.
 	 */
 	private void beginTexturesDraw()
 	{
@@ -484,7 +490,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Unbind the TexturesBuffer and restrict the drawing with it.
 	 */
 	private void endTexturesDraw()
 	{
@@ -500,7 +506,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Bind the ColorsBuffer and set it up for drawing.
 	 */
 	private void beginColorsDraw()
 	{
@@ -517,7 +523,7 @@ public class Bundle
 	}
 	
 	/**
-	 * 
+	 * Unbind the ColorsBuffer and restrict the drawing with it.
 	 */
 	private void endColorsDraw()
 	{
@@ -528,15 +534,5 @@ public class Bundle
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		
 		glDisableClientState(GL11.GL_COLOR_ARRAY);
-	}
-	
-	/**
-	 * 
-	 * 
-	 * @return 
-	 */
-	public String toString()
-	{
-		return verticesBuffer.toString();
 	}
 }

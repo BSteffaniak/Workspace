@@ -3,8 +3,8 @@ package net.foxycorndog.jfoxyutil;
 import java.util.ArrayList;
 
 /**
- * Class that organizes data according to the priority from least(top)
- * to greatest(bottom).
+ * Class that organizes data according to the priority from least (top)
+ * to greatest (bottom).
  * 
  * @author	Braden Steffaniak
  * @since	Apr 24, 2013 at 9:33:00 PM

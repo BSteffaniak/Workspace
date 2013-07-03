@@ -1,28 +1,29 @@
 package net.foxycorndog.jfoxylib.util;
 
 /**
- * 
+ * Class used to check if two areas intersect each other.
  * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 11:22:29 PM
  * @since	v0.1
- * @version	Apr 26, 2013 at 11:22:29 PM
+ * @version	Jul 2, 2013 at 9:02:29 PM
  * @version	v0.2
  */
 public class Intersects
 {
 	/**
+	 * Check whether two rectangles with the specified dimensions
+	 * intersect.
 	 * 
-	 * 
-	 * @param x1
-	 * @param y1
-	 * @param width1
-	 * @param height1
-	 * @param x2
-	 * @param y2
-	 * @param width2
-	 * @param height2
-	 * @return
+	 * @param x1 The horizontal location of the first rectangle.
+	 * @param y1 The vertical location of the first rectangle.
+	 * @param width1 The width of the first rectangle.
+	 * @param height1 The height of the first rectangle.
+	 * @param x2 The horizontal location of the second rectangle.
+	 * @param y2 The vertical location of the second rectangle.
+	 * @param width2 The width of the second rectangle.
+	 * @param height2 The height of the second rectangle.
+	 * @return Whether or not the two rectangles intersect.
 	 */
 	public static boolean rectangles(long x1, long y1, long width1, long height1, long x2, long y2, long width2, long height2)
 	{
@@ -43,17 +44,18 @@ public class Intersects
 	}
 	
 	/**
+	 * Check whether two rectangles with the specified dimensions
+	 * intersect.
 	 * 
-	 * 
-	 * @param x1
-	 * @param y1
-	 * @param width1
-	 * @param height1
-	 * @param x2
-	 * @param y2
-	 * @param width2
-	 * @param height2
-	 * @return
+	 * @param x1 The horizontal location of the first rectangle.
+	 * @param y1 The vertical location of the first rectangle.
+	 * @param width1 The width of the first rectangle.
+	 * @param height1 The height of the first rectangle.
+	 * @param x2 The horizontal location of the second rectangle.
+	 * @param y2 The vertical location of the second rectangle.
+	 * @param width2 The width of the second rectangle.
+	 * @param height2 The height of the second rectangle.
+	 * @return Whether or not the two rectangles intersect.
 	 */
 	public static boolean rectangles(double x1, double y1, double width1, double height1, double x2, double y2, double width2, double height2)
 	{
@@ -74,21 +76,20 @@ public class Intersects
 	}
 	
 	/**
+	 * Check whether two cube with the specified dimensions
+	 * intersect.
 	 * 
-	 * 
-	 * @param x1
-	 * @param y1
-	 * @param z1
-	 * @param width1
-	 * @param height1
-	 * @param depth1
-	 * @param x2
-	 * @param y2
-	 * @param z2
-	 * @param width2
-	 * @param height2
-	 * @param depth2
-	 * @return
+	 * @param x1 The horizontal location of the first cube.
+	 * @param y1 The vertical location of the first cube.
+	 * @param width1 The width of the first cube.
+	 * @param height1 The height of the first cube.
+	 * @param depth1 The depth of the first cube.
+	 * @param x2 The horizontal location of the second cube.
+	 * @param y2 The vertical location of the second cube.
+	 * @param width2 The width of the second cube.
+	 * @param height2 The height of the second cube.
+	 * @param depth2 The depth of the second cube.
+	 * @return Whether or not the two cubes intersect.
 	 */
 	public static boolean cubes(double x1, double y1, double z1, double width1, double height1, double depth1, double x2, double y2, double z2, double width2, double height2, double depth2)
 	{

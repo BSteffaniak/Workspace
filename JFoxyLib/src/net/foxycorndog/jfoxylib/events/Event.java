@@ -27,7 +27,7 @@ public class Event
 	 * 
 	 * @return When the event occurred.
 	 */
-	public long when()
+	public long getWhen()
 	{
 		return when;
 	}

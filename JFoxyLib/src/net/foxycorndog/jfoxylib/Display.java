@@ -3,8 +3,6 @@ package net.foxycorndog.jfoxylib;
 import java.awt.Dimension;
 import java.awt.Toolkit;
 
-import org.lwjgl.LWJGLException;
-
 /**
  * Class that is used to hold information of the screen Display.
  * 

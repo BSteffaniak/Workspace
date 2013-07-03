@@ -1,0 +1,14 @@
+net.foxycorndog.jfoxylib
+net.foxycorndog.jfoxylib.components
+net.foxycorndog.jfoxylib.events
+net.foxycorndog.jfoxylib.font
+net.foxycorndog.jfoxylib.input
+net.foxycorndog.jfoxylib.network
+net.foxycorndog.jfoxylib.openal
+net.foxycorndog.jfoxylib.opengl
+net.foxycorndog.jfoxylib.opengl.bundle
+net.foxycorndog.jfoxylib.opengl.lighting
+net.foxycorndog.jfoxylib.opengl.shader
+net.foxycorndog.jfoxylib.opengl.texture
+net.foxycorndog.jfoxylib.util
+net.foxycorndog.jfoxylib.web

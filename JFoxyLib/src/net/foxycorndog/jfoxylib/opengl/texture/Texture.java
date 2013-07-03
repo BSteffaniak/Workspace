@@ -2,35 +2,22 @@ package net.foxycorndog.jfoxylib.opengl.texture;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.color.ColorSpace;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
-import java.awt.image.ComponentColorModel;
-import java.awt.image.DataBuffer;
 import java.awt.image.DataBufferByte;
-import java.awt.image.DataBufferInt;
-import java.awt.image.Raster;
-import java.awt.image.WritableRaster;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
-import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 
-
-import net.foxycorndog.jfoxylib.opengl.GL;
-
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL15;
 
 /**
- * 
+ * Class used to create an Object-oriented type Texture that can be
+ * wrapped onto OpenGL polygons.
  * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 10:49:13 PM
@@ -40,8 +27,8 @@ import org.lwjgl.opengl.GL15;
  */
 public class Texture
 {
-	private		 int			id;
-	private		 int			width, height;
+	private			int			id;
+	private			int			width, height;
 	
 	private 		float		texWid, texHei;
 	
@@ -52,60 +39,48 @@ public class Texture
 	private	static	int			currentId;
 	
 	/**
+	 * Create a Texture from the File at the specified location.
 	 * 
-	 * 
-	 * @param location
-	 * @throws IOException
+	 * @param location The location of the Image File containing the
+	 * 		Texture.
+	 * @throws IOException Thrown if there is an error reading from the
+	 * 		Image File at the specified location.
 	 */
 	public Texture(String location) throws IOException
 	{
-		BufferedImage img = ImageIO.read(new File(location));
-		
-		create(img, true);
+		this(ImageIO.read(new File(location)));
 	}
 	
 	/**
+	 * Create a Texture from the given BufferedImage.
 	 * 
-	 * 
-	 * @param image
+	 * @param image The BufferedImage instance to use to create the
+	 * 		Texture.
 	 */
 	public Texture(BufferedImage image)
 	{
-		create(image, true);
+		this(image, true);
 	}
 	
 	/**
+	 * Create a Texture from the given BufferedImage.
 	 * 
-	 * 
-	 * @param image
-	 * @param recreate
+	 * @param image The BufferedImage instance to use to create the
+	 * 		Texture.
+	 * @param recreate Whether or not to recreate the BufferedImage
+	 * 		with the needed type of TYPE_4BYTE_ABGR.
 	 */
 	public Texture(BufferedImage image, boolean recreate)
 	{
-		create(image, recreate);
-	}
-
-	/**
-	 * 
-	 * 
-	 * @param image
-	 * @param recreate
-	 */
-	private void create(BufferedImage image, boolean recreate)
-	{
-		GL.pushAttrib(GL.ALL_ATTRIB_BITS);
-		{
-			id = newTextureId();
-			
-			loadTexture(image, recreate);
-		}
-		GL.popAttrib();
+		id = GL11.glGenTextures();
+		
+		loadTexture(image, recreate);
 	}
 	
 	/**
+	 * Get the ID number that OpenGL assigned the Texture.
 	 * 
-	 * 
-	 * @return
+	 * @return The ID number of the Texture.
 	 */
 	public int getId()
 	{
@@ -113,23 +88,11 @@ public class Texture
 	}
 	
 	/**
+	 * Load the Texture's data and save it to OpenGL.
 	 * 
-	 * 
-	 * @return
-	 */
-	private int newTextureId()
-	{
-		int textureId = GL11.glGenTextures();
-		
-		return textureId;
-	}
-	
-	/**
-	 * 
-	 * 
-	 * @param image
-	 * @param recreate
-	 * @return
+	 * @param image The BufferedImage to create the Texture from.
+	 * @param recreate Whether or not to recreate the BufferedImage
+	 * 		with the needed type of TYPE_4BYTE_ABGR.
 	 */
 	private void loadTexture(BufferedImage image, boolean recreate)
 	{
@@ -227,10 +190,8 @@ public class Texture
 	}
 	
 	/**
-	 * 
-	 * 
-	 * @param pixels
-	 * @return
+	 * Load the Texture from the existing pixel data from the pixels
+	 * byte array.
 	 */
 	private void loadTexture()
 	{
@@ -307,6 +268,15 @@ public class Texture
 //		return pixels;
 //	}
 	
+	/**
+	 * Get the integer representation of the pixel at the specified
+	 * location of (x, y).
+	 * 
+	 * @param x The horizontal location of the pixel (Left = 0).
+	 * @param y The vertical location of the pixel (Bottom = 0).
+	 * @return The integer representation of a pixel. eg.:
+	 * 		Red with alpha = 0xFFFF0000.
+	 */
 	public int getPixel(int x, int y)
 	{
 		int pixel = 0;
@@ -343,6 +313,20 @@ public class Texture
 		return pixel;
 	}
 	
+	/**
+	 * Get the integer representation of the pixels within the rectangle
+	 * (x, y, width, height) on the image.
+	 * 
+	 * @param x The horizontal location of the pixel (Left = 0).
+	 * @param y The vertical location of the pixel (Bottom = 0).
+	 * @param width The width of the rectangular selection of pixels
+	 * 		to get.
+	 * @param height The height of the rectangular selection of pixels
+	 * 		to get.
+	 * @return The integer representation of the pixels. eg.:
+	 * 		An array with values that include integers such as: 
+	 * 		Red with alpha = 0xFFFF0000.
+	 */
 	public int[] getPixels(int x, int y, int width, int height)
 	{
 		int data[] = new int[width * height];
@@ -365,6 +349,15 @@ public class Texture
 		return data;
 	}
 	
+	/**
+	 * Set the integer representation of the pixel at the specified
+	 * location of (x, y) on the image.
+	 * 
+	 * @param x The horizontal location of the pixel (Left = 0).
+	 * @param y The vertical location of the pixel (Bottom = 0).
+	 * @param value The integer representation of a pixel. eg.:
+	 * 		Red with alpha = 0xFFFF0000.
+	 */
 	public void setPixel(int x, int y, int value)
 	{
 		if (!isBound())
@@ -398,6 +391,21 @@ public class Texture
 		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, 1, 1, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
 	}
 	
+	/**
+	 * Set the integer representation of the pixels within the rectangle
+	 * (x, y, width, height) on the image.
+	 * 
+	 * @param x The horizontal location of the pixel (Left = 0).
+	 * @param y The vertical location of the pixel (Bottom = 0).
+	 * @param width The width of the rectangular selection of pixels
+	 * 		to set.
+	 * @param height The height of the rectangular selection of pixels
+	 * 		to set.
+	 * @param values The integer representation of the pixels. eg.:
+	 * 		An array with values that include integers such as: 
+	 * 		Red with alpha = 0xFFFF0000.<br>
+	 * 		The array size must equal (width * height).
+	 */
 	public void setPixels(int x, int y, int width, int height, int values[])
 	{
 		if (!isBound())
@@ -440,6 +448,16 @@ public class Texture
 		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
 	}
 	
+	/**
+	 * Get the byte representation of the pixel at the specified
+	 * location of (x, y) on the image.
+	 * 
+	 * @param x The horizontal location of the pixel (Left = 0).
+	 * @param y The vertical location of the pixel (Bottom = 0).
+	 * @return The byte representation of a pixel. eg.:
+	 * 		Red with alpha = byte[] { -1, 0, 0, -1 }
+	 * 		(-1 == 255 considering Two's Complement).
+	 */
 	public byte[] getPixelBytes(int x, int y)
 	{
 		byte data[] = new byte[4];
@@ -452,6 +470,21 @@ public class Texture
 		return data;
 	}
 	
+	/**
+	 * Get the byte representation of the pixels within the rectangle
+	 * (x, y, width, height) on the image.
+	 * 
+	 * @param x The horizontal location of the pixel (Left = 0).
+	 * @param y The vertical location of the pixel (Bottom = 0).
+	 * @param width The width of the rectangular selection of pixels
+	 * 		to get.
+	 * @param height The height of the rectangular selection of pixels
+	 * 		to get.
+	 * @return The byte representation of the pixels. eg.:
+	 * 		An array with values that include bytes such as: 
+	 * 		Red with alpha = byte[] { -1, 0, 0, -1 }
+	 * 		(-1 == 255 considering Two's Complement)
+	 */
 	public byte[] getPixelsBytes(int x, int y, int width, int height)
 	{
 		byte data[] = new byte[width * height * 4];
@@ -479,6 +512,16 @@ public class Texture
 		return data;
 	}
 	
+	/**
+	 * Set the byte representation of the pixel at the specified
+	 * location of (x, y) on the image.
+	 * 
+	 * @param x The horizontal location of the pixel (Left = 0).
+	 * @param y The vertical location of the pixel (Bottom = 0).
+	 * @param value The byte representation of a pixel. eg.:
+	 * 		Red with alpha = byte[] { -1, 0, 0, -1 }
+	 * 		(-1 == 255 considering Two's Complement).
+	 */
 	public void setPixelBytes(int x, int y, byte values[])
 	{
 		if (!isBound())
@@ -495,6 +538,22 @@ public class Texture
 		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, 1, 1, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
 	}
 	
+	/**
+	 * Set the byte representation of the pixels within the rectangle
+	 * (x, y, width, height) on the image.
+	 * 
+	 * @param x The horizontal location of the pixel (Left = 0).
+	 * @param y The vertical location of the pixel (Bottom = 0).
+	 * @param width The width of the rectangular selection of pixels
+	 * 		to set.
+	 * @param height The height of the rectangular selection of pixels
+	 * 		to set.
+	 * @param values The byte representation of the pixels. eg.:
+	 * 		An array with values that include bytes such as: 
+	 * 		Red with alpha = byte[] { -1, 0, 0, -1 }
+	 * 		(-1 == 255 considering Two's Complement)<br>
+	 * 		The array size must equal (width * height * 4).
+	 */
 	public void setPixelsBytes(int x, int y, int width, int height, byte values[])
 	{
 		if (!isBound())
@@ -523,25 +582,8 @@ public class Texture
 	}
 	
 	/**
-	 * 
-	 * 
-	 * @param fold
-	 * @return
-	 */
-	private int get2Fold(int fold)
-	{
-		int ret = 2;
-		
-		while (ret < fold)
-		{
-			ret *= 2;
-		}
-		
-		return ret;
-	}
-	
-	/**
-	 * 
+	 * Get the closest greatest power of 2 for the width and height so
+	 * that the OpenGL texture wrapping can go over nicely.
 	 */
 	private void genTexDimensions()
 	{
@@ -565,9 +607,11 @@ public class Texture
 	}
 	
 	/**
+	 * Get the offsets needed for OpenGL to wrap the Texture to a
+	 * polygon.
 	 * 
-	 * 
-	 * @return
+	 * @return A float array containing the values for the offsets of
+	 * 		the Texture.
 	 */
 	public float[] getImageOffsets()
 	{
@@ -586,7 +630,7 @@ public class Texture
 	
 	/**
 	 * Get whether or not the Texture is currently bound and ready to
-	 * be rendered with.
+	 * be used.
 	 * 
 	 * @return Whether the Texture is bound or not.
 	 */
@@ -596,7 +640,7 @@ public class Texture
 	}
 	
 	/**
-	 * Bind the Texture as the current Texture to be rendered with.
+	 * Bind the Texture as the current Texture to be used.
 	 */
 	public void bind()
 	{
@@ -606,9 +650,9 @@ public class Texture
 	}
 	
 	/**
+	 * Get the width of the Texture's source image file.
 	 * 
-	 * 
-	 * @return
+	 * @return The width (in pixels) of the Texture.
 	 */
 	public int getWidth()
 	{
@@ -616,9 +660,9 @@ public class Texture
 	}
 	
 	/**
+	 * Get the height of the Texture's source image file.
 	 * 
-	 * 
-	 * @return
+	 * @return The height (in pixels) of the Texture.
 	 */
 	public int getHeight()
 	{
@@ -626,7 +670,7 @@ public class Texture
 	}
 	
 	/**
-	 * 
+	 * Unbind the OpenGL Texture instance.
 	 */
 	public static void unbind()
 	{

@@ -7,7 +7,6 @@ import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.events.ButtonEvent;
 import net.foxycorndog.jfoxylib.events.ButtonListener;
 import net.foxycorndog.jfoxylib.font.Font;
-import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
 import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 
@@ -75,7 +74,7 @@ public class Button extends Image
 			{
 				if (hoverTexture != null)
 				{
-					setImage(normalTexture);
+					setTexture(normalTexture);
 				}
 				
 				hovered = false;
@@ -118,7 +117,7 @@ public class Button extends Image
 	 * 
 	 * @param image The new Image of this Button Component.
 	 */
-	public void setImage(BufferedImage image)
+	public void setTexture(BufferedImage image)
 	{
 		setNormalImage(image, true);
 	}
@@ -128,7 +127,7 @@ public class Button extends Image
 	 * 
 	 * @param image The new Texture of this Button Component.
 	 */
-	public void setImage(Texture image)
+	public void setTexture(Texture image)
 	{
 		setNormalImage(image, true);
 	}
@@ -164,7 +163,7 @@ public class Button extends Image
 	 */
 	private void setNormalImage(Texture image, boolean set)
 	{
-		super.setImage(image);
+		super.setTexture(image);
 		
 		if (set)
 		{

@@ -4,12 +4,9 @@ import java.io.IOException;
 
 import net.foxycorndog.jfoxylib.Color;
 import net.foxycorndog.jfoxylib.Frame;
-import net.foxycorndog.jfoxylib.events.ButtonEvent;
-import net.foxycorndog.jfoxylib.events.ButtonListener;
 import net.foxycorndog.jfoxylib.events.KeyEvent;
 import net.foxycorndog.jfoxylib.events.KeyListener;
 import net.foxycorndog.jfoxylib.font.Font;
-import net.foxycorndog.jfoxylib.font.MissingCharacterException;
 import net.foxycorndog.jfoxylib.input.Keyboard;
 import net.foxycorndog.jfoxylib.opengl.GL;
 
@@ -311,7 +308,7 @@ public class TextField extends Component
 	public void setBackgroundImage(String location) throws IOException
 	{
 		Image image = new Image(null);
-		image.setImage(location);
+		image.setTexture(location);
 		
 		setBackgroundImage(image);
 	}

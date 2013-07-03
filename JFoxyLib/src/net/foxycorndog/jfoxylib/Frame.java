@@ -1,19 +1,10 @@
 package net.foxycorndog.jfoxylib;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.net.URISyntaxException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import net.foxycorndog.jfoxylib.components.Button;
 import net.foxycorndog.jfoxylib.components.Component;
+import net.foxycorndog.jfoxylib.components.Panel;
 import net.foxycorndog.jfoxylib.events.ButtonEvent;
 import net.foxycorndog.jfoxylib.events.ButtonListener;
 import net.foxycorndog.jfoxylib.events.FrameEvent;
@@ -25,7 +16,6 @@ import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.util.Intersects;
 import net.foxycorndog.jfoxylib.util.ResourceLocator;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.LWJGLException;
 import org.lwjgl.opengl.DisplayMode;
 
@@ -40,16 +30,19 @@ import org.lwjgl.opengl.DisplayMode;
  */
 public class Frame
 {
-	private static boolean					created;
-	private static boolean					vSync;
+	private static	boolean						created;
+	private static	boolean						vSync;
+	private	static	boolean						initialized;
 	
-	private static int						fps, targetFPS;
-	private static int						width, height;
+	private static	int							fps, targetFPS;
+	private static	int							width, height;
 	
-	private static org.lwjgl.opengl.Display	display;
+	private	static	Panel						panel;
 	
-	private static ArrayList<Component>		components;
-	private static ArrayList<FrameListener>	frameListeners;
+	private static	org.lwjgl.opengl.Display	display;
+	
+	private static	ArrayList<Component>		components;
+	private static	ArrayList<FrameListener>	frameListeners;
 	
 	/**
 	 * Returns whether or not the Frame has been created.
@@ -68,6 +61,20 @@ public class Frame
 	public static void create()
 	{
 		create((int)(Display.getWidth() * 0.7f), (int)(Display.getHeight() * 0.7f));
+	}
+	
+	public static void init()
+	{
+		if (initialized)
+		{
+			return;
+		}
+		
+		panel = new Panel(null);
+		panel.setLocation(0, 0);
+		panel.setSize(width, height);
+		
+		initialized = true;
 	}
 	
 	/**
@@ -335,12 +342,12 @@ public class Frame
 	/**
 	 * Updates the Frame and its Components. Called every frame.
 	 */
-	public static void loop()
+	public static void update()
 	{
-		if (width != getWidth() || height != getHeight())
+		if (width != display.getWidth() || height != display.getHeight())
 		{
-			width  = getWidth();
-			height = getHeight();
+			width  = display.getWidth();
+			height = display.getHeight();
 			
 			for (int i = frameListeners.size() - 1; i >= 0; i--)
 			{
@@ -350,7 +357,20 @@ public class Frame
 				
 				listener.frameResized(event);
 			}
+			
+			panel.setSize(width, height);
 		}
+	}
+	
+	/**
+	 * Get the main Frame Panel that holds all of the Components in the
+	 * Frame.
+	 * 
+	 * @return The main Frame Panel instance.
+	 */
+	public static Panel getPanel()
+	{
+		return panel;
 	}
 	
 	/**
@@ -518,7 +538,7 @@ public class Frame
 	 */
 	public static int getWidth()
 	{
-		return display.getWidth();
+		return width;
 	}
 	
 	/**
@@ -528,7 +548,7 @@ public class Frame
 	 */
 	public static int getHeight()
 	{
-		return display.getHeight();
+		return height;
 	}
 	
 	/**

@@ -2,6 +2,7 @@ package net.foxycorndog.jfoxylib.opengl;
 
 import static org.lwjgl.opengl.GL11.GL_ALL_ATTRIB_BITS;
 import static org.lwjgl.opengl.GL11.GL_ALPHA_TEST;
+import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_COLOR_BUFFER_BIT;
 import static org.lwjgl.opengl.GL11.GL_CULL_FACE;
@@ -16,62 +17,42 @@ import static org.lwjgl.opengl.GL11.GL_LINE_BIT;
 import static org.lwjgl.opengl.GL11.GL_MODELVIEW;
 import static org.lwjgl.opengl.GL11.GL_MODULATE;
 import static org.lwjgl.opengl.GL11.GL_NICEST;
-import static org.lwjgl.opengl.GL11.GL_ONE;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_PERSPECTIVE_CORRECTION_HINT;
 import static org.lwjgl.opengl.GL11.GL_POINT_BIT;
 import static org.lwjgl.opengl.GL11.GL_POLYGON_BIT;
 import static org.lwjgl.opengl.GL11.GL_PROJECTION;
-import static org.lwjgl.opengl.GL11.GL_REPEAT;
+import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 import static org.lwjgl.opengl.GL11.GL_SRC_ALPHA;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_2D;
-import static org.lwjgl.opengl.GL11.GL_BACK;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_BIT;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_ENV;
 import static org.lwjgl.opengl.GL11.GL_TEXTURE_ENV_MODE;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_S;
-import static org.lwjgl.opengl.GL11.GL_TEXTURE_WRAP_T;
-import static org.lwjgl.opengl.GL11.GL_SCISSOR_TEST;
 import static org.lwjgl.opengl.GL11.glAlphaFunc;
 import static org.lwjgl.opengl.GL11.glBlendFunc;
-import static org.lwjgl.opengl.GL11.glClearColor;
 import static org.lwjgl.opengl.GL11.glClearDepth;
 import static org.lwjgl.opengl.GL11.glCullFace;
 import static org.lwjgl.opengl.GL11.glDepthFunc;
-import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glDisable;
+import static org.lwjgl.opengl.GL11.glEnable;
 import static org.lwjgl.opengl.GL11.glHint;
 import static org.lwjgl.opengl.GL11.glLoadIdentity;
 import static org.lwjgl.opengl.GL11.glMatrixMode;
 import static org.lwjgl.opengl.GL11.glOrtho;
-import static org.lwjgl.opengl.GL11.glPixelStorei;
+import static org.lwjgl.opengl.GL11.glScissor;
 import static org.lwjgl.opengl.GL11.glTexEnvi;
-import static org.lwjgl.opengl.GL11.glTexParameteri;
 import static org.lwjgl.opengl.GL11.glViewport;
 import static org.lwjgl.util.glu.GLU.gluPerspective;
-import static org.lwjgl.opengl.GL11.glScissor;
 
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.FloatBuffer;
-import java.util.ArrayList;
-
 
 import net.foxycorndog.jfoxylib.Color;
 import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 import net.foxycorndog.jfoxyutil.Stack;
 
-import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
-import org.lwjgl.opengl.GL21;
-import org.lwjgl.opengl.GL32;
-import org.lwjgl.opengl.GL43;
 
 /**
  * Class that has several static methods used for manipulating
@@ -86,6 +67,7 @@ import org.lwjgl.opengl.GL43;
 public class GL
 {
 	private	static			boolean			inited;
+	private	static			boolean			enabled3D;
 	
 	private	static			float			zClose, zFar;
 	private	static			float			fov;
@@ -123,6 +105,8 @@ public class GL
 		g.dispose();
 		
 		WHITE = new Texture(image);
+		
+		set3DEnabled(true);
 	}
 	
 	/**
@@ -187,7 +171,7 @@ public class GL
 		
 		glViewport(0, 0, width, height);
 		glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
-		glLoadIdentity(); // Reset The Projection Matrix
+		resetMatrix(); // Reset The Projection Matrix
 
 		// Calculate The Aspect Ratio Of The Window
 		glOrtho(0, width, 0, height, -99999, 99999);
@@ -230,6 +214,26 @@ public class GL
 
 		// Really Nice Perspective Calculations
 		glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+	}
+	
+	/**
+	 * Get whether 3D rendering is enabled for OpenGL.
+	 * 
+	 * @return Whether 3D rendering is enabled for OpenGL.
+	 */
+	public static boolean is3DEnabled()
+	{
+		return enabled3D;
+	}
+	
+	/**
+	 * Set whether 3D rendering is enabled for OpenGL.
+	 * 
+	 * @param enabled Whether 3D rendering is enabled for OpenGL.
+	 */
+	public static void set3DEnabled(boolean enabled)
+	{
+		GL.enabled3D = enabled;
 	}
 	
 	/**
@@ -639,6 +643,27 @@ public class GL
 		
 		translate(x / scaled[0], y / scaled[1], z / scaled[2]);
 	}
+	
+	/**
+	 * Set the scale of the current matrix back to (1, 1, 1).
+	 */
+	public static void unscale()
+	{
+		float scaled[] = getAmountScaled();
+		
+		float x = 1 / scaled[0];
+		float y = 1 / scaled[1];
+		float z = 1 / scaled[2];
+		
+		GL11.glScalef(x, y, z);
+		
+		float array[] = amountScaled.peek();
+		
+		array[0] *= x;
+		array[1] *= y;
+		array[2] *= z;
+	}
+	
 	
 	/**
 	 * Scale everything that is rendered after this method call

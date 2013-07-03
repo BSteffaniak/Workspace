@@ -1,12 +1,14 @@
 package net.foxycorndog.jfoxyutil;
 
 /**
- * File:          TreeNode.java
- * Author:        Braden Steffaniak
- * Programming:   APCS
- * Last Modified: 11Feb2013
- * Description:   Node that has references to two child nodes.
- * Also holds a Comparable as data.
+ * Node that has references to two child nodes. Also holds a Comparable
+ * as data.
+ * 
+ * @author	Braden Steffaniak
+ * @since	Feb 11, 2013 at 9:13:38 AM
+ * @since	v0.1
+ * @version	Jul 3, 2013 at 1:13:38 AM
+ * @version	v0.1
  */
 public class TreeNode
 {

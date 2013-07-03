@@ -1,6 +1,5 @@
 package net.foxycorndog.jfoxylib.font;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -18,8 +17,6 @@ import net.foxycorndog.jfoxylib.util.Bounds;
 import net.foxycorndog.jfoxylib.util.Bounds2f;
 import net.foxycorndog.jfoxylib.util.ResourceLocator;
 import net.foxycorndog.jfoxyutil.Queue;
-
-import org.lwjgl.opengl.GL11;
 
 /**
  * Class used to load an image full of glyphs and bring them to
@@ -118,8 +115,8 @@ public class Font
 	{
 		characters        = sprites;
 		
-		this.cols         = characters.getCols();
-		this.rows         = characters.getRows();
+		this.cols         = characters.getNumCols();
+		this.rows         = characters.getNumRows();
 		
 		this.width        = characters.getWidth();
 		this.height       = characters.getHeight();
@@ -155,11 +152,23 @@ public class Font
 		fonts.add(this);
 	}
 	
+	/**
+	 * Get whether or not the Bounds for the Font's Glyphs have been
+	 * trimmed and prepared to fit together like a PBJ sandwich baby.
+	 * 
+	 * @return Whether or not the Bounds have been trimmed neatly.
+	 */
 	public boolean doesTrimBounds()
 	{
 		return charBounds != null;
 	}
 	
+	/**
+	 * Whether or not to trim the Glyphs Bounds so that they fit perfectly
+	 * together in beautiful harmony. Yes, do it.
+	 * 
+	 * @param trim Whether or not to trim the Bounds.
+	 */
 	public void setTrimBounds(boolean trim)
 	{
 		if (trim)
@@ -188,7 +197,7 @@ public class Font
 				}
 				
 				int     x        = charSequence.get(c)[0];
-				int     y        = characters.getRows() - charSequence.get(c)[1] - 1;
+				int     y        = characters.getNumRows() - charSequence.get(c)[1] - 1;
 				
 				x               *= glyphWidth;
 				y               *= glyphHeight;

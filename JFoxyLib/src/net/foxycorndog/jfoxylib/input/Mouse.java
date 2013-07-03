@@ -1,7 +1,5 @@
 package net.foxycorndog.jfoxylib.input;
 
-import static org.lwjgl.input.Mouse.*;
-
 import java.awt.AWTException;
 import java.awt.MouseInfo;
 import java.awt.PointerInfo;
@@ -9,10 +7,8 @@ import java.awt.Robot;
 import java.util.ArrayList;
 
 import net.foxycorndog.jfoxylib.Frame;
-import net.foxycorndog.jfoxylib.components.Panel;
 import net.foxycorndog.jfoxylib.events.MouseEvent;
 import net.foxycorndog.jfoxylib.events.MouseListener;
-import net.foxycorndog.jfoxylib.util.Intersects;
 
 import org.lwjgl.LWJGLException;
 
@@ -28,33 +24,34 @@ import org.lwjgl.LWJGLException;
  */
 public class Mouse
 {	
-	private static org.lwjgl.input.Mouse	mouse;
+	private static	org.lwjgl.input.Mouse		mouse;
 	
-	private static boolean					grabbed;
-	private static boolean					inFrame;
+	private static	boolean						grabbed;
+	private static	boolean						inFrame;
+	private	static	boolean						pointerInfoUpdated;
 	
-	private static int						oldX, oldY;
-	private static int						dx, dy;
-	private static int						dWheel;
-	private static int						forcedX, forcedY;
+	private static	int							oldX, oldY;
+	private static	int							dx, dy;
+	private static	int							dWheel;
+	private static	int							forcedX, forcedY;
 	
-//	private static PointerInfo				pointerInfo;
+	private static	PointerInfo					pointerInfo;
 	
-	private static Robot					robot;
+	private static	Robot						robot;
 	
-	private static MouseListener			grabListener;
+	private static	MouseListener				grabListener;
 	
-	private static boolean					able[];
+	private static	boolean						able[];
 	
-	private static ArrayList<MouseListener>	listeners;
+	private static	ArrayList<MouseListener>	listeners;
 	
-	public  static final int				BUTTON_0 = 0;
-	public  static final int				BUTTON_1 = 1;
-	public  static final int				BUTTON_2 = 2;
+	public  static	final int					BUTTON_0 = 0;
+	public  static	final int					BUTTON_1 = 1;
+	public  static	final int					BUTTON_2 = 2;
 	
-	public  static final int				LEFT_MOUSE_BUTTON  = BUTTON_0;
-	public  static final int				RIGHT_MOUSE_BUTTON = BUTTON_1;
-	public  static final int				MOUSE_WHEEL_BUTTON = BUTTON_2;
+	public  static	final int					LEFT_MOUSE_BUTTON  = BUTTON_0;
+	public  static	final int					RIGHT_MOUSE_BUTTON = BUTTON_1;
+	public  static	final int					MOUSE_WHEEL_BUTTON = BUTTON_2;
 	
 	static
 	{
@@ -185,25 +182,41 @@ public class Mouse
 		return mouse.getY();
 	}
 	
-//	/**
-//	 * Get the pointers horizontal location in the Monitors Display.
-//	 * 
-//	 * @return The pointers horizontal location in the Monitors Display.
-//	 */
-//	public static int getDisplayX()
-//	{
-//		return pointerInfo.getLocation().x;
-//	}
+	/**
+	 * Get the pointers horizontal location in the Monitors Display.
+	 * 
+	 * @return The pointers horizontal location in the Monitors Display.
+	 */
+	public static int getDisplayX()
+	{
+		checkPointerInfo();
+		
+		return pointerInfo.getLocation().x;
+	}
 	
-//	/**
-//	 * Get the pointers vertical location in the Monitors Display.
-//	 * 
-//	 * @return The pointers vertical location in the Monitors Display.
-//	 */
-//	public static int getDisplayY()
-//	{
-//		return pointerInfo.getLocation().y;
-//	}
+	/**
+	 * Get the pointers vertical location in the Monitors Display.
+	 * 
+	 * @return The pointers vertical location in the Monitors Display.
+	 */
+	public static int getDisplayY()
+	{
+		checkPointerInfo();
+		
+		return pointerInfo.getLocation().y;
+	}
+	
+	/**
+	 * Check whether or not the PointerInfo has been updated or not.
+	 * If it has not updated, then update it to the latest position.
+	 */
+	private static void checkPointerInfo()
+	{
+		if (!pointerInfoUpdated)
+		{
+			pointerInfo = MouseInfo.getPointerInfo();
+		}
+	}
 	
 	/**
 	 * Get the displacement horizontal value of the cursor since the
@@ -213,7 +226,6 @@ public class Mouse
 	 */
 	public static int getDX()
 	{
-//		System.out.println("dx: " + dx);
 		return dx;
 	}
 	
@@ -225,7 +237,6 @@ public class Mouse
 	 */
 	public static int getDY()
 	{
-//		System.out.println("dy: " + dy);
 		return dy;
 	}
 	
@@ -310,6 +321,11 @@ public class Mouse
 		dx = mouse.getX() - oldX;//pointerInfo.getLocation().x - oldX;
 		dy = mouse.getY() - oldY;//pointerInfo.getLocation().y - oldY;
 		
+		if (dx != 0 || dy != 0)
+		{
+			pointerInfoUpdated = false;
+		}
+		
 		dWheel = mouse.getDWheel();
 		
 		if (dx != 0 || dy != 0)
@@ -385,11 +401,11 @@ public class Mouse
 			}
 		}
 		
-		dx -= forcedX;
-		dy -= forcedY;
+		dx     -= forcedX;
+		dy     -= forcedY;
 		
-		oldX = mouse.getX();
-		oldY = mouse.getY();
+		oldX    = mouse.getX();
+		oldY    = mouse.getY();
 		
 		forcedX = 0;
 		forcedY = 0;

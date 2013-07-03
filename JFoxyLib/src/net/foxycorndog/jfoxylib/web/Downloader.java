@@ -4,13 +4,11 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.net.URL;
 import java.net.URLConnection;
 
 /**
- * 
+ * Class used to download files from a Server.
  * 
  * @author	Braden Steffaniak
  * @since	Apr 26, 2013 at 11:25:31 PM

@@ -13,14 +13,17 @@ import net.foxycorndog.jfoxylib.opengl.GL;
  * 
  * @author	Braden Steffaniak
  * @since	Jun 28, 2013 at 12:57:07 PM
- * @since	v0.1
+ * @since	v0.2
  * @version	Jun 28, 2013 at 12:57:07 PM
- * @version	v0.1
+ * @version	v0.2
  */
 public class ResourceLocator
 {
 	private	static	final	String	projectDirectory;
 	
+	/**
+	 * Locate the project.
+	 */
 	static
 	{
 		String dir = null;
@@ -103,6 +106,12 @@ public class ResourceLocator
 		projectDirectory = dir;
 	}
 	
+	/**
+	 * Get the root directory that the JFoxyLib project is located.
+	 * 
+	 * @return A String instance containing the root directory location
+	 * 		of the JFoxyLib project.
+	 */
 	public static String getProjectDirectory()
 	{
 		return projectDirectory;

@@ -11,14 +11,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import org.lwjgl.LWJGLException;
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.GL11;
-
 import net.foxycorndog.jfoxylib.font.Font;
 import net.foxycorndog.jfoxylib.input.Keyboard;
 import net.foxycorndog.jfoxylib.input.Mouse;
 import net.foxycorndog.jfoxylib.opengl.GL;
+
+import org.lwjgl.opengl.Display;
+import org.lwjgl.opengl.GL11;
 
 /**
  * This class serves as the entry point for all of the
@@ -64,11 +63,23 @@ public abstract class GameStarter
 		minFPS     = Integer.MAX_VALUE;
 	}
 	
+	/**
+	 * Tell JFoxyLib to output benchmark and debugging data to the file
+	 * at the specified location.
+	 * 
+	 * @param location The location of the File to write the debugging
+	 * 		data to.
+	 */
 	public void outputDebugging(String location)
 	{
 		debugFiles.add(new File(location));
 	}
 	
+	/**
+	 * Output the debugging data to the files that have been specified
+	 * in the debugFiles ArrayList. These files were added when the
+	 * outputDebugging(location) method was called.
+	 */
 	private void outputDebugging()
 	{
 		long now = System.currentTimeMillis();
@@ -138,6 +149,7 @@ public abstract class GameStarter
 		GL.setTextureWrapSMethod(GL.REPEAT);
 		GL.setTextureWrapTMethod(GL.REPEAT);
 		
+		Frame.init();
 		init();
 		
 		running  = true;
@@ -175,16 +187,21 @@ public abstract class GameStarter
 				
 				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 	
-				Frame.loop();
+				Frame.update();
 				update();
 				
-				GL.resetMatrix();
-				GL.viewPerspective(Frame.getWidth(), Frame.getHeight(), 0.01f, 99999f);
+				if (GL.is3DEnabled())
+				{
+					GL.resetMatrix();
+					GL.viewPerspective(Frame.getWidth(), Frame.getHeight(), 0.01f, 99999f);
 				
-				render3D();
+					render3D();
+				
+				}
 				
 				GL.resetMatrix();
 				GL.viewOrtho(Frame.getWidth(), Frame.getHeight());
+				
 	//			GL11.glPushAttrib(GL11.GL_LIGHTING_BIT);
 	//			{
 	//				GL11.glDisable(GL11.GL_LIGHTING);

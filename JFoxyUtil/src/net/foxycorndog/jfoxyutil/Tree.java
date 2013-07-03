@@ -1,11 +1,13 @@
 package net.foxycorndog.jfoxyutil;
 
 /**
- * File:          Tree.java
- * Author:        Braden Steffaniak
- * Programming:   APCS
- * Last Modified: 11Feb2013
- * Description:
+ * Class used to hold Comparables in a Tree form.
+ * 
+ * @author	Braden Steffaniak
+ * @since	Feb 11, 2013 at 9:12:22 AM
+ * @since	v0.1
+ * @version	Jul 3, 2013 at 1:12:22 AM
+ * @version	v0.1
  */
 public class Tree implements BSTree
 {

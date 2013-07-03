@@ -40,6 +40,8 @@ public class Bounds
 	}
 	
 	/**
+	 * Get the horizontal location of this Bounds.
+	 * 
 	 * @return The horizontal location of this Bounds.
 	 */
 	public int getX()
@@ -58,6 +60,8 @@ public class Bounds
 	}
 
 	/**
+	 * Get the vertical location of this Bounds.
+	 * 
 	 * @return The vertical location of this Bounds.
 	 */
 	public int getY()
@@ -88,6 +92,8 @@ public class Bounds
 	}
 	
 	/**
+	 * Get the horizontal size of this Bounds.
+	 * 
 	 * @return The horizontal size of this Bounds.
 	 */
 	public int getWidth()
@@ -106,6 +112,8 @@ public class Bounds
 	}
 
 	/**
+	 * Get the vertical size of this Bounds.
+	 * 
 	 * @return The vertical size of this Bounds.
 	 */
 	public int getHeight()

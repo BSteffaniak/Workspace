@@ -170,83 +170,94 @@ public class Image extends Component
 	}
 	
 	/**
-	 * Set the Image of this Image Component by giving the location
-	 * of the image.
+	 * Set the Texture of this Image Component by giving the location
+	 * of the image file.
 	 * 
 	 * @param location The location of the Image.
-	 * @throws IOException If there was any trouble reading the image.
+	 * @throws IOException Thrown if there was any trouble reading the
+	 * 		image.
 	 */
-	public void setImage(String location) throws IOException
+	public void setTexture(String location) throws IOException
 	{
-		setImage(new Texture(location), 1, 1, true);
+		setTexture(new Texture(location), 1, 1, true);
 	}
 	
 	/**
-	 * Set the Image of this Image Component.
+	 * Set the Texture of this Image Component by giving a BufferedImage
+	 * that will be decoded into a Texture.
 	 * 
 	 * @param image The new Image of this Image Component.
 	 */
-	public void setImage(BufferedImage image)
+	public void setTexture(BufferedImage image)
 	{
-		setImage(image, 1, 1, true);
+		setTexture(image, 1, 1, true);
 	}
 	
 	/**
-	 * Set the Texture of this Image Component.
+	 * Set the Texture of this Image Component by giving an instance
+	 * of a Texture.
 	 * 
 	 * @param image The new Texture of this Image Component.
 	 */
-	public void setImage(Texture image)
+	public void setTexture(Texture texture)
 	{
-		setImage(image, 1, 1, true);
+		setTexture(texture, 1, 1, true);
 	}
 	
 	/**
-	 * Set the Image of this Image Component.
+	 * Set the Texture of this Image Component by giving a BufferedImage
+	 * that will be decoded into a Texture, and then repeated the
+	 * specific amount of times horizontally and vertically.
 	 * 
 	 * @param image The new Image of this Image Component.
 	 * @param rx The amount of times to repeat the Image horizontally.
 	 * @param ry The amount of times to repeat the Image vertically.
 	 */
-	public void setImage(BufferedImage image, int rx, int ry)
+	public void setTexture(BufferedImage image, int rx, int ry)
 	{
-		setImage(image, rx, ry, true);
+		setTexture(image, rx, ry, true);
 	}
 	
 	/**
-	 * Set the Texture of this Image Component.
+	 * Set the Texture of this Image Component by giving an instance
+	 * of a Texture, and then repeat it the specific amount of times
+	 * horizontally and vertically.
 	 * 
 	 * @param image The new Texture of this Image Component.
 	 * @param rx The amount of times to repeat the Texture horizontally.
 	 * @param ry The amount of times to repeat the Texture vertically.
 	 */
-	public void setImage(Texture image, int rx, int ry)
+	public void setTexture(Texture texture, int rx, int ry)
 	{
-		setImage(image, rx, ry, true);
+		setTexture(texture, rx, ry, true);
 	}
 	
 	/**
-	 * Set the Image of this Image Component by giving the location
+	 * Set the Texture of this Image Component by giving the location
 	 * of the image.
 	 * 
 	 * @param location The location of the Image.
 	 * @param beginEditingBundle Whether or not to tell the Bundle
 	 * 		instance to begin editing the Textures.
-	 * @throws IOException If there was any trouble reading the image.
+	 * @throws IOException Thrown if there was any trouble reading the
+	 * 		image.
 	 */
-	public void setImage(String location, boolean beginEditingBundle) throws IOException
+	public void setTexture(String location, boolean beginEditingBundle) throws IOException
 	{
-		setImage(new Texture(location), 1, 1, beginEditingBundle);
+		setTexture(new Texture(location), 1, 1, beginEditingBundle);
 	}
 	
 	/**
-	 * Set the Image of this Image Component.
+	 * Set the Texture of this Image Component by giving a BufferedImage
+	 * that will be decoded into a Texture.
 	 * 
 	 * @param image The new Image of this Image Component.
+	 * @param beginEditingBundle Whether or not to tell the Bundle
+	 * 		instance to begin editing the Textures.
 	 */
-	public void setImage(BufferedImage image, boolean beginEditingBundle)
+	public void setTexture(BufferedImage image, boolean beginEditingBundle)
 	{
-		setImage(image, 1, 1, beginEditingBundle);
+		setTexture(image, 1, 1, beginEditingBundle);
 	}
 	
 	/**
@@ -256,13 +267,15 @@ public class Image extends Component
 	 * @param beginEditingBundle Whether or not to tell the Bundle
 	 * 		instance to begin editing the Textures.
 	 */
-	public void setImage(Texture image, boolean beginEditingBundle)
+	public void setTexture(Texture image, boolean beginEditingBundle)
 	{
-		setImage(image, 1, 1, beginEditingBundle);
+		setTexture(image, 1, 1, beginEditingBundle);
 	}
 	
 	/**
-	 * Set the Image of this Image Component.
+	 * Set the Texture of this Image Component by giving a BufferedImage
+	 * that will be decoded into a Texture, and then repeated the
+	 * specific amount of times horizontally and vertically.
 	 * 
 	 * @param image The new Image of this Image Component.
 	 * @param rx The amount of times to repeat the Image horizontally.
@@ -270,13 +283,15 @@ public class Image extends Component
 	 * @param beginEditingBundle Whether or not to tell the Bundle
 	 * 		instance to begin editing the Textures.
 	 */
-	public void setImage(BufferedImage image, int rx, int ry, boolean beginEditingBundle)
+	public void setTexture(BufferedImage image, int rx, int ry, boolean beginEditingBundle)
 	{
-		setImage(new Texture(image), rx, ry, beginEditingBundle);
+		setTexture(new Texture(image), rx, ry, beginEditingBundle);
 	}
 	
 	/**
-	 * Set the Texture of this Image Component.
+	 * Set the Texture of this Image Component by giving an instance
+	 * of a Texture, and then repeat it the specific amount of times
+	 * horizontally and vertically.
 	 * 
 	 * @param image The new Texture of this Image Component.
 	 * @param rx The amount of times to repeat the Texture horizontally.
@@ -284,7 +299,7 @@ public class Image extends Component
 	 * @param beginEditingBundle Whether or not to tell the Bundle
 	 * 		instance to begin editing the Textures.
 	 */
-	public void setImage(Texture image, int rx, int ry, boolean beginEditingBundle)
+	public void setTexture(Texture image, int rx, int ry, boolean beginEditingBundle)
 	{
 		texture = image;
 		
@@ -359,8 +374,8 @@ public class Image extends Component
 			
 			offsets = sprites.getImageOffsets(x, y, cols, rows);
 			
-			width  /= sprites.getCols();
-			height /= sprites.getRows();
+			width  /= sprites.getNumCols();
+			height /= sprites.getNumRows();
 			
 			width  *= cols;
 			height *= rows;
@@ -465,19 +480,22 @@ public class Image extends Component
 	 */
 	public void render()
 	{
-		update();
-		
-		if (texture == null)
+		if (isVisible())
 		{
-			return;
-		}
-		
-		GL.pushMatrix();
-		{
-			GL.translate(getX(), getY(), 0);
+			update();
 			
-			bundle.render(GL.TRIANGLES, offset, 3 * 2 * 2, texture);
+			if (texture == null)
+			{
+				return;
+			}
+			
+			GL.pushMatrix();
+			{
+				GL.translate(getX(), getY(), 0);
+				
+				bundle.render(GL.TRIANGLES, offset, 3 * 2 * 2, texture);
+			}
+			GL.popMatrix();
 		}
-		GL.popMatrix();
 	}
 }

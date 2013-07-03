@@ -1,12 +1,6 @@
 package net.foxycorndog.jfoxylib.opengl.bundle;
 
-import static org.lwjgl.opengl.GL11.GL_VERTEX_ARRAY;
-import static org.lwjgl.opengl.GL11.glDisableClientState;
-import static org.lwjgl.opengl.GL11.glDrawArrays;
-import static org.lwjgl.opengl.GL11.glEnableClientState;
-import static org.lwjgl.opengl.GL11.glVertexPointer;
 import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER_BINDING;
 import static org.lwjgl.opengl.GL15.GL_DYNAMIC_DRAW;
 import static org.lwjgl.opengl.GL15.GL_WRITE_ONLY;
 import static org.lwjgl.opengl.GL15.glBindBuffer;
@@ -20,8 +14,6 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
 import org.lwjgl.BufferUtils;
-import org.lwjgl.opengl.GL11;
-import org.lwjgl.opengl.GL15;
 
 /**
  * Class used to store float data in order of index.
@@ -34,11 +26,13 @@ import org.lwjgl.opengl.GL15;
  */
 public class Buffer
 {
-	private	int			id;
-	private	int			size;
+	private			int			id;
+	private			int			size;
 	
-	private	FloatBuffer	buffer;
-	private	ByteBuffer	mapBuffer;
+	private			FloatBuffer	buffer;
+	private			ByteBuffer	mapBuffer;
+	
+	private	static	int			currentId;
 	
 	/**
 	 * Create a Buffer suitable for storing a specific amount
@@ -55,7 +49,6 @@ public class Buffer
 		id        = glGenBuffers();
 		glBindBuffer(GL_ARRAY_BUFFER, id);
 		glBufferData(GL_ARRAY_BUFFER, buffer, GL_DYNAMIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	
 	/**
@@ -67,6 +60,9 @@ public class Buffer
 	}
 	
 	/**
+	 * Get the capacity of the Buffer. The max amount of
+	 * data that can be stored in this Buffer.
+	 * 
 	 * @return The capacity of the Buffer. The max amount of
 	 *		data that can be stored in this Buffer.
 	 */
@@ -76,6 +72,9 @@ public class Buffer
 	}
 	
 	/**
+	 * Get the current position of the Buffer. This is the
+	 * index that you will next insert values into.
+	 * 
 	 * @return The current position of the Buffer. This is the
 	 *		index that you will next insert values into.
 	 */
@@ -86,7 +85,7 @@ public class Buffer
 	
 	/**
 	 * Set the place in which the Buffer will next insert data
-	 *		into.
+	 * into.
 	 * 
 	 * @param position The position to set for the Buffer.
 	 */
@@ -175,7 +174,10 @@ public class Buffer
 //			return;
 //		}
 		
-		glBindBuffer(GL_ARRAY_BUFFER, id);
+		if (!isBound())
+		{
+			bind();
+		}
 		
 //		System.out.println(currentlyBound + ", " + id);
 		
@@ -192,6 +194,27 @@ public class Buffer
 		glUnmapBuffer(GL_ARRAY_BUFFER);
 		
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
+	}
+	
+	/**
+	 * Get whether or not the Bound is currently bound and ready to
+	 * be used.
+	 * 
+	 * @return Whether the Texture is bound or not.
+	 */
+	public boolean isBound()
+	{
+		return currentId == id;
+	}
+
+	/**
+	 * Bind the Buffer as the current Buffer to be used.
+	 */
+	public void bind()
+	{
+		glBindBuffer(GL_ARRAY_BUFFER, id);
+		
+		bind(id);
 	}
 	
 	/**
@@ -220,5 +243,15 @@ public class Buffer
 		builder.append(" }");
 		
 		return builder.toString();
+	}
+	
+	/**
+	 * Method to keep track of which Buffer is currently bound.
+	 * 
+	 * @param id The id of the Buffer that is being bound.
+	 */
+	private static void bind(int id)
+	{
+		Buffer.currentId = id;
 	}
 }
