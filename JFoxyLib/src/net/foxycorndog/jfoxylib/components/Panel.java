@@ -202,7 +202,12 @@ public class Panel extends Component
 					GL.pushMatrix();
 					{
 						GL.translate(0, 0, backgroundIndex);
-						GL.unscale();
+						
+						if (independentSize)
+						{
+							GL.unscale();
+						}
+						
 						GL.scale(getWidth(), getHeight(), 1);
 						
 						Color current = GL.getColor();
