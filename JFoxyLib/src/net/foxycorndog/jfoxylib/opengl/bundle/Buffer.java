@@ -174,10 +174,10 @@ public class Buffer
 //			return;
 //		}
 		
-		if (!isBound())
-		{
+//		if (!isBound())
+//		{
 			bind();
-		}
+//		}
 		
 //		System.out.println(currentlyBound + ", " + id);
 		

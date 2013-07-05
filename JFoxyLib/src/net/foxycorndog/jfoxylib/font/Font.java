@@ -397,7 +397,7 @@ public class Font
 		{
 			if (panel != null)
 			{
-				x += panel.getWidth() / scaleX;
+				x += panel.getScaledWidth() / scaleX;
 			}
 			else
 			{
@@ -410,7 +410,7 @@ public class Font
 		{
 			if (panel != null)
 			{
-				y += (panel.getHeight() / scaleY) / 2;
+				y += (panel.getScaledHeight() / scaleY) / 2;
 			}
 			else
 			{
@@ -423,7 +423,7 @@ public class Font
 		{
 			if (panel != null)
 			{
-				y += panel.getHeight() / scaleY;
+				y += panel.getScaledHeight() / scaleY;
 			}
 			else
 			{

@@ -430,7 +430,7 @@ public class Image extends Component
 				bundle.beginEditingVertices();
 			}
 			
-			bundle.setVertices(offset, GL.genRectVerts(x, y, getWidth(), getHeight()));
+			bundle.setVertices(offset, GL.genRectVerts(x, y, getScaledWidth(), getScaledHeight()));
 			
 			if (beginEditingBuffer)
 			{
@@ -491,6 +491,7 @@ public class Image extends Component
 			
 			GL.pushMatrix();
 			{
+				GL.scale(getScale(), getScale(), 1);
 				GL.translate(getX(), getY(), 0);
 				
 				bundle.render(GL.TRIANGLES, offset, 3 * 2 * 2, texture);

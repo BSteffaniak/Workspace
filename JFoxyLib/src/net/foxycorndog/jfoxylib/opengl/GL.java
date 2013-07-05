@@ -107,6 +107,8 @@ public class GL
 		WHITE = new Texture(image);
 		
 		set3DEnabled(true);
+		
+		initGLStates();
 	}
 	
 	/**

@@ -184,18 +184,22 @@ public class Panel extends Component
 		{
 			GL.pushMatrix();
 			{
+				update();
+			
 				if (independentSize)
 				{
 					GL.translateIgnoreScale(getX(), getY(), 0);
 					
-					GL.beginFrameClipping(getX(), getY(), getWidth(), getHeight());
+					GL.beginFrameClipping(getX(), getY(), Math.round(getScaledWidth() * getScale()), Math.round(getScaledHeight() * getScale()));
 				}
 				else
 				{
 					GL.translate(getX(), getY(), 0);
 				
-					GL.beginClipping(0, 0, getWidth(), getHeight());
+					GL.beginClipping(0, 0, Math.round(getScaledWidth() * getScale()), Math.round(getScaledHeight() * getScale()));
 				}
+				
+				GL.scale(getScale(), getScale(), 1);
 				
 				if (backgroundColor != null)
 				{

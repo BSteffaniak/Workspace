@@ -30,6 +30,7 @@ public abstract class Component
 	
 	private					float					scaleX, scaleY;
 	private					float					translatedX, translatedY;
+	private					float					scale;
 	
 	private					Panel					parent;
 	
@@ -75,6 +76,29 @@ public abstract class Component
 		
 		scaleX = 1;
 		scaleY = 1;
+		
+		setScale(1);
+	}
+	
+	/**
+	 * Get the scale that the Component is currently rendered in. The
+	 * scale will only affect the (x, y) axiis. Not the z axis.
+	 * 
+	 * @return The scale that the Component is currently rendered in.
+	 */
+	public float getScale()
+	{
+		return scale;
+	}
+	
+	/**
+	 * Set the scale that the Component will be rendered in.
+	 * 
+	 * @param scale The new scale to render the Component in.
+	 */
+	public void setScale(float scale)
+	{
+		this.scale = scale;
 	}
 	
 	/**
@@ -201,6 +225,28 @@ public abstract class Component
 	}
 
 	/**
+	 * Get the horizontal size of this Component with consideration
+	 * of the scale.
+	 * 
+	 * @return The scaled horizontal size of this Component.
+	 */
+	public float getScaledWidth()
+	{
+		return width * scale;
+	}
+
+	/**
+	 * Get the vertical size of this Component with consideration
+	 * of the scale.
+	 * 
+	 * @return The scaled vertical size of this Component.
+	 */
+	public float getScaledHeight()
+	{
+		return height * scale;
+	}
+
+	/**
 	 * Get the horizontal size of this Component.
 	 * 
 	 * @return The horizontal size of this Component.
@@ -285,7 +331,7 @@ public abstract class Component
 	 */
 	public float getDisplayX()
 	{
-		return translatedX * scaleX;
+		return getX() * getScaleX() + getTranslatedX();
 	}
 
 	/**
@@ -297,7 +343,7 @@ public abstract class Component
 	 */
 	public float getDisplayY()
 	{
-		return translatedY * scaleY;
+		return getY() * getScaleY() + getTranslatedY();
 	}
 	
 	/**
@@ -363,8 +409,11 @@ public abstract class Component
 	 */
 	private void align()
 	{
-		int width  = 0;
-		int height = 0;
+		int   width    = 0;
+		int   height   = 0;
+		
+		float scaleWid = getScaledWidth()  * scaleX / scale;
+		float scaleHei = getScaledHeight() * scaleY / scale;
 		
 		if (parent == null)
 		{
@@ -382,24 +431,32 @@ public abstract class Component
 		
 		if (horizontalAlignment == CENTER)
 		{
-			alignX = (int)((width / 2) - (getWidth() / 2) * scaleX);
+			alignX  = (int)((width / 2) - (scaleWid / 2));
+			
+			alignX -= ((scaleWid * scale) - scaleWid) / 2;
 		}
 		else if (horizontalAlignment == RIGHT)
 		{
-			alignX = (int)((width) - (getWidth()) * scaleX);
+			alignX  = (int)((width) - (scaleWid));
+			
+			alignX -= ((scaleWid * scale) - scaleWid);
 		}
 		
 		if (verticalAlignment == CENTER)
 		{
-			alignY = (int)((height / 2) - (getHeight() / 2) * scaleY);
-		}
+			alignY  = (int)((height / 2) - (scaleHei / 2));
+			
+			alignY -= ((scaleHei * scale) - scaleHei) / 2;
+		} 
 		else if (verticalAlignment == TOP)
 		{
-			alignY = (int)((height) - (getHeight()) * scaleY);
+			alignY  = (int)((height) - (scaleHei));
+			
+			alignY -= ((scaleHei * scale) - scaleHei);
 		}
 		
-		alignX = Math.round(alignX / scaleX);
-		alignY = Math.round(alignY / scaleY);
+		alignX  = Math.round(alignX / scaleX);
+		alignY  = Math.round(alignY / scaleY);
 	}
 	
 	/**

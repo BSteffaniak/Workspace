@@ -3,10 +3,12 @@ package net.foxycorndog.jfoxylib.components;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import net.foxycorndog.jfoxylib.Color;
 import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.events.ButtonEvent;
 import net.foxycorndog.jfoxylib.events.ButtonListener;
 import net.foxycorndog.jfoxylib.font.Font;
+import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
 import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 
@@ -24,6 +26,8 @@ public class Button extends Image
 	private boolean						hovered;
 	
 	private String						text;
+	
+	private	Color						fontColor;
 	
 	private Font						font;
 	
@@ -110,6 +114,26 @@ public class Button extends Image
 				
 			}
 		});
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @return
+	 */
+	public Color getFontColor()
+	{
+		return fontColor;
+	}
+	
+	/**
+	 * 
+	 * 
+	 * @param color
+	 */
+	public void setFontColor(Color color)
+	{
+		this.fontColor = color;
 	}
 	
 	/**
@@ -307,17 +331,31 @@ public class Button extends Image
 	{
 		super.render();
 		
-		if (text != null && text.length() > 0 && font != null)
+		if (isVisible())
 		{
-			float scale = 1;//(getHeight() * 0.7f) / font.getGlyphHeight();
-			
-			scale = scale >= 1 ? (float)Math.floor(scale) : scale;
-//			scale = 1;
-			
-			float textX = getX() + (getWidth() / 2) - (font.getWidth(text) * scale) / 2;
-			float textY = getY() + (getHeight() / 2) - (font.getGlyphHeight() * scale) / 2;
-			
-			font.render(text, textX, textY, 0, scale, getParent());
+			if (text != null && text.length() > 0 && font != null)
+			{
+				float scale = 1;//(getHeight() * 0.7f) / font.getGlyphHeight();
+				
+				scale = scale >= 1 ? (float)Math.floor(scale) : scale;
+	//			scale = 1;
+				
+				float textX = getX() + (getScaledWidth() / 2) - (font.getWidth(text) * scale) / 2;
+				float textY = getY() + (getScaledHeight() / 2) - (font.getHeight(text) * scale) / 2;
+				
+				textX   = Math.round(textX);
+				textY   = Math.round(textY); 
+				
+				Color c = null;
+				
+				if (GL.getColor();
+				
+				GL.setColor(fontColor);
+				
+				font.render(text, textX, textY, 0, scale, getParent());
+				
+				GL.setColor(c);
+			}
 		}
 	}
 }

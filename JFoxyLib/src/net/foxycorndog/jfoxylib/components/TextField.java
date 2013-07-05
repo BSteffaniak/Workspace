@@ -252,7 +252,7 @@ public class TextField extends Component
 	 */
 	private void scaleFont()
 	{
-		textScale        = getHeight() / (float)font.getGlyphHeight();
+		textScale        = getScaledHeight() / (float)font.getGlyphHeight();
 		
 		float floor = (float)Math.floor(textScale);
 		
@@ -402,7 +402,7 @@ public class TextField extends Component
 			
 //			GL.beginClipping(0, 0, getWidth(), getHeight());
 //			{
-				float offsetY = (getHeight() / 2) - (font.getGlyphHeight() * (textScale)) / 2;
+				float offsetY = (getScaledHeight() / 2) - (font.getGlyphHeight() * (textScale)) / 2;
 				
 				Color color = null;
 				
