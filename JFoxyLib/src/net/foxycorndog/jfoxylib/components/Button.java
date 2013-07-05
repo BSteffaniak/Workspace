@@ -117,9 +117,9 @@ public class Button extends Image
 	}
 	
 	/**
+	 * Get the Color that the Font is currently rendered in.
 	 * 
-	 * 
-	 * @return
+	 * @return The Color instance that the Font is rendered in.
 	 */
 	public Color getFontColor()
 	{
@@ -127,9 +127,9 @@ public class Button extends Image
 	}
 	
 	/**
+	 * Set the Color that the Font will be rendered in.
 	 * 
-	 * 
-	 * @param color
+	 * @param color The Color instance to set it to.
 	 */
 	public void setFontColor(Color color)
 	{
@@ -348,13 +348,19 @@ public class Button extends Image
 				
 				Color c = null;
 				
-				if (GL.getColor();
-				
-				GL.setColor(fontColor);
+				if (fontColor != null)
+				{
+					c = GL.getColor();
+
+					GL.setColor(fontColor);
+				}
 				
 				font.render(text, textX, textY, 0, scale, getParent());
-				
-				GL.setColor(c);
+
+				if (c != null)
+				{
+					GL.setColor(c);
+				}
 			}
 		}
 	}
