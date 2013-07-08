@@ -83,7 +83,7 @@ public class Color extends java.awt.Color
 	
 	/**
 	 * Create a color with the specified red, green, and blue values.
-	 * (0 - 255)
+	 * (0 - 1)
 	 * 
 	 * @param r The red component for the Color.
 	 * @param g The green component for the Color.

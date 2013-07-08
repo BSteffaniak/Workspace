@@ -2,6 +2,8 @@ package net.foxycorndog.jfoxylib.components;
 
 import java.util.ArrayList;
 
+import org.lwjgl.Sys;
+
 import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.opengl.GL;
 
@@ -22,14 +24,16 @@ public abstract class Component
 	private					boolean					visible;
 	private					boolean					focused;
 	private					boolean					enabled;
+	private					boolean					alignmentSet;
 	
-	private					int						x, y;
-	private					int						alignX, alignY;
-	private					int						width, height;
 	private					int						horizontalAlignment, verticalAlignment;
+	private					int						verticalOrigin;
 	
+	private					float					x, y;
+	private					float					alignX, alignY;
+	private					float					displayX, displayY;
+	private					float					width, height;
 	private					float					scaleX, scaleY;
-	private					float					translatedX, translatedY;
 	private					float					scale;
 	
 	private					Panel					parent;
@@ -78,6 +82,45 @@ public abstract class Component
 		scaleY = 1;
 		
 		setScale(1);
+		setVerticalOrigin(BOTTOM);
+	}
+	
+	/**
+	 * Get the location in which the vertical origin lies. If the origin
+	 * is at the TOP, then (0, 0) is located at the top left.
+	 * 
+	 * @return The vertical location in which the origin lies.
+	 */
+	public int getVerticalOrigin()
+	{
+		return verticalOrigin;
+	}
+	
+	/**
+	 * Set the vertical location of the origin.<br>
+	 * Options include:
+	 * 	<ul>
+	 * 		<li>TOP - The origin is located at the top.</li>
+	 * 		<li>BOTTOM - The origin is located at the bottom.</li>
+	 * 	</ul>
+	 * 
+	 * @param verticalOrigin The vertical location of the origin.
+	 */
+	public void setVerticalOrigin(int verticalOrigin)
+	{
+		this.verticalOrigin = verticalOrigin;
+		
+		if (!alignmentSet)
+		{
+			if (verticalOrigin == BOTTOM)
+			{
+				
+			}
+			else if (verticalOrigin == TOP)
+			{
+				verticalAlignment = TOP;
+			}
+		}
 	}
 	
 	/**
@@ -197,7 +240,7 @@ public abstract class Component
 	 * 
 	 * @return The horizontal location of this Component.
 	 */
-	public int getX()
+	public float getX()
 	{
 		return x + alignX;
 	}
@@ -207,7 +250,7 @@ public abstract class Component
 	 * 
 	 * @return The vertical location of this Component.
 	 */
-	public int getY()
+	public float getY()
 	{
 		return y + alignY;
 	}
@@ -218,7 +261,7 @@ public abstract class Component
 	 * @param x The new horizontal location of the Component.
 	 * @param y The new vertical location of the Component.
 	 */
-	public void setLocation(int x, int y)
+	public void setLocation(float x, float y)
 	{
 		this.x = x;
 		this.y = y;
@@ -232,7 +275,7 @@ public abstract class Component
 	 */
 	public float getScaledWidth()
 	{
-		return width * scale;
+		return width * scaleX;
 	}
 
 	/**
@@ -243,7 +286,7 @@ public abstract class Component
 	 */
 	public float getScaledHeight()
 	{
-		return height * scale;
+		return height * scaleY;
 	}
 
 	/**
@@ -251,7 +294,7 @@ public abstract class Component
 	 * 
 	 * @return The horizontal size of this Component.
 	 */
-	public int getWidth()
+	public float getWidth()
 	{
 		return width;
 	}
@@ -261,7 +304,7 @@ public abstract class Component
 	 * 
 	 * @return The vertical size of this Component.
 	 */
-	public int getHeight()
+	public float getHeight()
 	{
 		return height;
 	}
@@ -272,7 +315,7 @@ public abstract class Component
 	 * @param width The new horizontal size of the Component.
 	 * @param height The new vertical size of the Component.
 	 */
-	public void setSize(int width, int height)
+	public void setSize(float width, float height)
 	{
 		this.width  = width;
 		this.height = height;
@@ -299,30 +342,6 @@ public abstract class Component
 	}
 	
 	/**
-	 * Get the horizontal amount that this Component has been translated
-	 * as of the last update.
-	 * 
-	 * @return The horizontal amount that this Component has been
-	 * 		translated.
-	 */
-	public float getTranslatedX()
-	{
-		return translatedX;
-	}
-
-	/**
-	 * Get the vertical amount that this Component has been translated
-	 * as of the last update.
-	 * 
-	 * @return The vertical amount that this Component has been
-	 * 		translated.
-	 */
-	public float getTranslatedY()
-	{
-		return translatedY;
-	}
-	
-	/**
 	 * Get the horizontal location that this Component was last
 	 * displayed on the screen.
 	 * 
@@ -331,7 +350,7 @@ public abstract class Component
 	 */
 	public float getDisplayX()
 	{
-		return getX() * getScaleX() + getTranslatedX();
+		return displayX;//(getX()) * getFullScale() + getTranslatedX();
 	}
 
 	/**
@@ -343,7 +362,44 @@ public abstract class Component
 	 */
 	public float getDisplayY()
 	{
-		return getY() * getScaleY() + getTranslatedY();
+		return displayY;//(getY()) * getFullScale() + getTranslatedY();
+	}
+	
+	/**
+	 * Set the location that the Component was rendered to the Display
+	 * at.
+	 * 
+	 * @param x The horizontal location in pixels that the Component was
+	 * 		rendered at.
+	 * @param y The vertical location in pixels that the Component was
+	 * 		rendered at.
+	 */
+	public void setDisplayLocation(float x, float y)
+	{
+		this.displayX = x;
+		this.displayY = y;
+	}
+	
+	/**
+	 * Get the scale of the Component taking into account the scale of the
+	 * Parent Components.
+	 * 
+	 * @return The full scale of the Component.
+	 */
+	public float getFullScale()
+	{
+		float scale = this.scale;
+		
+		Component parent = this.parent;
+		
+		while (parent != null)
+		{
+			scale *= parent.scale;
+			
+			parent = parent.getParent();
+		}
+		
+		return scale;
 	}
 	
 	/**
@@ -398,6 +454,8 @@ public abstract class Component
 	 */
 	public void setAlignment(int horizontal, int vertical)
 	{
+		alignmentSet = true;
+		
 		this.horizontalAlignment = horizontal;
 		this.verticalAlignment   = vertical;
 		
@@ -409,11 +467,11 @@ public abstract class Component
 	 */
 	private void align()
 	{
-		int   width    = 0;
-		int   height   = 0;
+		float width    = 0;
+		float height   = 0;
 		
-		float scaleWid = getScaledWidth()  * scaleX / scale;
-		float scaleHei = getScaledHeight() * scaleY / scale;
+		float scaleWid = getWidth()  * scale;//  * scaleX / scale;
+		float scaleHei = getHeight() * scale;// * scaleY / scale;
 		
 		if (parent == null)
 		{
@@ -431,32 +489,36 @@ public abstract class Component
 		
 		if (horizontalAlignment == CENTER)
 		{
-			alignX  = (int)((width / 2) - (scaleWid / 2));
+			alignX = (width / 2) - (scaleWid / 2);
 			
-			alignX -= ((scaleWid * scale) - scaleWid) / 2;
+//			alignX -= ((scaleWid * scale) - scaleWid) / 2;
 		}
 		else if (horizontalAlignment == RIGHT)
 		{
-			alignX  = (int)((width) - (scaleWid));
+			alignX = width - scaleWid;
 			
-			alignX -= ((scaleWid * scale) - scaleWid);
+//			alignX -= ((scaleWid * scale) - scaleWid);
 		}
 		
-		if (verticalAlignment == CENTER)
+		// If we want to align it at the top.
+		if ((verticalOrigin == BOTTOM && verticalAlignment == TOP) || (verticalOrigin == TOP && verticalAlignment == TOP))
 		{
-			alignY  = (int)((height / 2) - (scaleHei / 2));
-			
-			alignY -= ((scaleHei * scale) - scaleHei) / 2;
-		} 
-		else if (verticalAlignment == TOP)
+			alignY = height - scaleHei;
+		}
+		else if (verticalAlignment == CENTER)
 		{
-			alignY  = (int)((height) - (scaleHei));
-			
-			alignY -= ((scaleHei * scale) - scaleHei);
+			alignY = (height / 2) - (scaleHei / 2);
 		}
 		
-		alignX  = Math.round(alignX / scaleX);
-		alignY  = Math.round(alignY / scaleY);
+		
+//		alignX /= scaleX;
+//		alignY /= scaleY;
+		
+//		alignX /= scale;
+//		alignY /= scale;
+		
+//		alignX = 0;
+//		alignY = 0;
 	}
 	
 	/**
@@ -470,10 +532,9 @@ public abstract class Component
 		scaleX = scale[0];
 		scaleY = scale[1];
 		
-		float trans[] = GL.getAmountTranslated();
+		float loc[] = GL.getCurrentLocation();
 		
-		translatedX = trans[0];
-		translatedY = trans[1];
+		setDisplayLocation(loc[0], loc[1]);
 		
 		align();
 	}

@@ -340,8 +340,8 @@ public class Button extends Image
 				scale = scale >= 1 ? (float)Math.floor(scale) : scale;
 	//			scale = 1;
 				
-				float textX = getX() + (getScaledWidth() / 2) - (font.getWidth(text) * scale) / 2;
-				float textY = getY() + (getScaledHeight() / 2) - (font.getHeight(text) * scale) / 2;
+				float textX = getX() + (getWidth()  * getScale() / 2) - (font.getWidth(text)  * scale) / 2;
+				float textY = getY() + (getHeight() * getScale() / 2) - (font.getHeight(text) * scale) / 2;
 				
 				textX   = Math.round(textX);
 				textY   = Math.round(textY); 

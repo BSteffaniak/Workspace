@@ -75,7 +75,9 @@ public class GL
 	
 	private	static			int				textureScaleMinMethod, textureScaleMagMethod, textureWrapSMethod, textureWrapTMethod;
 	
-	private	static			Stack<float[]>	amountScaled, amountTranslated, amountRotated, colorStack;
+	private	static			Stack<Color>	colorStack, clearColorStack;
+	
+	private	static			Stack<float[]>	amountScaled, amountTranslated, amountRotated, currentLocation;
 	
 	public	static	final	int				POINTS = GL11.GL_POINTS, LINES = GL11.GL_LINES, TRIANGLES = GL11.GL_TRIANGLES;//, QUADS = GL11.GL_QUADS;
 	
@@ -109,6 +111,12 @@ public class GL
 		set3DEnabled(true);
 		
 		initGLStates();
+
+		colorStack = new Stack<Color>();
+		colorStack.push(new Color(1, 1, 1, 1f));
+
+		clearColorStack = new Stack<Color>();
+		clearColorStack.push(new Color(1, 1, 1, 1f));
 	}
 	
 	/**
@@ -153,11 +161,11 @@ public class GL
 		amountTranslated = new Stack<float[]>();
 		amountTranslated.push(new float[] { 0, 0, 0 });
 
+		currentLocation = new Stack<float[]>();
+		currentLocation.push(new float[] { 0, 0, 0 });
+
 		amountRotated = new Stack<float[]>();
 		amountRotated.push(new float[] { 0, 0, 0 });
-
-		colorStack = new Stack<float[]>();
-		colorStack.push(new float[] { 1, 1, 1, 1 });
 	}
 	
 	/**
@@ -455,15 +463,15 @@ public class GL
 	/**
 	 * Clip the area that will be rendered inside of to the screen. The
 	 * difference between this method and
-	 * beginFrameClipping(int, int, int, int) is that this method takes into
-	 * account the current scale amount and amount translated.
+	 * beginFrameClipping(float, float, float, float) is that this method
+	 * takes into account the current scale amount and amount translated.
 	 * 
 	 * @param x The horizonal location to make the clip.
 	 * @param y The vertical location to make to clip.
 	 * @param width The horizontal size of the area to clip.
 	 * @param height The vertical size of the area to clip.
 	 */
-	public static void beginClipping(int x, int y, int width, int height)
+	public static void beginClipping(float x, float y, float width, float height)
 	{
 		float scale[] = getAmountScaled();
 		
@@ -472,7 +480,7 @@ public class GL
 		width  *= scale[0];
 		height *= scale[1];
 		
-		float trans[] = getAmountTranslated();
+		float trans[] = getCurrentLocation();
 		
 		x      += trans[0];
 		y      += trans[1];
@@ -491,20 +499,20 @@ public class GL
 	/**
 	 * Clip the area that will be rendered inside of to the screen. The
 	 * difference between this method and
-	 * beginClipping(int, int, int, int) is that this method does not
-	 * takes into account the current scale amount, and is based on pixels.
-	 * It also takes the absolute position from the screen.
+	 * beginClipping(float, float, float, float) is that this method does
+	 * not takes into account the current scale amount, and is based on
+	 * pixels. It also takes the absolute position from the screen.
 	 * 
 	 * @param x The horizonal location to make the clip.
 	 * @param y The vertical location to make to clip.
 	 * @param width The horizontal size of the area to clip.
 	 * @param height The vertical size of the area to clip.
 	 */
-	public static void beginFrameClipping(int x, int y, int width, int height)
+	public static void beginFrameClipping(float x, float y, float width, float height)
 	{
 		enableClipping();
 		
-		glScissor(x, y, width, height);
+		glScissor(Math.round(x), Math.round(y), Math.round(width), Math.round(height));
 	}
 
 	/**
@@ -555,6 +563,27 @@ public class GL
 	}
 	
 	/**
+	 * Get the current location that the matrix is at taking into account
+	 * the scale and the translations with the scale.
+	 * 
+	 * @return A float array with three values containing the (x, y, z)
+	 * 		values of the current location at the time of the call.
+	 */
+	public static float[] getCurrentLocation()
+	{
+		float copy[] = currentLocation.peek();
+		
+		float dest[] = new float[copy.length];
+		
+		for (int i = 0; i < copy.length; i++)
+		{
+			dest[i] = copy[i];
+		}
+		
+		return dest;
+	}
+	
+	/**
 	 * Push the current matrix configuration to the stack.
 	 */
 	public static void pushMatrix()
@@ -564,11 +593,12 @@ public class GL
 		amountScaled.push(getAmountScaled());
 		amountTranslated.push(getAmountTranslated());
 		amountRotated.push(getAmountRotated());
+		currentLocation.push(getCurrentLocation());
 	}
 	
 	/**
 	 * Pop the last matrix off of the stack. Returns the matrix
-	 * configuration to the seconf last configuration available on the
+	 * configuration to the second last configuration available on the
 	 * stack.
 	 */
 	public static void popMatrix()
@@ -578,6 +608,7 @@ public class GL
 		amountScaled.pop();
 		amountTranslated.pop();
 		amountRotated.pop();
+		currentLocation.pop();
 	}
 	
 	/**
@@ -603,6 +634,16 @@ public class GL
 	}
 	
 	/**
+	 * Set the magnitude of the current rotation back to (0, 0, 0).
+	 */
+	public static void unrotate()
+	{
+		float array[] = amountRotated.peek();
+		
+		rotate(-array[0], -array[1], -array[2]);
+	}
+	
+	/**
 	 * Translate everything that is rendered after this method call
 	 * the specified x, y, and z amounts.<br>
 	 * Translates the current matrix configuration the specified amounts.
@@ -620,6 +661,24 @@ public class GL
 		array[0] += x;
 		array[1] += y;
 		array[2] += z;
+		
+		float scale[] = amountScaled.peek();
+		
+		array = currentLocation.peek();
+
+		array[0] += x * scale[0];
+		array[1] += y * scale[1];
+		array[2] += z * scale[2];
+	}
+	
+	/**
+	 * Set the location of the current translation back to (0, 0, 0).
+	 */
+	public static void untranslate()
+	{
+		float array[] = amountTranslated.peek();
+		
+		translate(-array[0], -array[1], -array[2]);
 	}
 	
 	/**
@@ -665,7 +724,6 @@ public class GL
 		array[1] *= y;
 		array[2] *= z;
 	}
-	
 	
 	/**
 	 * Scale everything that is rendered after this method call
@@ -875,9 +933,9 @@ public class GL
 	 */
 	public static Color getColor()
 	{
-		float copy[] = colorStack.peek();
+		Color copy = colorStack.peek();
 		
-		Color color = new Color((int)(copy[0] * 255), (int)(copy[1] * 255), (int)(copy[2] * 255), (int)(copy[3] * 255));
+		Color color = new Color(copy.getRedf(), copy.getGreenf(), copy.getBluef(), copy.getAlphaf());
 		
 		return color;
 	}
@@ -890,14 +948,14 @@ public class GL
 	 */
 	public static float[] getColorArray()
 	{
-		float copy[] = colorStack.peek();
+		Color copy = colorStack.peek();
 		
-		float dest[] = new float[copy.length];//new float[3];
+		float dest[] = new float[4];//new float[3];
 		
-		for (int i = 0; i < copy.length; i++)
-		{
-			dest[i] = copy[i];
-		}
+		dest[0] = copy.getRedf();
+		dest[1] = copy.getGreenf();
+		dest[2] = copy.getBluef();
+		dest[3] = copy.getAlphaf();
 		
 //		FloatBuffer buffer = BufferUtils.createFloatBuffer(4 * 4);
 //		
@@ -924,12 +982,9 @@ public class GL
 	{
 		GL11.glColor4f(r, g, b, a);
 		
-		float array[] = colorStack.peek();
+		Color color = colorStack.peek();
 		
-		array[0] = r;
-		array[1] = g;
-		array[2] = b;
-		array[3] = a;
+		color.setData(r, g, b, a);
 	}
 	
 	/**
@@ -956,6 +1011,21 @@ public class GL
 	}
 	
 	/**
+	 * Get the current color that is being used by OpenGL to clear the
+	 * Display each frame.
+	 * 
+	 * @return A Color instance holding the values.
+	 */
+	public static Color getClearColor()
+	{
+		Color copy = clearColorStack.peek();
+		
+		Color color = new Color(copy.getRedf(), copy.getGreenf(), copy.getBluef(), copy.getAlphaf());
+		
+		return color;
+	}
+	
+	/**
 	 * Set the color that the Frame will clear the scene with.
 	 * 
 	 * @param r The red component (0.0 - 1.0).
@@ -966,6 +1036,21 @@ public class GL
 	public static void setClearColor(float r, float g, float b, float a)
 	{
 		GL11.glClearColor(r, g, b, a);
+		
+		Color color = clearColorStack.peek();
+		
+		color.setData(r, g, b, a);
+	}
+	
+	/**
+	 * Set the color that everything rendered will be cleared by.
+	 * Accepts values (0 - 1).
+	 * 
+	 * @param color A Color instance that describes a rgba Color.
+	 */
+	public static void setClearColor(Color color)
+	{
+		setClearColor(color.getRedf(), color.getGreenf(), color.getBluef(), color.getAlphaf());
 	}
 	
 	/**
@@ -1515,61 +1600,4 @@ public class GL
 		
 		return array;
 	}
-	
-//	public static void initBasicView(float zClose, float zFar)
-//	{
-//		glPixelStorei(GL11.GL_UNPACK_ALIGNMENT, 1);
-//		
-//		GL.zClose = zClose;
-//		GL.zFar   = zFar;
-//		
-//		glEnable(GL_BLEND);
-//		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//		
-//		if (render3D)
-//		{
-//			glEnable(GL11.GL_TEXTURE_2D);
-//			
-//			glEnable(GL_CULL_FACE);
-//			
-//			glClearColor(0.0f, 0.3f, 0.6f, 0.0f); // Blue Background
-//			glClearDepth(1.0); // Depth Buffer Setup
-//			glEnable(GL_DEPTH_TEST); // Enables Depth Testing
-//			glDepthFunc(GL_LEQUAL); // The Type Of Depth Testing To Do
-//			
-//			glViewport(0, 0, Display.getWidth(), Display.getHeight());
-//			glMatrixMode(GL_PROJECTION); // Select The Projection Matrix
-//			glLoadIdentity(); // Reset The Projection Matrix
-//			
-//			FOV = 55.0f;
-//
-//			// Calculate The Aspect Ratio Of The Window
-//			gluPerspective(FOV, (float)Display.getWidth() / (float)Display.getHeight(), zClose, zFar);
-//			glMatrixMode(GL_MODELVIEW);
-//
-//			// Really Nice Perspective Calculations
-//			glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-//			
-//			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-//		}
-//		else
-//		{
-//			glEnable(GL_TEXTURE_2D);
-//			
-//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-//			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-//			
-//			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-//			
-//			glEnable(GL_BLEND);
-//			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-//			
-//			glEnable(GL_ALPHA_TEST);
-//			glAlphaFunc(GL_GREATER, 0.1f); 
-//			
-//			glEnable(GL_DEPTH_TEST);
-//			
-//			glClearColor(0.0f, 0.3f, 0.6f, 0.0f); // Blue Background
-//		}
-//	}
 }

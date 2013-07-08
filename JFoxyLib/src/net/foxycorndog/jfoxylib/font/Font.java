@@ -704,6 +704,11 @@ public class Font
 	 */
 	private Bounds2f renderVertexBuffer(String text, float x, float y, float z, float scale, int horizontalAlignment, int verticalAlignment, Buffer vertices, Buffer textures, Panel panel, boolean saveHistory)
 	{
+		if (text == null || text.length() <= 0)
+		{
+			return new Bounds2f(0, 0, 0, 0);
+		}
+		
 		int      vId       = 0;
 		int      tId       = 0;
 		int      viId      = 0;

@@ -22,6 +22,8 @@ public class TabMenu extends Panel
 {
 	private	boolean						autoResize;
 	
+	private	int							margin;
+	
 	private	ButtonListener				buttonListener;
 	
 	private	ArrayList<TabItem>			tabItems;
@@ -39,6 +41,7 @@ public class TabMenu extends Panel
 		listeners = new ArrayList<TabMenuListener>();
 		
 		setAutoResize(true);
+		setMargin(0);
 		
 		buttonListener = new ButtonListener()
 		{
@@ -90,6 +93,16 @@ public class TabMenu extends Panel
 				
 			}
 		};
+	}
+	
+	/**
+	 * Set the horizontal margin between the tabs (in pixels).
+	 * 
+	 * @param margin The horizontal margin in pixels.
+	 */
+	public void setMargin(int margin)
+	{
+		this.margin = margin;
 	}
 	
 	/**
@@ -161,8 +174,8 @@ public class TabMenu extends Panel
 		
 		if (autoResize)
 		{
-			int width  = 0;
-			int height = 0;
+			float width  = 0;
+			float height = 0;
 			
 			for (int i = 0; i < tabItems.size(); i++)
 			{
@@ -170,12 +183,17 @@ public class TabMenu extends Panel
 				
 				item.setLocation(width, 0);
 				
-				width += item.getScaledWidth();
+				width += item.getWidth() * item.getScale() + margin;
 				
-				if (item.getScaledHeight() > height)
+				if (item.getHeight() * item.getScale() > height)
 				{
-					height = item.getHeight();
+					height = item.getHeight() * item.getScale();
 				}
+			}
+			
+			if (tabItems.size() > 0)
+			{
+				width -= margin;
 			}
 			
 			setSize(width, height);

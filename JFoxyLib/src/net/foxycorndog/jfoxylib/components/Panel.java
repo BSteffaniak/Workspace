@@ -2,6 +2,8 @@ package net.foxycorndog.jfoxylib.components;
 
 import java.util.ArrayList;
 
+import org.lwjgl.opengl.GL11;
+
 import net.foxycorndog.jfoxylib.Color;
 import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
@@ -25,27 +27,27 @@ public class Panel extends Component
 	
 	private					ArrayList<Component>	children;
 	
-	private	static	final	Bundle					backgroundBundle;
-	
-	/**
-	 * Initialize the backgroundBundle.
-	 */
-	static
-	{
-		backgroundBundle = new Bundle(3 * 2, 2, true, false);
-		
-		backgroundBundle.beginEditingVertices();
-		{
-			backgroundBundle.addVertices(GL.genRectVerts(0, 0, 1, 1));
-		}
-		backgroundBundle.endEditingVertices();
-		
-		backgroundBundle.beginEditingTextures();
-		{
-			backgroundBundle.addTextures(GL.WHITE.getImageOffsets());
-		}
-		backgroundBundle.endEditingTextures();
-	}
+//	private	static	final	Bundle					backgroundBundle;
+//	
+//	/**
+//	 * Initialize the backgroundBundle.
+//	 */
+//	static
+//	{
+//		backgroundBundle = new Bundle(3 * 2, 2, true, false);
+//		
+//		backgroundBundle.beginEditingVertices();
+//		{
+//			backgroundBundle.addVertices(GL.genRectVerts(0, 0, 1, 1));
+//		}
+//		backgroundBundle.endEditingVertices();
+//		
+//		backgroundBundle.beginEditingTextures();
+//		{
+//			backgroundBundle.addTextures(GL.WHITE.getImageOffsets());
+//		}
+//		backgroundBundle.endEditingTextures();
+//	}
 	
 	/**
 	 * Construct a Panel that is used to hold Components with the
@@ -184,45 +186,55 @@ public class Panel extends Component
 		{
 			GL.pushMatrix();
 			{
-				update();
-			
 				if (independentSize)
 				{
 					GL.translateIgnoreScale(getX(), getY(), 0);
 					
-					GL.beginFrameClipping(getX(), getY(), Math.round(getScaledWidth() * getScale()), Math.round(getScaledHeight() * getScale()));
+					GL.beginFrameClipping(getDisplayX(), getDisplayY(), getWidth() * getFullScale(), getHeight() * getFullScale());
 				}
 				else
 				{
 					GL.translate(getX(), getY(), 0);
+
+//					System.out.println(this + ": " + Math.round(getDisplayX()) + ", " + Math.round(getDisplayY()) + ": " + getScaleX() + ", " + getScaleY() + ": " + getTranslatedX() + ", " + getTranslatedY() + ": " + getScale() + ": " + Math.round(getScaledHeight()));
+					GL.beginClipping(0, 0, getWidth() * getFullScale(), getHeight() * getFullScale());
+//					GL.beginFrameClipping(Math.round(getDisplayX()), Math.round(getDisplayY()), Math.round(getScaledWidth()), Math.round(getScaledHeight()));
+				}
 				
-					GL.beginClipping(0, 0, Math.round(getScaledWidth() * getScale()), Math.round(getScaledHeight() * getScale()));
+				if (backgroundColor != null)
+				{
+//					GL.pushMatrix();
+//					{
+//						GL.translate(0, 0, backgroundIndex);
+//						
+//						if (independentSize)
+//						{
+//							GL.unscale();
+//						}
+//						
+//						GL.scale(getWidth(), getHeight(), 1);
+//						
+//						Color current = GL.getColor();
+//						
+//						GL.setColor(backgroundColor);
+//						backgroundBundle.render(GL.TRIANGLES, GL.WHITE);
+//						
+//						GL.setColor(current);
+//					}
+//					GL.popMatrix();
+					
+					Color orig = GL.getClearColor();
+					
+					GL.setClearColor(backgroundColor);
+					
+					GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
+					
+					GL.setClearColor(orig);
 				}
 				
 				GL.scale(getScale(), getScale(), 1);
 				
-				if (backgroundColor != null)
-				{
-					GL.pushMatrix();
-					{
-						GL.translate(0, 0, backgroundIndex);
-						
-						if (independentSize)
-						{
-							GL.unscale();
-						}
-						
-						GL.scale(getWidth(), getHeight(), 1);
-						
-						Color current = GL.getColor();
-						
-						GL.setColor(backgroundColor);
-						backgroundBundle.render(GL.TRIANGLES, GL.WHITE);
-						
-						GL.setColor(current);
-					}
-					GL.popMatrix();
-				}
+				update();
 				
 				renderComponents();
 				

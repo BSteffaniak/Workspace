@@ -433,7 +433,12 @@ public class TextField extends Component
 					finalText.insert(caretPosition, caretChar);
 				}
 				
-				font.render(finalText.toString(), 2, offsetY, 0, textScale, getParent());
+				String text = finalText.toString();
+				
+				if (text.length() > 0)
+				{
+					font.render(finalText.toString(), 2, offsetY, 0, textScale, getParent());
+				}
 				
 				if (fontColor != null)
 				{

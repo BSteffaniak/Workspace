@@ -332,11 +332,9 @@ public class Frame
 		float trans[] = GL.getAmountTranslated();
 		
 		return comp.isVisible() && Mouse.isInFrame() &&
-				Intersects.rectangles(comp.getDisplayX(),
-				comp.getDisplayY(),
-				comp.getScaledWidth() * comp.getScaleX(),
-				comp.getScaledHeight() * comp.getScaleY(),
-				Mouse.getX(), Mouse.getY(), 1, 1);
+				Intersects.rectangles(comp.getDisplayX(), comp.getDisplayY(),
+						comp.getWidth() * comp.getFullScale(), comp.getHeight() * comp.getFullScale(),
+						Mouse.getX(), Mouse.getY(), 1, 1);
 	}
 	
 	/**

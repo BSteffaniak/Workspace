@@ -482,17 +482,19 @@ public class Image extends Component
 	{
 		if (isVisible())
 		{
-			update();
-			
-			if (texture == null)
-			{
-				return;
-			}
-			
 			GL.pushMatrix();
 			{
-				GL.scale(getScale(), getScale(), 1);
 				GL.translate(getX(), getY(), 0);
+				GL.scale(getScale(), getScale(), 1);
+				
+				update();
+				
+				if (texture == null)
+				{
+					GL.popMatrix();
+					
+					return;
+				}
 				
 				bundle.render(GL.TRIANGLES, offset, 3 * 2 * 2, texture);
 			}
