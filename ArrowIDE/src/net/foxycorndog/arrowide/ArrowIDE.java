@@ -211,19 +211,8 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	public static final HashMap<String, Object>	PROPERTIES;
 	
 	private static ArrayList<Thread>			fileViewerThreads;
-	
-	private class Efficient
-	{
-		private int i;
-		
-		private String s;
-		
-		public Efficient(String s, int i)
-		{
-			this.s = s;
-			this.i = i;
-		}
-	}
+
+	public native boolean cpuSupports64();
 	
 	/**
 	 * Instantiate the {@link #DISPLAY display}, and the color palette.
@@ -237,6 +226,15 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		FOCUS_COLOR = new Color(DISPLAY, 255, 255, 255);
 		NON_FOCUS_COLOR = ColorUtils.lighten(TITLE_BAR_BACKGROUND, 10);
+		
+		try
+		{
+			System.loadLibrary("res/SysArch32");
+		}
+		catch (Exception e)
+		{
+			System.loadLibrary("res/SysArch");
+		}
 	}
 	
 	/**
@@ -280,15 +278,18 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			PROPERTIES.put("os.executable.extension", "");
 			PROPERTIES.put("colon", ':');
 		}
-		
-		setArchitecture();
 	}
 	
 	/**
 	 * Set the os.arch value for the {@link #PROPERTIES} variable.
 	 */
-	private static void setArchitecture()
+	private void setArchitecture()
 	{
+		if (PROPERTIES.containsKey("os.arch"))
+		{
+			return;
+		}
+		
 		int bitness = 32;
 		
 		if (PROPERTIES.get("os.name").equals("macosx"))
@@ -297,27 +298,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		}
 		else
 		{
-			ProcessBuilder b = new ProcessBuilder(new String[] { "res/bitness" });
-			
-			try
-			{
-				Process p = b.start();
-				
-				InputStream in = p.getInputStream();
-				
-				BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-				
-				String line = null;
-				
-				while ((line = reader.readLine()) != null)
-				{
-					bitness = Integer.valueOf(line);
-				}
-			}
-			catch (IOException e)
-			{
-				e.printStackTrace();
-			}
+			bitness = cpuSupports64() ? 64 : 32;
 		}
 		
 		PROPERTIES.put("os.arch", bitness);
@@ -342,6 +323,8 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	 */
 	public ArrowIDE(final Display display)
 	{
+		setArchitecture();
+		
 //		System.out.println(map.get("Contacts.Contact.ContactId")[0].getContents());
 		
 		if (CONFIG_DATA.containsKey("window.custom"))

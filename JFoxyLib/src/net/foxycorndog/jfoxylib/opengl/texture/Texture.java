@@ -449,6 +449,62 @@ public class Texture
 	}
 	
 	/**
+	 * Set the integer representation of the pixels within the rectangle
+	 * (x, y, width, height) on the image.
+	 * 
+	 * @param x The horizontal location of the pixel (Left = 0).
+	 * @param y The vertical location of the pixel (Bottom = 0).
+	 * @param width The width of the rectangular selection of pixels
+	 * 		to set.
+	 * @param height The height of the rectangular selection of pixels
+	 * 		to set.
+	 * @param value The integer representation of the pixels. eg.:
+	 * 		An integer with the value such as: 
+	 * 		Red with alpha = 0xFFFF0000.
+	 */
+	public void setPixels2(int x, int y, int width, int height, int value)
+	{
+		if (!isBound())
+		{
+			throw new UnboundTextureException("The Texture must be bound before editing the pixels.");
+		}
+		
+		byte r = (byte)((value >> 16) & 0xFF);
+		byte g = (byte)((value >>  8) & 0xFF);
+		byte b = (byte)((value >>  0) & 0xFF);
+		byte a = (byte)((value >> 24) & 0xFF);
+		
+		byte bytes[] = new byte[width * height * 4];
+		
+		for (int i = 0; i < bytes.length; i += 4)
+		{
+			bytes[i + 0] = r;
+			bytes[i + 1] = g;
+			bytes[i + 2] = b;
+			bytes[i + 3] = a;
+		}
+		
+		for (int y2 = 0; y2 < height; y2++)
+		{
+			for (int x2 = 0; x2 < width; x2++)
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = bytes[i];
+				}
+			}
+		}
+		
+		ByteBuffer buf = BufferUtils.createByteBuffer(width * height * 4);
+		
+		buf.put(bytes);
+		
+		buf.position(0);
+		
+		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
+	}
+	
+	/**
 	 * Get the byte representation of the pixel at the specified
 	 * location of (x, y) on the image.
 	 * 
@@ -464,7 +520,7 @@ public class Texture
 		
 		for (int i = 0; i < 4; i++)
 		{
-			data[i] = pixels[(x + y * width) * 4];
+			data[i] = pixels[(x + y * width) * 4 + i];
 		}
 		
 		return data;
@@ -575,6 +631,63 @@ public class Texture
 		ByteBuffer buf = BufferUtils.createByteBuffer(width * height * 4);
 		
 		buf.put(values);
+		
+		buf.position(0);
+		
+		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
+	}
+	
+	/**
+	 * Set the byte representation of the pixels within the rectangle
+	 * (x, y, width, height) on the image.
+	 * 
+	 * @param x The horizontal location of the pixel (Left = 0).
+	 * @param y The vertical location of the pixel (Bottom = 0).
+	 * @param width The width of the rectangular selection of pixels
+	 * 		to set.
+	 * @param height The height of the rectangular selection of pixels
+	 * 		to set.
+	 * @param value The byte representation of the pixels. eg.:
+	 * 		An array with values that include bytes such as: 
+	 * 		Red with alpha = byte[] { -1, 0, 0, -1 }
+	 * 		(-1 == 255 considering Two's Complement)
+	 */
+	public void setPixelsBytes2(int x, int y, int width, int height, byte value[])
+	{
+		if (!isBound())
+		{
+			throw new UnboundTextureException("The Texture must be bound before editing the pixels.");
+		}
+		
+		byte r = (byte)((value[0] >> 16) & 0xFF);
+		byte g = (byte)((value[1] >>  8) & 0xFF);
+		byte b = (byte)((value[2] >>  0) & 0xFF);
+		byte a = (byte)((value[3] >> 24) & 0xFF);
+	
+		byte bytes[] = new byte[width * height * 4];
+		
+		for (int i = 0; i < bytes.length; i += 4)
+		{
+			bytes[i + 0] = r;
+			bytes[i + 1] = g;
+			bytes[i + 2] = b;
+			bytes[i + 3] = a;
+		}
+		
+		for (int y2 = 0; y2 < height; y2++)
+		{
+			for (int x2 = 0; x2 < width; x2++)
+			{
+				for (int i = 0; i < 4; i++)
+				{
+					pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = value[i];
+				}
+			}
+		}
+		
+		ByteBuffer buf = BufferUtils.createByteBuffer(width * height * 4);
+		
+		buf.put(bytes);
 		
 		buf.position(0);
 		

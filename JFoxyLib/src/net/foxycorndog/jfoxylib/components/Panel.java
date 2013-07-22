@@ -21,8 +21,6 @@ public class Panel extends Component
 {
 	private					boolean					independentSize;
 	
-	private					float					backgroundIndex;
-	
 	private					Color					backgroundColor;
 	
 	private					ArrayList<Component>	children;
@@ -84,26 +82,6 @@ public class Panel extends Component
 	public void setIndependentSize(boolean independentSize)
 	{
 		this.independentSize = independentSize;
-	}
-	
-	/**
-	 * Get the z-index of the Background.
-	 * 
-	 * @return The z-index of the Background;
-	 */
-	public float getBackgroundIndex()
-	{
-		return backgroundIndex;
-	}
-	
-	/**
-	 * Set the z-index of the background.
-	 * 
-	 * @param backgroundIndex The z-index of the background.
-	 */
-	public void setBackgroundIndex(float backgroundIndex)
-	{
-		this.backgroundIndex = backgroundIndex;
 	}
 	
 	/**

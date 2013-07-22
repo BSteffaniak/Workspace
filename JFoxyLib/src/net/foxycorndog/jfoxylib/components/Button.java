@@ -1,6 +1,7 @@
 package net.foxycorndog.jfoxylib.components;
 
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.util.ArrayList;
 
 import net.foxycorndog.jfoxylib.Color;
@@ -24,6 +25,8 @@ import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 public class Button extends Image
 {
 	private boolean						hovered;
+	
+	private	Image						backgroundImage;
 	
 	private String						text;
 	
@@ -134,6 +137,58 @@ public class Button extends Image
 	public void setFontColor(Color color)
 	{
 		this.fontColor = color;
+	}
+	
+	/**
+	 * Get the Image that is used to render the background of the Button.
+	 * 
+	 * @return The Image instance of the background Image.
+	 */
+	public Image getBackgroundImage()
+	{
+		return backgroundImage;
+	}
+	
+	/**
+	 * Set the Image that renders behind the Button as the background.
+	 * 
+	 * @param image The background Image instance.
+	 */
+	public void setBackgroundImage(Image image)
+	{
+		this.backgroundImage = image;
+	}
+	
+	/**
+	 * Set the Image that renders behind the Button as the background
+	 * by creating an Image with the given Texture.
+	 * 
+	 * @param texture The background Texture instance.
+	 */
+	public void setBackgroundImage(Texture texture)
+	{
+		Image img = new Image(null);
+		img.setTexture(texture);
+		
+		setBackgroundImage(img);
+	}
+	
+	/**
+	 * Set the Image that renders behind the Button as the background by
+	 * creating a Texture with the Image file at the specified location
+	 * and then creating an Image instance from the created Texture
+	 * instance.
+	 * 
+	 * @param imageLocation The location of the Image in the os's
+	 * 		file system.
+	 * @throws IOException Thrown if the Image at the specified location
+	 * 		could not be found.
+	 */
+	public void setBackgroundImage(String imageLocation) throws IOException
+	{
+		Texture texture = new Texture(imageLocation);
+		
+		setBackgroundImage(texture);
 	}
 	
 	/**
@@ -329,6 +384,18 @@ public class Button extends Image
 	 */
 	public void render()
 	{
+		if (backgroundImage != null)
+		{
+			GL.pushMatrix();
+			{
+				GL.translate(getX(), getY(), 0);
+				GL.scale(getScale(), getScale(), 1);
+				
+				backgroundImage.render();
+			}
+			GL.popMatrix();
+		}
+		
 		super.render();
 		
 		if (isVisible())

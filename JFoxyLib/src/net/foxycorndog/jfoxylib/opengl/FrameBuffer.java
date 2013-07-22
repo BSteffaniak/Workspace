@@ -30,7 +30,7 @@ public class FrameBuffer
 	 * @return Whether FrameBuffer objects are supported with the current
 	 * 		OpenGL version.
 	 */
-	private static boolean isSupported()
+	public static boolean isSupported()
 	{
 		return GL.getOpenGLVersion().compareTo("3.0") >= 0;
 	}

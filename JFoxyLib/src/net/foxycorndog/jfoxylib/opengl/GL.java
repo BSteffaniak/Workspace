@@ -117,6 +117,8 @@ public class GL
 
 		clearColorStack = new Stack<Color>();
 		clearColorStack.push(new Color(1, 1, 1, 1f));
+		
+		fov = 55;
 	}
 	
 	/**
@@ -200,8 +202,6 @@ public class GL
 	 */
 	public static void viewPerspective(int width, int height, float zClose, float zFar)
 	{
-		fov = 55.0f;
-		
 		initGLStates();
 		
 //		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1448,91 +1448,50 @@ public class GL
 	 */
 	public static float[] genCubeVerts(float x, float y, float z, float width, float height, float depth)
 	{
-		float array[] = new float[4 * 6 * 3];
+		float array[] = new float[3 * 2 * 6 * 3];
+		
+		depth *= -1;
 		
 		int index = 0;
+
+		x -= vertexTolerance;
+		width += vertexTolerance * 2;
+		y -= vertexTolerance;
+		height += vertexTolerance * 2;
+		z += vertexTolerance;
+		depth -= vertexTolerance * 2;
 		
-		
-		// Back
-		array[index++] = x;
-		array[index++] = y;
-		array[index++] = z + depth;
-		
-		array[index++] = x + width;
-		array[index++] = y;
-		array[index++] = z + depth;
-		
-		array[index++] = x + width;
-		array[index++] = y + height;
-		array[index++] = z + depth;
-		
-		array[index++] = x;
-		array[index++] = y + height;
-		array[index++] = z + depth;
-		
-		
-		// Right
-		array[index++] = x + width;
-		array[index++] = y;
-		array[index++] = z + depth;
-		
-		array[index++] = x + width;
-		array[index++] = y;
-		array[index++] = z;
-		
-		array[index++] = x + width;
-		array[index++] = y + height;
-		array[index++] = z;
-		
-		array[index++] = x + width;
-		array[index++] = y + height;
-		array[index++] = z + depth;
-		
-		// Front
-		array[index++] = x + width;
-		array[index++] = y;
-		array[index++] = z;
-		
+		// Front.
 		array[index++] = x;
 		array[index++] = y;
 		array[index++] = z;
 		
+		array[index++] = x + width;
+		array[index++] = y + height;
+		array[index++] = z;
+
 		array[index++] = x;
 		array[index++] = y + height;
 		array[index++] = z;
 		
+		
+		array[index++] = x;
+		array[index++] = y;
+		array[index++] = z;
+
+		array[index++] = x + width;
+		array[index++] = y;
+		array[index++] = z;
+
 		array[index++] = x + width;
 		array[index++] = y + height;
 		array[index++] = z;
 		
-		
-		// Left
-		array[index++] = x;
-		array[index++] = y;
-		array[index++] = z;
-		
-		array[index++] = x;
-		array[index++] = y;
-		array[index++] = z + depth;
-		
-		array[index++] = x;
-		array[index++] = y + height;
-		array[index++] = z + depth;
-		
-		array[index++] = x;
-		array[index++] = y + height;
-		array[index++] = z;
-		
-		
-		// Top
+		// Back.
 		array[index++] = x + width;
-		array[index++] = y + height;
-		array[index++] = z;
-		
-		array[index++] = x;
-		array[index++] = y + height;
-		array[index++] = z;
-		
+		array[index++] = y;
+		array[index++] = z + depth;
+
 		array[index++] = x;
 		array[index++] = y + height;
 		array[index++] = z + depth;
@@ -1541,23 +1500,126 @@ public class GL
 		array[index++] = y + height;
 		array[index++] = z + depth;
 		
-		
-		// Bottom
+
+		array[index++] = x + width;
+		array[index++] = y;
+		array[index++] = z + depth;
+
 		array[index++] = x;
 		array[index++] = y;
 		array[index++] = z + depth;
+
+		array[index++] = x;
+		array[index++] = y + height;
+		array[index++] = z + depth;
+
+		
+		// Left.
+		array[index++] = x;
+		array[index++] = y;
+		array[index++] = z + depth;
+
+		array[index++] = x;
+		array[index++] = y + height;
+		array[index++] = z;
+
+		array[index++] = x;
+		array[index++] = y + height;
+		array[index++] = z + depth;
+		
 		
 		array[index++] = x;
 		array[index++] = y;
+		array[index++] = z + depth;
+
+		array[index++] = x;
+		array[index++] = y;
 		array[index++] = z;
+
+		array[index++] = x;
+		array[index++] = y + height;
+		array[index++] = z;
+		
+
+		// Right.
+		array[index++] = x + width;
+		array[index++] = y;
+		array[index++] = z;
+
+		array[index++] = x + width;
+		array[index++] = y + height;
+		array[index++] = z + depth;
+
+		array[index++] = x + width;
+		array[index++] = y + height;
+		array[index++] = z;
+		
 		
 		array[index++] = x + width;
 		array[index++] = y;
 		array[index++] = z;
-		
+
 		array[index++] = x + width;
 		array[index++] = y;
 		array[index++] = z + depth;
+
+		array[index++] = x + width;
+		array[index++] = y + height;
+		array[index++] = z + depth;
+		
+
+		// Top.
+		array[index++] = x;
+		array[index++] = y + height;
+		array[index++] = z;
+
+		array[index++] = x + width;
+		array[index++] = y + height;
+		array[index++] = z + depth;
+
+		array[index++] = x;
+		array[index++] = y + height;
+		array[index++] = z + depth;
+		
+		
+		array[index++] = x;
+		array[index++] = y + height;
+		array[index++] = z;
+
+		array[index++] = x + width;
+		array[index++] = y + height;
+		array[index++] = z;
+
+		array[index++] = x + width;
+		array[index++] = y + height;
+		array[index++] = z + depth;
+
+
+		// Bottom.
+		array[index++] = x;
+		array[index++] = y;
+		array[index++] = z + depth;
+
+		array[index++] = x + width;
+		array[index++] = y;
+		array[index++] = z;
+
+		array[index++] = x;
+		array[index++] = y;
+		array[index++] = z;
+		
+		
+		array[index++] = x;
+		array[index++] = y;
+		array[index++] = z + depth;
+
+		array[index++] = x + width;
+		array[index++] = y;
+		array[index++] = z + depth;
+
+		array[index++] = x + width;
+		array[index++] = y;
+		array[index++] = z;
 		
 		return array;
 	}

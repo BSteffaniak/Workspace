@@ -2,8 +2,6 @@ package net.foxycorndog.jfoxylib.components;
 
 import java.util.ArrayList;
 
-import org.lwjgl.Sys;
-
 import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.opengl.GL;
 
@@ -24,10 +22,8 @@ public abstract class Component
 	private					boolean					visible;
 	private					boolean					focused;
 	private					boolean					enabled;
-	private					boolean					alignmentSet;
 	
 	private					int						horizontalAlignment, verticalAlignment;
-	private					int						verticalOrigin;
 	
 	private					float					x, y;
 	private					float					alignX, alignY;
@@ -37,6 +33,8 @@ public abstract class Component
 	private					float					scale;
 	
 	private					Panel					parent;
+	
+	private	static			int						defaultHorizontalAlignment, defaultVerticalAlignment;
 	
 	private	static			ArrayList<Component>	components;
 	
@@ -49,6 +47,9 @@ public abstract class Component
 	static
 	{
 		components = new ArrayList<Component>();
+
+		setDefaultHorizontalAlignment(LEFT);
+		setDefaultVerticalAlignment(BOTTOM);
 	}
 	
 	/**
@@ -82,45 +83,7 @@ public abstract class Component
 		scaleY = 1;
 		
 		setScale(1);
-		setVerticalOrigin(BOTTOM);
-	}
-	
-	/**
-	 * Get the location in which the vertical origin lies. If the origin
-	 * is at the TOP, then (0, 0) is located at the top left.
-	 * 
-	 * @return The vertical location in which the origin lies.
-	 */
-	public int getVerticalOrigin()
-	{
-		return verticalOrigin;
-	}
-	
-	/**
-	 * Set the vertical location of the origin.<br>
-	 * Options include:
-	 * 	<ul>
-	 * 		<li>TOP - The origin is located at the top.</li>
-	 * 		<li>BOTTOM - The origin is located at the bottom.</li>
-	 * 	</ul>
-	 * 
-	 * @param verticalOrigin The vertical location of the origin.
-	 */
-	public void setVerticalOrigin(int verticalOrigin)
-	{
-		this.verticalOrigin = verticalOrigin;
-		
-		if (!alignmentSet)
-		{
-			if (verticalOrigin == BOTTOM)
-			{
-				
-			}
-			else if (verticalOrigin == TOP)
-			{
-				verticalAlignment = TOP;
-			}
-		}
+		setAlignment(defaultHorizontalAlignment, defaultVerticalAlignment);
 	}
 	
 	/**
@@ -454,8 +417,6 @@ public abstract class Component
 	 */
 	public void setAlignment(int horizontal, int vertical)
 	{
-		alignmentSet = true;
-		
 		this.horizontalAlignment = horizontal;
 		this.verticalAlignment   = vertical;
 		
@@ -501,7 +462,7 @@ public abstract class Component
 		}
 		
 		// If we want to align it at the top.
-		if ((verticalOrigin == BOTTOM && verticalAlignment == TOP) || (verticalOrigin == TOP && verticalAlignment == TOP))
+		if (verticalAlignment == TOP)
 		{
 			alignY = height - scaleHei;
 		}
@@ -544,4 +505,74 @@ public abstract class Component
 	 * the screen.
 	 */
 	public abstract void render();
+	
+	/**
+	 * Get the default horizontal alignment of the following made
+	 * Components.<br>
+	 * Results include:
+	 * 	<ul>
+	 * 		<li>LEFT - The Components are aligned on the left.</li>
+	 * 		<li>CENTER - The Components are aligned in the center.</li>
+	 * 		<li>RIGHT - The Components are aligned on the right.</li>
+	 * 	</ul>
+	 * 
+	 * @return The default alignment of the following made Components.
+	 */
+	public static int getDefaultHorizontalAlignment()
+	{
+		return defaultHorizontalAlignment;
+	}
+	
+	/**
+	 * Set the default horizontal alignment of the following made
+	 * Components.<br>
+	 * Options include:
+	 * 	<ul>
+	 * 		<li>LEFT - Align the Components to the left.</li>
+	 * 		<li>CENTER - Align the Components in the center.</li>
+	 * 		<li>RIGHT - Align the Components to the right.</li>
+	 * 	</ul>
+	 * 
+	 * @param defaultVerticalAlignment The default horizontal alignment
+	 * 		for the following made Components.
+	 */
+	public static void setDefaultHorizontalAlignment(int defaultHorizontalAlignment)
+	{
+		Component.defaultHorizontalAlignment = defaultHorizontalAlignment;
+	}
+	
+	/**
+	 * Get the default vertical alignment of the following made
+	 * Components.<br>
+	 * Results include:
+	 * 	<ul>
+	 * 		<li>TOP - The Components are aligned at the top.</li>
+	 * 		<li>CENTER - The Components are aligned in the center.</li>
+	 * 		<li>BOTTOM - The Components are aligned at the bottom.</li>
+	 * 	</ul>
+	 * 
+	 * @return The default alignment of the following made Components.
+	 */
+	public static int getDefaultVerticalAlignment()
+	{
+		return defaultVerticalAlignment;
+	}
+	
+	/**
+	 * Set the default vertical alignment of the following made
+	 * Components.<br>
+	 * Options include:
+	 * 	<ul>
+	 * 		<li>TOP - Align the Components at the top.</li>
+	 * 		<li>CENTER - Align the Components in the center.</li>
+	 * 		<li>BOTTOM - Align the Components at the bottom.</li>
+	 * 	</ul>
+	 * 
+	 * @param defaultVerticalAlignment The default vertical alignment for
+	 * 		the following made Components.
+	 */
+	public static void setDefaultVerticalAlignment(int defaultVerticalAlignment)
+	{
+		Component.defaultVerticalAlignment = defaultVerticalAlignment;
+	}
 }

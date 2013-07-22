@@ -105,7 +105,7 @@ public class Shader
 		
 		for (int i = 0; i < fragmentShaderSources.length; i ++)
 		{
-			int fragmentShader = loadFragmentShaderFromSource(fragmentShaderSources[i]);
+			int fragmentShader = loadFragmentShaderFromSource("[name]", fragmentShaderSources[i]);
 			attachShader(fragmentShader, shaderProgram);
 		}
 		
@@ -152,7 +152,7 @@ public class Shader
 		
 		parentDir = parentDir.replace('\\', '/');
 		
-		if (!parentDir.endsWith("/"))
+		if (parentDir.length() > 0 && !parentDir.endsWith("/"))
 		{
 			parentDir += "/";
 		}
@@ -161,12 +161,16 @@ public class Shader
 		
 		for (int i = 0; i < vertexShaderLocations.length; i ++)
 		{
+			vertexShaderLocations[i] = vertexShaderLocations[i].replace('\\', '/');
+			
 			int vertexShader = loadVertexShaderFromFile(parentDir + vertexShaderLocations[i]);
 			attachShader(vertexShader, shaderProgram);
 		}
 		
 		for (int i = 0; i < fragmentShaderLocations.length; i ++)
 		{
+			fragmentShaderLocations[i] = fragmentShaderLocations[i].replace('\\', '/');
+			
 			int fragmentShader = loadFragmentShaderFromFile(parentDir + fragmentShaderLocations[i]);
 			attachShader(fragmentShader, shaderProgram);
 		}
@@ -365,7 +369,7 @@ public class Shader
 			e.printStackTrace();
 		}
 		
-		return loadFragmentShaderFromSource(shaderSource.toString());
+		return loadFragmentShaderFromSource(location, shaderSource.toString());
 	}
 
 	/**
@@ -376,7 +380,7 @@ public class Shader
 	 * 		Fragment Shader to load.
 	 * @return The ID number of the new OpenGL Fragment Shader instance.
 	 */
-	private int loadFragmentShaderFromSource(String source)
+	private int loadFragmentShaderFromSource(String name, String source)
 	{
 		int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		
@@ -387,9 +391,9 @@ public class Shader
 		{
 			String error = glGetShaderInfoLog(fragmentShader, glGetShaderi(fragmentShader, GL_INFO_LOG_LENGTH));
 			
-			error = formatError(error, "[name]");
+			error = formatError(error, name);
 			
-			throw new RuntimeException("Fragment shader at \"" + "[name]" + "\" was not compiled correctly:\n\t" + error);
+			throw new RuntimeException("Fragment shader at \"" + name + "\" was not compiled correctly:\n\t" + error);
 		}
 		
 		return fragmentShader;

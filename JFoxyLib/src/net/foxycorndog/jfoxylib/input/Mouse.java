@@ -39,8 +39,6 @@ public class Mouse
 	
 	private static	Robot						robot;
 	
-	private static	MouseListener				grabListener;
-	
 	private static	boolean						able[];
 	
 	private static	ArrayList<MouseListener>	listeners;
@@ -75,59 +73,6 @@ public class Mouse
 			e.printStackTrace();
 		}
 		
-		grabListener = new MouseListener()
-		{
-			public void mousePressed(MouseEvent event)
-			{
-				
-			}
-
-			public void mouseReleased(MouseEvent event)
-			{
-				
-			}
-
-			public void mouseMoved(MouseEvent event)
-			{
-//				oldX = event.getX();
-//				oldY = event.getY();
-
-				int x = oldX;
-				int y = oldY;
-				
-				setLocation(Frame.getX() + Frame.getWidth() / 2 + 3, Frame.getY() + Frame.getHeight() / 2 + 25);
-				
-				int offX = x - getX();
-				int offY = y - getY();
-				
-//				dx -= offX;
-//				dy -= offY;
-				
-				oldX -= offX;
-				oldY -= offY;
-			}
-
-			public void mouseDown(MouseEvent event)
-			{
-				
-			}
-
-			public void mouseUp(MouseEvent event)
-			{
-				
-			}
-
-			public void mouseEntered(MouseEvent event)
-			{
-				
-			}
-
-			public void mouseExited(MouseEvent event)
-			{
-				
-			}
-		};
-		
 		able = new boolean[3];
 		
 		for (int i = 0; i < able.length; i++)
@@ -136,7 +81,19 @@ public class Mouse
 		}
 		
 //		pointerInfo = MouseInfo.getPointerInfo();
+
+		mouse.setClipMouseCoordinatesToWindow(false);
 	}
+	
+//	/**
+//	 * Set whether or not to clip the coordinates 
+//	 * 
+//	 * @param clip
+//	 */
+//	public static void setClipMouseCoordinatesToWindow(boolean clip)
+//	{
+//		mouse.setClipMouseCoordinatesToWindow(clip);
+//	}
 	
 	/**
 	 * Set the location of the cursor to the specified location on the
@@ -149,13 +106,13 @@ public class Mouse
 	{
 //		pointerInfo = MouseInfo.getPointerInfo();
 		
-//		int offX = x - getDisplayX();
-//		int offY = -(y - getDisplayY());
+		int offX = x - getDisplayX();
+		int offY = -(y - getDisplayY());
 		
 		robot.mouseMove(x, y);
 		
-//		forcedX = offX;
-//		forcedY = offY;
+		forcedX = offX;
+		forcedY = offY;
 		
 //		System.out.println("offsets: " + offX + ", " + offY);
 	}
@@ -274,16 +231,20 @@ public class Mouse
 	{
 		if (grabbed != Mouse.grabbed)
 		{
-			if (grabbed)
-			{
-				listeners.add(grabListener);
-			}
-			else
-			{
-				listeners.remove(grabListener);
-			}
-			
+//			if (grabbed)
+//			{
+//				listeners.add(grabListener);
+//			}
+//			else
+//			{
+//				listeners.remove(grabListener);
+//			}
+//			
+//			Mouse.grabbed = grabbed;
+		
 			Mouse.grabbed = grabbed;
+			
+			mouse.setGrabbed(grabbed);
 		}
 	}
 	
