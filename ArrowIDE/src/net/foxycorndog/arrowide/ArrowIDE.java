@@ -188,6 +188,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 
 	private static boolean						restarting;
 	private static boolean						exiting;
+	private static boolean						libsLoaded;
 	
 	private static int							untitledNumber;
 	
@@ -211,6 +212,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	public static final HashMap<String, Object>	PROPERTIES;
 	
 	private static ArrayList<Thread>			fileViewerThreads;
+	private static ArrayList<Thread>			fileViewerThreadsStop;
 
 	public native boolean cpuSupports64();
 	
@@ -226,15 +228,6 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		FOCUS_COLOR = new Color(DISPLAY, 255, 255, 255);
 		NON_FOCUS_COLOR = ColorUtils.lighten(TITLE_BAR_BACKGROUND, 10);
-		
-		try
-		{
-			System.loadLibrary("res/SysArch32");
-		}
-		catch (Exception e)
-		{
-			System.loadLibrary("res/SysArch");
-		}
 	}
 	
 	/**
@@ -278,6 +271,38 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			PROPERTIES.put("os.executable.extension", "");
 			PROPERTIES.put("colon", ':');
 		}
+	}
+	
+	private static void loadLibs()
+	{
+		if (libsLoaded)
+		{
+			return;
+		}
+		
+		String resLoc = FileUtils.getParentFolder(configLocation);
+		
+		System.setProperty("java.library.path", System.getProperty("java.library.path") + ":" + resLoc + "/res");
+		
+		String os = (String)PROPERTIES.get("os.name");
+		
+		if (os.equals("windows"))
+		{
+			try
+			{
+				System.load(new File("res/SysArch32.dll").getAbsolutePath());
+			}
+			catch (UnsatisfiedLinkError e)
+			{
+				System.load(new File("res/SysArch.dll").getAbsolutePath());
+			}
+		}
+		else if (os.equals("macosx"))
+		{
+//			System.load(new File("res/SysArch.jnilib").getAbsolutePath());
+		}
+		
+		libsLoaded = true;
 	}
 	
 	/**
@@ -448,7 +473,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		if (custom)
 		{
-			titleBar     = new TitleBar(window, 28, SWT.MIN | SWT.MAX | SWT.CLOSE | SWT.CENTER);
+			titleBar = new TitleBar(window, 28, SWT.MIN | SWT.MAX | SWT.CLOSE | SWT.CENTER);
 			titleBar.setBackground(TITLE_BAR_BACKGROUND);
 			titleBar.setForeground(TITLE_BAR_FOREGROUND);
 			
@@ -802,7 +827,8 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			}
 		});
 		
-		fileViewerThreads    = new ArrayList<Thread>();
+		fileViewerThreads     = new ArrayList<Thread>();
+		fileViewerThreadsStop = new ArrayList<Thread>();
 		
 		fileCacheSaved        = new HashMap<String, Boolean>();
 		treeItemLocations     = new HashMap<Integer, String>();
@@ -1290,6 +1316,8 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 
 		configLocation       = new File("arrow.config").getAbsolutePath().replace('\\', '/');
 		
+		loadLibs();
+		
 		createConfigData();
 		
 		if (workspaceCreated())
@@ -1391,16 +1419,13 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	 */
 	public static void exit(Window shell)
 	{
-		exiting = true;
+		System.exit(0);
 		
-		if (shell != null)
-		{
-			shell.dispose();
-		}
+		exiting = true;
 		
 		if (fileViewerThreads != null)
 		{
-			for (int i = fileViewerThreads.size() - 1; i >= 0; i--)
+			for (int i = 0; i < fileViewerThreads.size(); i++)
 			{
 				try
 				{
@@ -1412,8 +1437,14 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 				}
 			}
 		}
+		System.out.println("Asdf");
 		
-		Display.getDefault().close();
+		if (shell != null && !shell.isDisposed())
+		{
+			shell.dispose();
+		}
+		
+		DISPLAY.close();
 		
 		System.exit(0);
 	}
@@ -2157,7 +2188,16 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 				catch (IOException e)
 				{
 					e.printStackTrace();
-					exit(window);
+					
+					if (!exiting)
+					{
+						exit(window);
+					}
+				}
+				
+				if (exiting)
+				{
+					return;
 				}
 				
 				String locations[] = treeItemLocations.values().toArray(new String[0]);
@@ -2221,10 +2261,15 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		{
 			for (int i = 0; i < subFiles.length; i ++)
 			{
+				if (exiting)
+				{
+					return;
+				}
+				
 				boolean isDirectory = subFiles[i].isDirectory();
 				
-				final String orig          = subFiles[i].getCanonicalPath().replace('\\', '/');
-				final String name          = FileUtils.getFileName(orig);
+				final String orig   = subFiles[i].getCanonicalPath().replace('\\', '/');
+				final String name   = FileUtils.getFileName(orig);
 				
 				if (name.charAt(0) == '.')
 				{
@@ -2235,7 +2280,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 				
 				int id               = 0;
 				
-				final Image img            = isDirectory ? folderImage : getFileImage(orig);
+				final Image img      = isDirectory ? folderImage : getFileImage(orig);
 				
 				boolean alreadyAdded = treeItemIds.containsKey(orig);
 				
@@ -2275,11 +2320,6 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 				
 				if (!alreadyAdded)
 				{
-					if (exiting)
-					{
-						return;
-					}
-					
 					DISPLAY.syncExec(new Runnable()
 					{
 						public void run()
