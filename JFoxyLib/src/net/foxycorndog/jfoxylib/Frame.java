@@ -44,6 +44,20 @@ public class Frame
 	private static	ArrayList<Component>		components;
 	private static	ArrayList<FrameListener>	frameListeners;
 	
+	public static void init()
+	{
+		if (initialized)
+		{
+			return;
+		}
+		
+		panel = new Panel(null);
+		panel.setLocation(0, 0);
+		panel.setSize(width, height);
+		
+		initialized = true;
+	}
+	
 	/**
 	 * Returns whether or not the Frame has been created.
 	 * 
@@ -61,20 +75,6 @@ public class Frame
 	public static void create()
 	{
 		create((int)(Display.getWidth() * 0.7f), (int)(Display.getHeight() * 0.7f));
-	}
-	
-	public static void init()
-	{
-		if (initialized)
-		{
-			return;
-		}
-		
-		panel = new Panel(null);
-		panel.setLocation(0, 0);
-		panel.setSize(width, height);
-		
-		initialized = true;
 	}
 	
 	/**
@@ -118,8 +118,13 @@ public class Frame
 			
 			public void mouseReleased(MouseEvent event)
 			{
-				for (int i = 0; i < components.size(); i++)
+				for (int i = components.size() - 1; i >= 0; i--)
 				{
+					if (i >= components.size())
+					{
+						continue;
+					}
+					
 					Component comp = components.get(i);
 					
 					if (comp.isDisposed())
@@ -133,7 +138,7 @@ public class Frame
 					{
 						Button button = (Button)comp;
 						
-						if (intersects && button.isEnabled())
+						if (intersects && button.isEnabled() && button.isVisible())
 						{
 							ArrayList<ButtonListener> buttonListeners = button.getButtonListeners();
 							
@@ -145,6 +150,8 @@ public class Frame
 								
 								listener.buttonReleased(buttonEvent);
 							}
+							
+							break;
 						}
 					}
 				}
@@ -154,8 +161,13 @@ public class Frame
 			{
 				boolean focused = false;
 				
-				for (int i = 0; i < components.size(); i++)
+				for (int i = components.size() - 1; i >= 0; i--)
 				{
+					if (i >= components.size())
+					{
+						continue;
+					}
+					
 					Component comp = components.get(i);
 					
 					comp.setFocused(false);
@@ -167,7 +179,7 @@ public class Frame
 
 					boolean intersects = intersectsMouse(comp);
 					
-					if (intersects && comp.isEnabled())
+					if (intersects && comp.isEnabled() && comp.isVisible())
 					{
 						if (comp instanceof Button)
 						{
@@ -185,6 +197,8 @@ public class Frame
 									
 									listener.buttonPressed(buttonEvent);
 								}
+								
+								break;
 							}
 						}
 						
@@ -197,8 +211,13 @@ public class Frame
 			
 			public void mouseMoved(MouseEvent event)
 			{
-				for (int i = 0; i < components.size(); i++)
+				for (int i = components.size() - 1; i >= 0; i--)
 				{
+					if (i >= components.size())
+					{
+						continue;
+					}
+					
 					Component comp = components.get(i);
 					
 					if (comp.isDisposed())
@@ -212,7 +231,7 @@ public class Frame
 					{
 						Button button = (Button)comp;
 						
-						if (button.isEnabled())
+						if (button.isEnabled() && button.isVisible())
 						{
 							ArrayList<ButtonListener> buttonListeners = button.getButtonListeners();
 							
@@ -238,8 +257,13 @@ public class Frame
 			
 			public void mouseDown(MouseEvent event)
 			{
-				for (int i = 0; i < components.size(); i++)
+				for (int i = components.size() - 1; i >= 0; i--)
 				{
+					if (i >= components.size())
+					{
+						continue;
+					}
+					
 					Component comp = components.get(i);
 					
 					if (comp.isDisposed())
@@ -253,7 +277,7 @@ public class Frame
 					{
 						Button button = (Button)comp;
 						
-						if (button.isEnabled())
+						if (button.isEnabled() && button.isVisible())
 						{
 							ArrayList<ButtonListener> buttonListeners = button.getButtonListeners();
 							
@@ -272,6 +296,8 @@ public class Frame
 									listener.buttonUp(buttonEvent);
 								}
 							}
+							
+							break;
 						}
 					}
 				}
@@ -284,8 +310,13 @@ public class Frame
 
 			public void mouseExited(MouseEvent event)
 			{
-				for (int i = 0; i < components.size(); i++)
+				for (int i = components.size() - 1; i >= 0; i--)
 				{
+					if (i >= components.size())
+					{
+						continue;
+					}
+					
 					Component comp = components.get(i);
 					
 					if (comp.isDisposed())
@@ -299,7 +330,7 @@ public class Frame
 					{
 						Button button = (Button)comp;
 						
-						if (button.isHovered() && button.isEnabled())
+						if (button.isHovered() && button.isEnabled() && button.isVisible())
 						{
 							ArrayList<ButtonListener> buttonListeners = button.getButtonListeners();
 							
@@ -333,7 +364,7 @@ public class Frame
 		
 		return comp.isVisible() && Mouse.isInFrame() &&
 				Intersects.rectangles(comp.getDisplayX(), comp.getDisplayY(),
-						comp.getWidth() * comp.getFullScale(), comp.getHeight() * comp.getFullScale(),
+						comp.getDisplayWidth(), comp.getDisplayHeight(),
 						Mouse.getX(), Mouse.getY(), 1, 1);
 	}
 	
@@ -524,6 +555,12 @@ public class Frame
 		return display.getY();
 	}
 	
+	/**
+	 * Set the location of the Frame.
+	 * 
+	 * @param x The horizontal location to put the Frame at.
+	 * @param y The vertical location to put the Frame at.
+	 */
 	public static void setLocation(int x, int y)
 	{
 		display.setLocation(x, y);

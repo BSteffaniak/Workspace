@@ -220,6 +220,8 @@ public abstract class GameStarter
 					
 					Frame.setFPS(fps);
 					
+					Frame.setTitle(fps + "");
+					
 					totalFPS += fps;
 					fpsAmount++;
 					

@@ -32,7 +32,7 @@ import net.foxycorndog.jfoxyutil.Queue;
 public class Font
 {
 	private 				int							cols, rows;
-	private 				int							yOff, xOff;
+	private 				int							xOff, yOff;
 	private 				int							width, height;
 	private 				int							glyphWidth, glyphHeight;
 	private 				int							ids;

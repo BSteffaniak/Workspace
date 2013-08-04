@@ -330,6 +330,16 @@ public class Button extends Image
 	}
 	
 	/**
+	 * Set whether to enable the Button or disable the Button.
+	 * 
+	 * @param enabled Whether to enable or disable the Button.
+	 */
+	public void setEnabled(boolean enabled)
+	{
+		super.setEnabled(enabled);
+	}
+	
+	/**
 	 * Get the text that renders on the Button.
 	 * 
 	 * @return The text that renders on the Button.

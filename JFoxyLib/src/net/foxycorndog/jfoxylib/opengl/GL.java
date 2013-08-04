@@ -534,9 +534,9 @@ public class GL
 	}
 	
 	/**
-	 * Get the current version of OpenGL.
+	 * Get the current version of JFoxyLib.
 	 * 
-	 * @return The current version of OpenGL.
+	 * @return The current version of JFoxyLib.
 	 */
 	public static String getVersion()
 	{
@@ -706,26 +706,6 @@ public class GL
 	}
 	
 	/**
-	 * Set the scale of the current matrix back to (1, 1, 1).
-	 */
-	public static void unscale()
-	{
-		float scaled[] = getAmountScaled();
-		
-		float x = 1 / scaled[0];
-		float y = 1 / scaled[1];
-		float z = 1 / scaled[2];
-		
-		GL11.glScalef(x, y, z);
-		
-		float array[] = amountScaled.peek();
-		
-		array[0] *= x;
-		array[1] *= y;
-		array[2] *= z;
-	}
-	
-	/**
 	 * Scale everything that is rendered after this method call
 	 * the specified amount int the x, y, and z axis.<br>
 	 * Scales the current matrix configuration the specified amounts.
@@ -736,6 +716,26 @@ public class GL
 	 */
 	public static void scale(float x, float y, float z)
 	{
+		GL11.glScalef(x, y, z);
+		
+		float array[] = amountScaled.peek();
+		
+		array[0] *= x;
+		array[1] *= y;
+		array[2] *= z;
+	}
+	
+	/**
+	 * Set the scale of the current matrix back to (1, 1, 1).
+	 */
+	public static void unscale()
+	{
+		float scaled[] = getAmountScaled();
+		
+		float x = 1 / scaled[0];
+		float y = 1 / scaled[1];
+		float z = 1 / scaled[2];
+		
 		GL11.glScalef(x, y, z);
 		
 		float array[] = amountScaled.peek();

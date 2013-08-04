@@ -106,7 +106,7 @@ public class Color extends java.awt.Color
 	{
 		return Math.round(r * 255);
 	}
-
+	
 	/**
 	 * Get the green component of the Color.
 	 * 
@@ -116,7 +116,7 @@ public class Color extends java.awt.Color
 	{
 		return Math.round(g * 255);
 	}
-
+	
 	/**
 	 * Get the blue component of the Color.
 	 * 
@@ -126,7 +126,7 @@ public class Color extends java.awt.Color
 	{
 		return Math.round(b * 255);
 	}
-
+	
 	/**
 	 * Get the alpha component of the Color.
 	 * 
@@ -192,10 +192,10 @@ public class Color extends java.awt.Color
 	 */
 	public void setData(int r, int g, int b, int a)
 	{
-		this.r = r;
-		this.g = g;
-		this.b = b;
-		this.a = a;
+		this.r = r / 255f;
+		this.g = g / 255f;
+		this.b = b / 255f;
+		this.a = a / 255f;
 		
 		checkBounds();
 	}
@@ -241,7 +241,7 @@ public class Color extends java.awt.Color
 		
 		checkBounds();
 	}
-
+	
 	/**
 	 * Darken the Color the specified amount. Each of the Color
 	 * components will be decreased the specified amount.

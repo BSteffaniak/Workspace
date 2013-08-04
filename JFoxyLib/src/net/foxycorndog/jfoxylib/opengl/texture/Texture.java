@@ -39,6 +39,22 @@ public class Texture
 	private	static	int			currentId;
 	
 	/**
+	 * Create an OpenGL Texture instance with the specified width
+	 * and height.
+	 * 
+	 * @param width The width of the Texture in pixels.
+	 * @param height The height of the Texture in pixels.
+	 */
+	public Texture(int width, int height)
+	{
+		id = GL11.glGenTextures();
+		
+		BufferedImage image = new BufferedImage(width, height, BufferedImage.TYPE_4BYTE_ABGR);
+		
+		loadTexture(image, false);
+	}
+	
+	/**
 	 * Create a Texture from the File at the specified location.
 	 * 
 	 * @param location The location of the Image File containing the

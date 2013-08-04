@@ -22,7 +22,6 @@ public class Image extends Component
 	private	boolean	indirectBundle;
 	
 	private	int		x, y;
-	private	int		bundleX, bundleY;
 	private	int		cols, rows;
 	private	int		rx, ry;
 	private	int		offset;

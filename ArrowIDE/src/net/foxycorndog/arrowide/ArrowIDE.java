@@ -280,9 +280,9 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			return;
 		}
 		
-		String resLoc = FileUtils.getParentFolder(configLocation);
-		
-		System.setProperty("java.library.path", System.getProperty("java.library.path") + ":" + resLoc + "/res");
+//		String resLoc = FileUtils.getParentFolder(configLocation);
+//		
+//		System.setProperty("java.library.path", System.getProperty("java.library.path") + ":" + resLoc + "/res");
 		
 		String os = (String)PROPERTIES.get("os.name");
 		

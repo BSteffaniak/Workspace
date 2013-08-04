@@ -6,7 +6,6 @@ import org.lwjgl.opengl.GL11;
 
 import net.foxycorndog.jfoxylib.Color;
 import net.foxycorndog.jfoxylib.opengl.GL;
-import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
 
 /**
  * Class that is used to contain other Components.

@@ -18,28 +18,29 @@ import net.foxycorndog.jfoxylib.opengl.GL;
  */
 public abstract class Component
 {
-	private					boolean					disposed;
-	private					boolean					visible;
-	private					boolean					focused;
-	private					boolean					enabled;
+	private boolean						disposed;
+	private boolean						visible;
+	private boolean						focused;
+	private boolean						enabled;
 	
-	private					int						horizontalAlignment, verticalAlignment;
+	private int							horizontalAlignment, verticalAlignment;
 	
-	private					float					x, y;
-	private					float					alignX, alignY;
-	private					float					displayX, displayY;
-	private					float					width, height;
-	private					float					scaleX, scaleY;
-	private					float					scale;
+	private float						x, y;
+	private float						alignX, alignY;
+	private float						displayX, displayY;
+	private float						displayWidth, displayHeight;
+	private float						width, height;
+	private float						scaleX, scaleY;
+	private float						scale;
 	
-	private					Panel					parent;
+	private Panel						parent;
 	
-	private	static			int						defaultHorizontalAlignment, defaultVerticalAlignment;
+	private static int					defaultHorizontalAlignment, defaultVerticalAlignment;
 	
-	private	static			ArrayList<Component>	components;
+	private static ArrayList<Component>	components;
 	
-	public	static	final	int						LEFT = 0, CENTER = 1, RIGHT = 2,
-													BOTTOM = 0, TOP = 2;
+	public static final int				LEFT = 0, CENTER = 1, RIGHT = 2,
+										BOTTOM = 0, TOP = 2;
 	
 	/**
 	 * Initialize the Component class stuff.
@@ -114,6 +115,11 @@ public abstract class Component
 	 */
 	public boolean isEnabled()
 	{
+		if (enabled && parent != null)
+		{
+			return parent.isEnabled();
+		}
+		
 		return enabled;
 	}
 	
@@ -165,23 +171,9 @@ public abstract class Component
 	 */
 	public boolean isVisible()
 	{
-		if (!visible)
+		if (visible && parent != null)
 		{
-			return false;
-		}
-		else
-		{
-			Panel parent = this.parent;
-			
-			while (parent != null)
-			{
-				if (!parent.isVisible())
-				{
-					return false;
-				}
-				
-				parent = parent.getParent();
-			}
+			return parent.isVisible();
 		}
 		
 		return visible;
@@ -329,18 +321,27 @@ public abstract class Component
 	}
 	
 	/**
-	 * Set the location that the Component was rendered to the Display
-	 * at.
+	 * Get the horizontal size that the Component was last displayed as
+	 * on the screen.
 	 * 
-	 * @param x The horizontal location in pixels that the Component was
-	 * 		rendered at.
-	 * @param y The vertical location in pixels that the Component was
-	 * 		rendered at.
+	 * @return The horizontal size that the Component was last displayed
+	 * 		as on the screen.
 	 */
-	public void setDisplayLocation(float x, float y)
+	public float getDisplayWidth()
 	{
-		this.displayX = x;
-		this.displayY = y;
+		return displayWidth;
+	}
+
+	/**
+	 * Get the vertical size that the Component was last displayed as
+	 * on the screen.
+	 * 
+	 * @return The vertical size that the Component was last displayed as
+	 * 		on the screen.
+	 */
+	public float getDisplayHeight()
+	{
+		return displayHeight;
 	}
 	
 	/**
@@ -431,8 +432,8 @@ public abstract class Component
 		float width    = 0;
 		float height   = 0;
 		
-		float scaleWid = getWidth()  * scale;//  * scaleX / scale;
-		float scaleHei = getHeight() * scale;// * scaleY / scale;
+		float scaleWid = getWidth()  * scaleX;//  * scaleX / scale;
+		float scaleHei = getHeight() * scaleY;// * scaleY / scale;
 		
 		if (parent == null)
 		{
@@ -472,11 +473,11 @@ public abstract class Component
 		}
 		
 		
-//		alignX /= scaleX;
-//		alignY /= scaleY;
+		alignX /= scaleX;
+		alignY /= scaleY;
 		
-//		alignX /= scale;
-//		alignY /= scale;
+		alignX *= scale;
+		alignY *= scale;
 		
 //		alignX = 0;
 //		alignY = 0;
@@ -495,7 +496,11 @@ public abstract class Component
 		
 		float loc[] = GL.getCurrentLocation();
 		
-		setDisplayLocation(loc[0], loc[1]);
+		displayX = loc[0];
+		displayY = loc[1];
+		
+		displayWidth  = width  * scale[0];
+		displayHeight = height * scale[1];
 		
 		align();
 	}
