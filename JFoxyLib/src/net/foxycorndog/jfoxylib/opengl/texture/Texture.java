@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.awt.image.DataBufferInt;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -32,9 +33,9 @@ public class Texture
 	
 	private 		float		texWid, texHei;
 	
-	private			IntBuffer	intBuffer;
+//	private			IntBuffer	intBuffer;
 	
-	private			byte		pixels[];
+//	private			byte		pixels[];
 	
 	private	static	int			currentId;
 	
@@ -189,7 +190,7 @@ public class Texture
 	    {
 	    	for (int x = 0; x < width; x++)
 	    	{
-            	int offset  = (x + y * width) * 4;
+            	int offset = (x + y * width) * 4;
             	
 	    		for (int i = 0; i < 2; i++)
             	{
@@ -200,24 +201,32 @@ public class Texture
 	    	}
 	    }
 	    
-	    this.pixels = pixels;
+//	    this.pixels = pixels;
 	    
-	    loadTexture();
+	    loadTexture(pixels);
 	}
 	
 	/**
 	 * Load the Texture from the existing pixel data from the pixels
 	 * byte array.
 	 */
-	private void loadTexture()
+	private void loadTexture(byte pixels[])
 	{
 		bind();
 	    
-	    ByteBuffer byteBuffer = BufferUtils.createByteBuffer(pixels.length); // 4 for RGBA, 3 for RGB
+	    ByteBuffer byteBuffer = BufferUtils.createByteBuffer(pixels.length);// 4 for RGBA, 3 for RGB
        
 	    byteBuffer.order(ByteOrder.nativeOrder());//.BIG_ENDIAN);
-		byteBuffer.put(pixels);
-		byteBuffer.position(0);
+	    byteBuffer.put(pixels);
+//	    byteBuffer.rewind();
+	    byteBuffer.position(0);
+	    
+//	    ByteBuffer byteBuffer = BufferUtils.createByteBuffer(pixels.length * 4);
+//	    byteBuffer.order(ByteOrder.nativeOrder());//.BIG_ENDIAN);
+//	    byteBuffer.asIntBuffer().put(pixels);
+////	    byteBuffer.rewind();
+////	    byteBuffer.flip();
+//	    byteBuffer.position(0);
 		
 //	    byte pixelsb[] = ((DataBufferByte)image.getRaster().getDataBuffer()).getData();
         
@@ -245,6 +254,7 @@ public class Texture
         // You now have a ByteBuffer filled with the color data of each pixel.0
         // Now just create a texture ID and bind it. Then you can load it using 
         // whatever OpenGL method you want, for example:
+	    
         GL11.glTexImage2D(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, width, height, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, byteBuffer);
 	    
 //	    GL11.glTexImage2D(GL11.GL_TEXTURE_2D, level, internalformat, id, id, border, format, type, pixels);
@@ -284,86 +294,89 @@ public class Texture
 //		return pixels;
 //	}
 	
-	/**
-	 * Get the integer representation of the pixel at the specified
-	 * location of (x, y).
-	 * 
-	 * @param x The horizontal location of the pixel (Left = 0).
-	 * @param y The vertical location of the pixel (Bottom = 0).
-	 * @return The integer representation of a pixel. eg.:
-	 * 		Red with alpha = 0xFFFF0000.
-	 */
-	public int getPixel(int x, int y)
-	{
-		int pixel = 0;
-		
-		int r = pixels[(x + y * width) * 4 + 0];
-		int g = pixels[(x + y * width) * 4 + 1];
-		int b = pixels[(x + y * width) * 4 + 2];
-		int a = pixels[(x + y * width) * 4 + 3];
-		
-		if (r < 0)
-		{
-			r += 256;
-		}
-		if (g < 0)
-		{
-			g += 256;
-		}
-		if (b < 0)
-		{
-			b += 256;
-		}
-		if (a < 0)
-		{
-			a += 256;
-		}
-		
-		a *= 0x1000000;
-		r *= 0x10000;
-		g *= 0x100;
-		b *= 0x1;
-		
-		pixel = r + g + b + a;
-		
-		return pixel;
-	}
-	
-	/**
-	 * Get the integer representation of the pixels within the rectangle
-	 * (x, y, width, height) on the image.
-	 * 
-	 * @param x The horizontal location of the pixel (Left = 0).
-	 * @param y The vertical location of the pixel (Bottom = 0).
-	 * @param width The width of the rectangular selection of pixels
-	 * 		to get.
-	 * @param height The height of the rectangular selection of pixels
-	 * 		to get.
-	 * @return The integer representation of the pixels. eg.:
-	 * 		An array with values that include integers such as: 
-	 * 		Red with alpha = 0xFFFF0000.
-	 */
-	public int[] getPixels(int x, int y, int width, int height)
-	{
-		int data[] = new int[width * height];
-		
-//		byteBuffer.position((x + y * width) * 4);
-//			
-//		for (int i = 0; i < height; i++)
+//	/**
+//	 * Get the integer representation of the pixel at the specified
+//	 * location of (x, y).
+//	 * 
+//	 * @param x The horizontal location of the pixel (Left = 0).
+//	 * @param y The vertical location of the pixel (Bottom = 0).
+//	 * @return The integer representation of a pixel. eg.:
+//	 * 		Red with alpha = 0xFFFF0000.
+//	 */
+//	public int getPixel(int x, int y)
+//	{
+//		bind();
+//		
+//		byte pixels[] = getPixelBytes(x, y);
+//		
+//		int pixel = 0;
+//		
+//		int r = pixels[0];
+//		int g = pixels[1];
+//		int b = pixels[2];
+//		int a = pixels[3];
+//		
+//		if (r < 0)
 //		{
-//			byteBuffer.get(data, i * width * 4, width * 4);
+//			r += 256;
 //		}
-		
-		for (int y2 = 0; y2 < height; y2++)
-		{
-			for (int x2 = 0; x2 < width; x2++)
-			{
-				data[(x2 + y2 * width)] = getPixel(x2 + x, y2 + y);
-			}
-		}
-		
-		return data;
-	}
+//		if (g < 0)
+//		{
+//			g += 256;
+//		}
+//		if (b < 0)
+//		{
+//			b += 256;
+//		}
+//		if (a < 0)
+//		{
+//			a += 256;
+//		}
+//		
+//		a *= 0x1000000;
+//		r *= 0x10000;
+//		g *= 0x100;
+//		
+//		pixel = r + g + b + a;
+//		
+//		return pixel;
+//	}
+	
+//	/**
+//	 * Get the integer representation of the pixels within the rectangle
+//	 * (x, y, width, height) on the image.
+//	 * 
+//	 * @param x The horizontal location of the pixel (Left = 0).
+//	 * @param y The vertical location of the pixel (Bottom = 0).
+//	 * @param width The width of the rectangular selection of pixels
+//	 * 		to get.
+//	 * @param height The height of the rectangular selection of pixels
+//	 * 		to get.
+//	 * @return The integer representation of the pixels. eg.:
+//	 * 		An array with values that include integers such as: 
+//	 * 		Red with alpha = 0xFFFF0000.
+//	 */
+//	public int[] getPixels(int x, int y, int width, int height)
+//	{
+//		int data[] = new int[width * height];
+//		
+////		byteBuffer.position((x + y * width) * 4);
+////			
+////		for (int i = 0; i < height; i++)
+////		{
+////			byteBuffer.get(data, i * width * 4, width * 4);
+////		}
+//		
+//		for (int y2 = 0; y2 < height; y2++)
+//		{
+//			for (int x2 = 0; x2 < width; x2++)
+//			{
+//				data[(x2 + y2 * width)] = getPixel(x2 + x, y2 + y);
+//			}
+//		}
+//		
+//		return data;
+//	}
 	
 	/**
 	 * Set the integer representation of the pixel at the specified
@@ -393,10 +406,10 @@ public class Texture
 		values[2] = b;
 		values[3] = a;
 		
-		for (int i = 0; i < 4; i++)
-		{
-			pixels[(x + y * width) * 4 + i] = values[i];
-		}
+//		for (int i = 0; i < 4; i++)
+//		{
+//			pixels[(x + y * width) * 4 + i] = values[i];
+//		}
 		
 		ByteBuffer buf = BufferUtils.createByteBuffer(4);
 		
@@ -424,6 +437,28 @@ public class Texture
 	 */
 	public void setPixels(int x, int y, int width, int height, int values[])
 	{
+		setPixels(x, y, width, height, values, false);
+	}
+	
+	/**
+	 * Set the integer representation of the pixels within the rectangle
+	 * (x, y, width, height) on the image.
+	 * 
+	 * @param x The horizontal location of the pixel (Left = 0).
+	 * @param y The vertical location of the pixel (Bottom = 0).
+	 * @param width The width of the rectangular selection of pixels
+	 * 		to set.
+	 * @param height The height of the rectangular selection of pixels
+	 * 		to set.
+	 * @param values The integer representation of the pixels. eg.:
+	 * 		An array with values that include integers such as: 
+	 * 		Red with alpha = 0xFFFF0000.<br>
+	 * 		The array size must equal (width * height).
+	 * @param skipTransparent Whether or not to skip setting the
+	 * 		transparent pixels within the values array.
+	 */
+	public void setPixels(int x, int y, int width, int height, int values[], boolean skipTransparent)
+	{
 		if (!isBound())
 		{
 			throw new UnboundTextureException("The Texture must be bound before editing the pixels.");
@@ -444,24 +479,40 @@ public class Texture
 			bytes[i + 3] = a;
 		}
 		
+		//byte pixels[] = getPixelsBytes(x, y, width, height);
+		
 		for (int y2 = 0; y2 < height; y2++)
 		{
 			for (int x2 = 0; x2 < width; x2++)
 			{
-				for (int i = 0; i < 4; i++)
+				if (skipTransparent && ((values[(x2 + y2 * height)] >> 24) & 0xFF) == 0)
 				{
-					pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = bytes[(x2 + y2 * height) * 4 + i];
+//					for (int i = 0; i < 4; i++)
+//					{
+//						bytes[(x2 + y2 * height) * 4 + i] = pixels[((x2) + (y2) * width) * 4 + i];
+//					}
+				}
+				else if (skipTransparent)
+				{
+					setPixel(x + x2, y + y2, values[x2 + y2 * width]);
+//					for (int i = 0; i < 4; i++)
+//					{
+//						pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = bytes[(x2 + y2 * height) * 4 + i];
+//					}
 				}
 			}
 		}
 		
-		ByteBuffer buf = BufferUtils.createByteBuffer(width * height * 4);
-		
-		buf.put(bytes);
-		
-		buf.position(0);
-		
-		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
+		if (!skipTransparent)
+		{
+			ByteBuffer buf = BufferUtils.createByteBuffer(width * height * 4);
+			
+			buf.put(bytes);
+			
+			buf.position(0);
+			
+			GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
+		}
 	}
 	
 	/**
@@ -500,16 +551,16 @@ public class Texture
 			bytes[i + 3] = a;
 		}
 		
-		for (int y2 = 0; y2 < height; y2++)
-		{
-			for (int x2 = 0; x2 < width; x2++)
-			{
-				for (int i = 0; i < 4; i++)
-				{
-					pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = bytes[i];
-				}
-			}
-		}
+//		for (int y2 = 0; y2 < height; y2++)
+//		{
+//			for (int x2 = 0; x2 < width; x2++)
+//			{
+//				for (int i = 0; i < 4; i++)
+//				{
+//					pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = bytes[i];
+//				}
+//			}
+//		}
 		
 		ByteBuffer buf = BufferUtils.createByteBuffer(width * height * 4);
 		
@@ -520,69 +571,78 @@ public class Texture
 		GL11.glTexSubImage2D(GL11.GL_TEXTURE_2D, 0, x, y, width, height, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, buf);
 	}
 	
-	/**
-	 * Get the byte representation of the pixel at the specified
-	 * location of (x, y) on the image.
-	 * 
-	 * @param x The horizontal location of the pixel (Left = 0).
-	 * @param y The vertical location of the pixel (Bottom = 0).
-	 * @return The byte representation of a pixel. eg.:
-	 * 		Red with alpha = byte[] { -1, 0, 0, -1 }
-	 * 		(-1 == 255 considering Two's Complement).
-	 */
-	public byte[] getPixelBytes(int x, int y)
-	{
-		byte data[] = new byte[4];
-		
-		for (int i = 0; i < 4; i++)
-		{
-			data[i] = pixels[(x + y * width) * 4 + i];
-		}
-		
-		return data;
-	}
-	
-	/**
-	 * Get the byte representation of the pixels within the rectangle
-	 * (x, y, width, height) on the image.
-	 * 
-	 * @param x The horizontal location of the pixel (Left = 0).
-	 * @param y The vertical location of the pixel (Bottom = 0).
-	 * @param width The width of the rectangular selection of pixels
-	 * 		to get.
-	 * @param height The height of the rectangular selection of pixels
-	 * 		to get.
-	 * @return The byte representation of the pixels. eg.:
-	 * 		An array with values that include bytes such as: 
-	 * 		Red with alpha = byte[] { -1, 0, 0, -1 }
-	 * 		(-1 == 255 considering Two's Complement)
-	 */
-	public byte[] getPixelsBytes(int x, int y, int width, int height)
-	{
-		byte data[] = new byte[width * height * 4];
-		
-//		byteBuffer.position((x + y * width) * 4);
-//			
-//		for (int i = 0; i < height; i++)
+//	/**
+//	 * Get the byte representation of the pixel at the specified
+//	 * location of (x, y) on the image.
+//	 * 
+//	 * @param x The horizontal location of the pixel (Left = 0).
+//	 * @param y The vertical location of the pixel (Bottom = 0).
+//	 * @return The byte representation of a pixel. eg.:
+//	 * 		Red with alpha = byte[] { -1, 0, 0, -1 }
+//	 * 		(-1 == 255 considering Two's Complement).
+//	 */
+//	public byte[] getPixelBytes(int x, int y)
+//	{
+//		bind();
+//		
+//		byte data[] = new byte[4];
+//		
+//		ByteBuffer pixels = BufferUtils.createByteBuffer(4);
+//		
+////		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_WIDTH, 1);
+////		GL11.glTexParameteri(GL11.GL_TEXTURE_2D, GL11.GL_TEXTURE_HEIGHT, 1);
+//		
+//		GL11.glGetTexImage(GL11.GL_TEXTURE_2D, 0, GL11.GL_RGBA, GL11.GL_UNSIGNED_BYTE, pixels);
+//		
+//		for (int i = 0; i < 4; i++)
 //		{
-//			byteBuffer.get(data, i * width * 4, width * 4);
+//			data[i] = pixels.get(i);//pixels[(x + y * width) * 4 + i];
 //		}
-		
-		for (int y2 = 0; y2 < height; y2++)
-		{
-			for (int x2 = 0; x2 < width; x2++)
-			{
-				byte d[] = getPixelBytes(x2 + x, y2 + y);
-				
-				for (int i = 0; i < 4; i++)
-				{
-					data[(x2 + y2 * width) * 4 + i] = d[i];
-				}
-			}
-		}
-		
-		return data;
-	}
+//		
+//		return data;
+//	}
+	
+//	/**
+//	 * Get the byte representation of the pixels within the rectangle
+//	 * (x, y, width, height) on the image.
+//	 * 
+//	 * @param x The horizontal location of the pixel (Left = 0).
+//	 * @param y The vertical location of the pixel (Bottom = 0).
+//	 * @param width The width of the rectangular selection of pixels
+//	 * 		to get.
+//	 * @param height The height of the rectangular selection of pixels
+//	 * 		to get.
+//	 * @return The byte representation of the pixels. eg.:
+//	 * 		An array with values that include bytes such as: 
+//	 * 		Red with alpha = byte[] { -1, 0, 0, -1 }
+//	 * 		(-1 == 255 considering Two's Complement)
+//	 */
+//	public byte[] getPixelsBytes(int x, int y, int width, int height)
+//	{
+//		byte data[] = new byte[width * height * 4];
+//		
+////		byteBuffer.position((x + y * width) * 4);
+////			
+////		for (int i = 0; i < height; i++)
+////		{
+////			byteBuffer.get(data, i * width * 4, width * 4);
+////		}
+//		
+//		for (int y2 = 0; y2 < height; y2++)
+//		{
+//			for (int x2 = 0; x2 < width; x2++)
+//			{
+//				byte d[] = getPixelBytes(x2 + x, y2 + y);
+//				
+//				for (int i = 0; i < 4; i++)
+//				{
+//					data[(x2 + y2 * width) * 4 + i] = d[i];
+//				}
+//			}
+//		}
+//		
+//		return data;
+//	}
 	
 	/**
 	 * Set the byte representation of the pixel at the specified
@@ -633,16 +693,16 @@ public class Texture
 			throw new UnboundTextureException("The Texture must be bound before editing the pixels.");
 		}
 		
-		for (int y2 = 0; y2 < height; y2++)
-		{
-			for (int x2 = 0; x2 < width; x2++)
-			{
-				for (int i = 0; i < 4; i++)
-				{
-					pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = values[(x2 + y2 * height) * 4 + i];
-				}
-			}
-		}
+//		for (int y2 = 0; y2 < height; y2++)
+//		{
+//			for (int x2 = 0; x2 < width; x2++)
+//			{
+//				for (int i = 0; i < 4; i++)
+//				{
+//					pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = values[(x2 + y2 * height) * 4 + i];
+//				}
+//			}
+//		}
 		
 		ByteBuffer buf = BufferUtils.createByteBuffer(width * height * 4);
 		
@@ -674,32 +734,27 @@ public class Texture
 		{
 			throw new UnboundTextureException("The Texture must be bound before editing the pixels.");
 		}
-		
-		byte r = (byte)((value[0] >> 16) & 0xFF);
-		byte g = (byte)((value[1] >>  8) & 0xFF);
-		byte b = (byte)((value[2] >>  0) & 0xFF);
-		byte a = (byte)((value[3] >> 24) & 0xFF);
 	
 		byte bytes[] = new byte[width * height * 4];
 		
 		for (int i = 0; i < bytes.length; i += 4)
 		{
-			bytes[i + 0] = r;
-			bytes[i + 1] = g;
-			bytes[i + 2] = b;
-			bytes[i + 3] = a;
+			bytes[i + 0] = value[0];
+			bytes[i + 1] = value[1];
+			bytes[i + 2] = value[2];
+			bytes[i + 3] = value[3];
 		}
 		
-		for (int y2 = 0; y2 < height; y2++)
-		{
-			for (int x2 = 0; x2 < width; x2++)
-			{
-				for (int i = 0; i < 4; i++)
-				{
-					pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = value[i];
-				}
-			}
-		}
+//		for (int y2 = 0; y2 < height; y2++)
+//		{
+//			for (int x2 = 0; x2 < width; x2++)
+//			{
+//				for (int i = 0; i < 4; i++)
+//				{
+//					pixels[((x + x2) + (y + y2) * this.width) * 4 + i] = value[i];
+//				}
+//			}
+//		}
 		
 		ByteBuffer buf = BufferUtils.createByteBuffer(width * height * 4);
 		

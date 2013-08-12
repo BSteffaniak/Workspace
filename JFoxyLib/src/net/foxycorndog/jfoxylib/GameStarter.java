@@ -35,8 +35,6 @@ public abstract class GameStarter
 {
 	private boolean			running;
 	
-	private	int				totalFPS, fpsAmount, maxFPS, minFPS;
-	
 	private	long			startTime;
 	
 	private	String			date;
@@ -59,8 +57,6 @@ public abstract class GameStarter
 		date       = dateFormat.format(calendar.getTime()) + " " + (calendar.get(Calendar.AM_PM) == Calendar.AM ? "AM" : "PM");
 		
 		startTime  = System.currentTimeMillis();
-		
-		minFPS     = Integer.MAX_VALUE;
 	}
 	
 	/**
@@ -115,9 +111,9 @@ public abstract class GameStarter
 					}
 					
 					writer.println("--Debugging run on " + date + "--");
-					writer.println("Maximum FPS: " + maxFPS);
-					writer.println("Minimum FPS: " + minFPS);
-					writer.println("Average FPS: " + ((float)totalFPS / fpsAmount));
+					writer.println("Maximum FPS: " + Frame.getMaxFPS());
+					writer.println("Minimum FPS: " + Frame.getMinFPS());
+					writer.println("Average FPS: " + ((float)Frame.getTotalFPS() / Frame.getSecondsAlive()));
 					writer.println("Time Elapsed: " + (now - startTime) / 1000.0 + " seconds");
 					writer.println();
 					
@@ -154,36 +150,11 @@ public abstract class GameStarter
 		
 		running  = true;
 		
-		int fps  = 0;
-		int dfps = 0;
-		
-		int pred = 0;
-		
-		long startTime  = System.currentTimeMillis();
-		long newOldTime = System.nanoTime();
-		long oldTime    = newOldTime;
-		
 		try
 		{
 			while (!Display.isCloseRequested() && running)
 			{
-				long newTime = System.currentTimeMillis();
 				
-				if (fps == 0 && dfps > 0)
-				{
-					newOldTime = System.nanoTime();
-					
-					int change = (int)(newOldTime - oldTime);
-					
-					if (change != 0)
-					{
-						pred = 1000000000 / change;
-						
-						Frame.setFPS(pred);
-					}
-				
-					oldTime = newOldTime;
-				}
 				
 				GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT);
 	
@@ -208,32 +179,6 @@ public abstract class GameStarter
 					render2D();
 	//			}
 	//			GL11.glPopAttrib();
-				
-				dfps++;
-				
-				if (startTime + 1000 <= newTime)
-				{
-					fps  = dfps;
-					dfps = 0;
-					
-					startTime = newTime;
-					
-					Frame.setFPS(fps);
-					
-					Frame.setTitle(fps + "");
-					
-					totalFPS += fps;
-					fpsAmount++;
-					
-					if (fps > maxFPS)
-					{
-						maxFPS = fps;
-					}
-					if (fps < minFPS)
-					{
-						minFPS = fps;
-					}
-				}
 				
 				Mouse.update();
 				Keyboard.update();

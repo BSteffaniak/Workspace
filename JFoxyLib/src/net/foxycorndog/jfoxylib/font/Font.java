@@ -1,11 +1,15 @@
 package net.foxycorndog.jfoxylib.font;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Set;
+
+import javax.imageio.ImageIO;
 
 import net.foxycorndog.jfoxylib.Frame;
 import net.foxycorndog.jfoxylib.components.Panel;
@@ -15,6 +19,7 @@ import net.foxycorndog.jfoxylib.opengl.bundle.Bundle;
 import net.foxycorndog.jfoxylib.opengl.texture.SpriteSheet;
 import net.foxycorndog.jfoxylib.util.Bounds;
 import net.foxycorndog.jfoxylib.util.Bounds2f;
+import net.foxycorndog.jfoxylib.util.ImageData;
 import net.foxycorndog.jfoxylib.util.ResourceLocator;
 import net.foxycorndog.jfoxyutil.Queue;
 
@@ -39,6 +44,8 @@ public class Font
 	
 	private 				float						letterMargin, lineOffset;
 	
+	private					ImageData					characterData;
+	
 	private 				SpriteSheet					characters;
 	
 	private 				int							idArray[][];
@@ -58,10 +65,14 @@ public class Font
 		fonts = new ArrayList<Font>();
 		
 		SpriteSheet sprites = null;
+		ImageData   data    = null;
 		
 		try
 		{
-			sprites = new SpriteSheet(ResourceLocator.getProjectDirectory() + "res/images/fonts/font.png", 26, 4);
+			BufferedImage image = ImageIO.read(new File(ResourceLocator.getProjectDirectory() + "res/images/fonts/font.png"));
+			
+			sprites = new SpriteSheet(image, 26, 4);
+			data    = new ImageData(image);
 		}
 		catch (IOException e)
 		{
@@ -75,7 +86,7 @@ public class Font
 					'a', 'b', 'c', 'd', 'e', 'f',  'g', 'h', 'i', 'j', 'k', 'l',  'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
 					'0', '1', '2', '3', '4', '5',  '6', '7', '8', '9', '_', '-',  '+', '=', '~', '`', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
 					'?', '>', '<', ';', ':', '\'', '"', '{', '}', '[', ']', '\\', '|', ',', '.', '/', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '
-				});
+				}, data);
 		
 		DEFAULT_FONT.setLetterMargin(1);
 		DEFAULT_FONT.setTrimBounds(true);
@@ -96,7 +107,7 @@ public class Font
 	 */
 	public Font(String location, int cols, int rows, char charSequence[]) throws IOException
 	{
-		this(new SpriteSheet(location, cols, rows), charSequence);
+		this(new SpriteSheet(location, cols, rows), charSequence, new ImageData(location));
 	}
 	
 	/**
@@ -109,11 +120,12 @@ public class Font
 	 * 		to work properly.
 	 * @param charSequence The character array that corresponds with each
 	 * 		Character in the Font image.
-	 * @throws IOException Thrown if the Font image file was not found.
 	 */
-	public Font(SpriteSheet sprites, char charSequence[])
+	public Font(SpriteSheet sprites, char charSequence[], ImageData data)
 	{
 		characters        = sprites;
+		
+		characterData     = data;
 		
 		this.cols         = characters.getNumCols();
 		this.rows         = characters.getNumRows();
@@ -121,7 +133,7 @@ public class Font
 		this.width        = characters.getWidth();
 		this.height       = characters.getHeight();
 		
-		this.glyphWidth   = width / cols;
+		this.glyphWidth   = width  / cols;
 		this.glyphHeight  = height / rows;
 		
 		this.charSequence = new HashMap<Character, int[]>();
@@ -196,20 +208,20 @@ public class Font
 					continue;
 				}
 				
-				int     x        = charSequence.get(c)[0];
-				int     y        = characters.getNumRows() - charSequence.get(c)[1] - 1;
+				int x = charSequence.get(c)[0];
+				int y = characters.getNumRows() - charSequence.get(c)[1] - 1;
 				
-				x               *= glyphWidth;
-				y               *= glyphHeight;
+				x    *= glyphWidth;
+				y    *= glyphHeight;
 				
-				byte    pixels[] = characters.getPixelsBytes(x, y, glyphWidth, glyphHeight);
+				byte pixels[]  = characterData.getDataBytes(x, y, glyphWidth, glyphHeight);
 				
-				boolean begin    = true;
+				boolean begin  = true;
 				
-				int     left     = 0;
-				int     right    = 0;
-				int     top      = 0;
-				int     bottom   = 0;
+				int     left   = 0;
+				int     right  = 0;
+				int     top    = 0;
+				int     bottom = 0;
 				
 				for (int x2 = 0; x2 < glyphWidth; x2++)
 				{
@@ -248,6 +260,7 @@ public class Font
 					
 					for (int y2 = 0; y2 < glyphHeight; y2++)
 					{
+						// If the alpha channel is not 0
 						if (pixels[(x2 + y2 * glyphWidth) * 4 + 3] != 0)
 						{
 							begin = false;
@@ -772,6 +785,7 @@ public class Font
 			int      lines     = getNumLines(text);
 			
 			Bounds2f heights[] = new Bounds2f[lines];
+			float    widths[]  = new float[lines];
 			
 			float    yOffset   = 0;
 			float    xOffset   = 0;
@@ -787,6 +801,22 @@ public class Font
 				else if (verticalAlignment == TOP)
 				{
 					yOffset -= lineOffset;
+				}
+			}
+			
+			float width = getWidth(text);
+			
+			if (lines > 1)
+			{
+				widths = getLineWidths(text);
+				
+				if (horizontalAlignment == RIGHT)
+				{
+					xOffset += width - widths[line];
+				}
+				else if (horizontalAlignment == CENTER)
+				{
+					xOffset += (width - widths[line]) / 2;
 				}
 			}
 			
@@ -816,8 +846,22 @@ public class Font
 
 					if (charBounds != null)
 					{
-						yOffset += glyphHeight - (heights[line].getHeight() + heights[line].getY());
-						yOffset += heights[line - 1].getY();
+						float lineHeight = heights[line].getHeight() + heights[line].getY();
+						
+						if (lineHeight > 0)
+						{
+							yOffset += glyphHeight - lineHeight;
+							yOffset += heights[line - 1].getY();
+						}
+					}
+					
+					if (horizontalAlignment == RIGHT)
+					{
+						xOffset += width - widths[line];
+					}
+					else if (horizontalAlignment == CENTER)
+					{
+						xOffset += (width - widths[line]) / 2;
 					}
 				}
 				else
@@ -852,7 +896,7 @@ public class Font
 //							return null;
 //						}
 						
-						chars[i] = ' ';
+						chars[i] = '?';
 						
 						charX    = charSequence.get(chars[i])[0];
 						charY    = charSequence.get(chars[i])[1];
@@ -1287,6 +1331,49 @@ public class Font
 		return max;
 	}
 	
+	public float[] getLineWidths(String text)
+	{
+		float widths[] = new float[getNumLines(text)];
+		
+		int   line  = 0;
+		
+		float width = 0;
+		
+		for (int i = 0; i < text.length(); i++)
+		{
+			char c = text.charAt(i);
+			
+			if (c == '\n')
+			{
+				if (width > 0)
+				{
+					width -= letterMargin;
+				}
+				
+				widths[line] = width;
+				
+				width = 0;
+				
+				line++;
+			}
+			else
+			{
+				int w = charBounds.get(c).getWidth();
+				
+				width += w + letterMargin;
+			}
+		}
+		
+		if (width > 0)
+		{
+			width -= letterMargin;
+		}
+		
+		widths[line] = width;
+		
+		return widths;
+	}
+	
 	/**
 	 * Get the amount of pixels that the specified String would take up
 	 * vertically.
@@ -1349,6 +1436,11 @@ public class Font
 			{
 				heights[line] = new Bounds2f();
 				
+				if (min == glyphHeight)
+				{
+					min = 0;
+				}
+				
 				heights[line].setY(min);
 				heights[line].setHeight(max - min);
 				
@@ -1373,13 +1465,15 @@ public class Font
 			}
 		}
 		
-		if (min < glyphHeight || max > 0)
+		heights[line] = new Bounds2f();
+		
+		if (min == glyphHeight)
 		{
-			heights[line] = new Bounds2f();
-			
-			heights[line].setY(min);
-			heights[line].setHeight(max - min);
+			min = 0;
 		}
+		
+		heights[line].setY(min);
+		heights[line].setHeight(max - min);
 		
 		return heights;
 	}

@@ -48,6 +48,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 
 import net.foxycorndog.jfoxylib.Color;
+import net.foxycorndog.jfoxylib.components.Image;
 import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 import net.foxycorndog.jfoxyutil.Stack;
 
@@ -97,6 +98,8 @@ public class GL
 	
 	public	static	final	Texture			WHITE;
 	
+	public static final Image	WHITE_IMAGE;
+	
 	static
 	{
 		BufferedImage image = new BufferedImage(1, 1, BufferedImage.BITMASK);
@@ -107,6 +110,9 @@ public class GL
 		g.dispose();
 		
 		WHITE = new Texture(image);
+		
+		WHITE_IMAGE = new Image(null);
+		WHITE_IMAGE.setTexture(WHITE);
 		
 		set3DEnabled(true);
 		

@@ -7,6 +7,9 @@ import static org.lwjgl.opengl.GL11.glDrawArrays;
 import static org.lwjgl.opengl.GL11.glEnableClientState;
 import static org.lwjgl.opengl.GL11.glTexCoordPointer;
 import static org.lwjgl.opengl.GL11.glVertexPointer;
+
+import java.util.ArrayList;
+
 import net.foxycorndog.jfoxylib.opengl.GL;
 import net.foxycorndog.jfoxylib.opengl.texture.Texture;
 
@@ -430,19 +433,50 @@ public class Bundle
 	 */
 	public void render(int shape, int start, int amount, Texture texture)
 	{
+		beginDraw(texture);
+		
+		drawArrays(shape, start, amount);
+		
+		endDraw();
+	}
+	
+	/**
+	 * Begin the drawing phase by binding the needed buffers.
+	 * 
+	 * @param texture The Texture to bind.
+	 */
+	public void beginDraw(Texture texture)
+	{
 		texture.bind();
 		
-		beginVerticesDraw();//start * vertexSize);
-		beginTexturesDraw();//start * 2);
+		beginVerticesDraw();
+		beginTexturesDraw();
 		beginColorsDraw();
-		
+	}
+	
+	/**
+	 * Draw the Bundle to the scene with the specified parameters.
+	 * 
+	 * @param shape The shape of the polygons that the portion of the
+	 * 		Bundle contains.
+	 * @param start The start index of the first vertex of the polygons
+	 * 		to render.
+	 * @param amount The amount of vertices to render starting at the
+	 * 		start index.
+	 */
+	public void drawArrays(int shape, int start, int amount)
+	{
 		glDrawArrays(shape, start, amount);
-		
+	}
+	
+	/**
+	 * Unbind the Buffers used in drawing.
+	 */
+	public void endDraw()
+	{
 		endColorsDraw();
 		endTexturesDraw();
 		endVerticesDraw();
-		
-//		Texture.unbind();
 	}
 	
 	/**
@@ -531,6 +565,7 @@ public class Bundle
 		{
 			return;
 		}
+		
 		GL15.glBindBuffer(GL15.GL_ARRAY_BUFFER, 0);
 		
 		glDisableClientState(GL11.GL_COLOR_ARRAY);

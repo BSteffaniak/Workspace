@@ -30,19 +30,28 @@ import org.lwjgl.opengl.DisplayMode;
  */
 public class Frame
 {
-	private static	boolean						created;
-	private static	boolean						vSync;
-	private	static	boolean						initialized;
+	private static boolean					created;
+	private static boolean					vSync;
+	private static boolean					initialized;
 	
-	private static	int							fps, targetFPS;
-	private static	int							width, height;
+	private static int						fps, targetFPS;
+	private static int						width, height;
+	private static int						dfps;
+	private static int						pred;
+	private static int						totalFPS, secondsAlive, maxFPS, minFPS;
 	
-	private	static	Panel						panel;
+	private static long						startTime  = System.currentTimeMillis();
+	private static long						newOldTime = System.nanoTime();
+	private static long						oldTime    = newOldTime;
 	
-	private static	org.lwjgl.opengl.Display	display;
+	private static float					delta;
 	
-	private static	ArrayList<Component>		components;
-	private static	ArrayList<FrameListener>	frameListeners;
+	private static Panel					panel;
+	
+	private static org.lwjgl.opengl.Display	display;
+	
+	private static ArrayList<Component>		components;
+	private static ArrayList<FrameListener>	frameListeners;
 	
 	public static void init()
 	{
@@ -54,6 +63,12 @@ public class Frame
 		panel = new Panel(null);
 		panel.setLocation(0, 0);
 		panel.setSize(width, height);
+		
+		startTime  = System.currentTimeMillis();
+		newOldTime = System.nanoTime();
+		oldTime    = newOldTime;
+		
+		minFPS     = Integer.MAX_VALUE;
 		
 		initialized = true;
 	}
@@ -373,6 +388,26 @@ public class Frame
 	 */
 	public static void update()
 	{
+		long newTime = System.currentTimeMillis();
+		
+		if (fps == 0 && dfps > 0)
+		{
+			newOldTime = System.nanoTime();
+			
+			int change = (int)(newOldTime - oldTime);
+			
+			if (change != 0)
+			{
+				pred = 1000000000 / change;
+				
+				fps  = pred;
+			}
+			
+			delta = 60f / fps;
+		
+			oldTime = newOldTime;
+		}
+		
 		if (width != display.getWidth() || height != display.getHeight())
 		{
 			width  = display.getWidth();
@@ -388,6 +423,32 @@ public class Frame
 			}
 			
 			panel.setSize(width, height);
+		}
+		
+		dfps++;
+		
+		if (startTime + 1000 <= newTime)
+		{
+			fps  = dfps;
+			dfps = 0;
+			
+			startTime = newTime;
+			
+			Frame.setTitle(fps + "");
+			
+			totalFPS += fps;
+			secondsAlive++;
+			
+			if (fps > maxFPS)
+			{
+				maxFPS = fps;
+			}
+			if (fps < minFPS)
+			{
+				minFPS = fps;
+			}
+			
+			delta = 60f / fps;
 		}
 	}
 	
@@ -466,7 +527,63 @@ public class Frame
 			Frame.vSync = vSync;
 		}
 	}
-
+	
+	/**
+	 * Get the delta variable that determines the balance between the
+	 * high and low frames for animations.
+	 * 
+	 * @return The delta variable value.
+	 */
+	public static float getDelta()
+	{
+		return delta;
+	}
+	
+	/**
+	 * Get the minimum value that the fps has reached throughout the
+	 * execution of the program.
+	 * 
+	 * @return The value for the minimum fps.
+	 */
+	public static int getMinFPS()
+	{
+		return minFPS;
+	}
+	
+	/**
+	 * Get the maximum value that the fps has reached throughout the
+	 * execution of the program.
+	 * 
+	 * @return The value for the maximum fps.
+	 */
+	public static int getMaxFPS()
+	{
+		return maxFPS;
+	}
+	
+	/**
+	 * Get the total number of frames per second the program has obtained
+	 * throughout the execution of the program.
+	 * 
+	 * @return The total number of fps the program has obtained throughout
+	 * 		the execution of the program.
+	 */
+	public static int getTotalFPS()
+	{
+		return totalFPS;
+	}
+	
+	/**
+	 * Get the total number of seconds that the program has been alive.
+	 * 
+	 * @return The total number of seconds that the program has been
+	 * 		alive.
+	 */
+	public static int getSecondsAlive()
+	{
+		return secondsAlive;
+	}
+	
 	/**
 	 * Get the amount of frames that the Frame gets per second. Each
 	 * frame includes the clearing of the screen, calls to the loop and
@@ -484,7 +601,7 @@ public class Frame
 	 * 
 	 * @param fps The value to set it to.
 	 */
-	public static void setFPS(int fps)
+	public static void setdFPS(int fps)
 	{
 		Frame.fps = fps;
 	}

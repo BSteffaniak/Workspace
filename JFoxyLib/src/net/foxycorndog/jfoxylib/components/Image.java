@@ -405,7 +405,7 @@ public class Image extends Component
 	 * @param x The new horizontal location of the Image.
 	 * @param y The new vertical location of the Image.
 	 */
-	public void setLocation(int x, int y)
+	public void setLocation(float x, float y)
 	{
 		setLocation(x, y, true);
 	}
@@ -418,7 +418,7 @@ public class Image extends Component
 	 * @param beginEditingBundle Whether or not to tell the Bundle
 	 * 		instance to begin editing the Vertices.
 	 */
-	public void setLocation(int x, int y, boolean beginEditingBuffer)
+	public void setLocation(float x, float y, boolean beginEditingBuffer)
 	{
 		super.setLocation(x, y);
 		
