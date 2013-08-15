@@ -45,10 +45,10 @@ public class LocationCollection<E>
 	
 	public boolean put(int x, int y, E element)
 	{
-		if (x < 0 || x >= width || y < 0 || y >= height)
-		{
-			return false;
-		}
+//		if (x < 0 || x >= width || y < 0 || y >= height)
+//		{
+//			return false;
+//		}
 		
 		if (!map.get(x).containsKey(y))
 		{

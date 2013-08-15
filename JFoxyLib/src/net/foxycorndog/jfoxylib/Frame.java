@@ -70,6 +70,8 @@ public class Frame
 		
 		minFPS     = Integer.MAX_VALUE;
 		
+//		display.setSwapInterval(0);
+		
 		initialized = true;
 	}
 	
