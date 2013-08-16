@@ -743,6 +743,13 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 							
 							if (program != null)
 							{
+								for (int i = 0; i < programs.size(); i++)
+								{
+									Program p = programs.get(i);
+									
+									
+								}
+								
 								programs.add(program);
 								
 								int tabId = consoleTabs.addTab(program.getName());
