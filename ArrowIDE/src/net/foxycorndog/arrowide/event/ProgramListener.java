@@ -1,5 +1,7 @@
 package net.foxycorndog.arrowide.event;
 
+import net.foxycorndog.arrowide.Program;
+
 /**
  * Interface used to listen for when error messages and regular messages
  * are sent from a Program. Also listens for when the Program is
@@ -31,5 +33,5 @@ public interface ProgramListener
 	/**
 	 * Called whenever the Program has been terminated.
 	 */
-	public void programTerminated();
+	public void programTerminated(Program program);
 }

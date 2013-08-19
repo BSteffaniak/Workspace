@@ -120,12 +120,14 @@ public class AssemblyLanguage
 					try
 					{
 					    PrintWriter out = new PrintWriter((new FileWriter(confLocation + "/dosbox.conf")));
+					    
 					    out.println("[autoexec]\r\n" +
 					    		"mount c \"" + fileLoc + "\"\r\n" +
 					    		"c:\r\n" +
 					    		"cls\r\n" +
 					    		name + "\r\n" +
 					    		"exit");
+					    
 					    out.close();
 					}
 					catch (IOException e)

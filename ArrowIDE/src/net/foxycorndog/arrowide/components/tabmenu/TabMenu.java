@@ -96,31 +96,21 @@ public class TabMenu
 		{
 			public void close(CTabFolderEvent e)
 			{
-				CTabItem item = (CTabItem)e.item;
+				int id = tabIds.get(e.item);
 				
-				int      id   = tabIds.get(item);
-				
-				boolean close = true;
-
 				for (int i = listeners.size() - 1; i >= 0; i--)
 				{
 					if (!listeners.get(i).tabClosing(new TabMenuEvent(thisMenu, id)))
 					{
-						close = false;
+						e.doit = false;
+						
+						break;
 					}
 				}
 				
-				if (close)
+				if (e.doit)
 				{
-					tabs.remove(id);
-					tabIds.remove(item);
-					tabsText.remove(id);
-					
-					subtractWidth(item.getBounds().width);
-				}
-				else
-				{
-					e.doit = false;
+					closeTab((CTabItem)e.item);
 				}
 			}
 
@@ -160,9 +150,14 @@ public class TabMenu
 	
 	public int getSelected()
 	{
-		int      index = tabFolder.getSelectionIndex();
+		int index = tabFolder.getSelectionIndex();
 		
-		CTabItem item  = tabFolder.getItem(index);
+		if (index < 0)
+		{
+			return index;
+		}
+		
+		CTabItem item = tabFolder.getItem(index);
 		
 		if (tabIds.containsKey(item))
 		{
@@ -243,6 +238,24 @@ public class TabMenu
 //		setWidth(maxWidth);
 		
 		return id;
+	}
+	
+	public void closeTab(int id)
+	{
+		closeTab(tabs.get(id));
+	}
+	
+	public void closeTab(CTabItem item)
+	{
+		int id = tabIds.get(item);
+		
+		tabs.remove(id);
+		tabIds.remove(item);
+		tabsText.remove(id);
+		
+		subtractWidth(item.getBounds().width);
+		
+		item.dispose();
 	}
 	
 	public void setSelection(int id)

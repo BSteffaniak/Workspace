@@ -120,6 +120,7 @@ public class CodeField extends StyledText
 	private ArrayList<ErrorLocation>					errorLocations;
 	private ArrayList<ContentListener>					contentListeners;
 	private ArrayList<CodeFieldListener>				codeFieldListeners;
+	private ArrayList<Integer>							curlyBraceLocations;
 
 	private HashMap<String, WordList>					identifierLists;
 	private HashMap<WordList, String>					identifierWords;
@@ -340,54 +341,6 @@ public class CodeField extends StyledText
 	    
 	    redrawReady = true;
 	    
-	    syntaxUpdater = new Thread()
-		{
-			public void run()
-			{
-				while (true)
-				{
-					synchronized (this)
-					{
-						try
-						{
-							wait();
-						}
-						catch (InterruptedException e)
-						{
-							e.printStackTrace();
-						}
-					}
-						
-					if (language > 0)
-					{
-						createSyntaxStyles();
-						createSyntaxStyles();
-					}
-					else
-					{
-						identifierLists.clear();
-						methodLists.clear();
-						identifierWords.clear();
-						methodWords.clear();
-						
-						setStyles(new StyleRange[0]);
-					}
-					
-					clearErrors();
-						
-					Display.getDefault().syncExec(new Runnable()
-					{
-						public void run()
-						{
-							thisField.redraw();//Range(0, thisField.getText().length(), true);
-						}
-					});
-				}
-			}
-		};
-		
-		syntaxUpdater.start();
-		
 		comp.addControlListener(new ControlListener()
 		{
 			public void controlResized(ControlEvent e)
@@ -408,7 +361,7 @@ public class CodeField extends StyledText
 	    {
 			public void handleEvent(final Event e)
 			{
-				final int start = thisField.getCaretOffset();
+				final int caretOffset = thisField.getCaretOffset();
 				
 				new Thread()
 				{
@@ -426,7 +379,7 @@ public class CodeField extends StyledText
 							{
 								StyleRange loc = list[j];
 								
-								if (start >= loc.start && start <= loc.start + loc.length)
+								if (caretOffset >= loc.start && caretOffset <= loc.start + loc.length)
 								{
 									identifier = identifierWords.get(lists[i]);
 								}
@@ -449,7 +402,7 @@ public class CodeField extends StyledText
 							{
 								StyleRange loc = list[j];
 								
-								if (identifier == null && start >= loc.start && start <= loc.start + loc.length)
+								if (identifier == null && caretOffset >= loc.start && caretOffset <= loc.start + loc.length)
 								{
 									method = methodWords.get(lists[i]);
 								}
@@ -647,10 +600,38 @@ public class CodeField extends StyledText
 	
 	public void highlightSyntax()
 	{
-		synchronized (syntaxUpdater)
+		syntaxUpdater = new Thread()
 		{
-			syntaxUpdater.notify();
-		}
+			public void run()
+			{
+				if (language > 0)
+				{
+					createSyntaxStyles();
+					createSyntaxStyles();
+				}
+				else
+				{
+					identifierLists.clear();
+					methodLists.clear();
+					identifierWords.clear();
+					methodWords.clear();
+					
+					setStyles(new StyleRange[0]);
+				}
+				
+				clearErrors();
+					
+				Display.getDefault().syncExec(new Runnable()
+				{
+					public void run()
+					{
+						thisField.redraw();//Range(0, thisField.getText().length(), true);
+					}
+				});
+			}
+		};
+		
+		syntaxUpdater.start();
 	}
 	
 	public void createSyntaxStyles()
@@ -662,6 +643,39 @@ public class CodeField extends StyledText
 				text = getText();//.replace("\\", "\\\\");
 			}
 		});
+		
+		curlyBraceLocations = new ArrayList<Integer>();
+		
+		int index = 0;
+		
+		while (index >= 0)
+		{
+			int index1 = text.indexOf('{', index + 1);
+			int index2 = text.indexOf('}', index + 1);
+			int index3 = text.indexOf('(', index + 1);
+			int index4 = text.indexOf(')', index + 1);
+			
+			int min = Math.min(index1, Math.min(index2, Math.min(index3, index4)));
+			
+			if (min < 0)
+			{
+				break;
+			}
+			
+//			char c = text.charAt(min);
+//			
+//			if (c == '{' || c == '(')
+//			{
+//				
+//			}
+			
+			curlyBraceLocations.add(min);
+			
+			index = min;
+			
+		}
+		
+		System.out.println(getScopeDepth(570));
 		
 		HashMap<String, WordList> tempIdLists     = null;
 		HashMap<String, WordList> tempMethodLists = null;
@@ -719,9 +733,9 @@ public class CodeField extends StyledText
 				nextWord = strings[i + 1];
 			}
 			
-			offsets[i]      = charCount;
+			offsets[i] = charCount;
 			
-			boolean isKeyword = Keyword.isKeyword(language, word);
+			boolean isKeyword    = Keyword.isKeyword(language, word);
 		
 			boolean alreadyAdded = false;
 			
@@ -731,10 +745,10 @@ public class CodeField extends StyledText
 			}
 			else if (isKeyword)
 			{
-				Keyword keyword       = Keyword.getKeyword(language, word);
+				Keyword keyword  = Keyword.getKeyword(language, word);
 				
-				int offset            = offsets[i];
-				int length            = word.length();
+				int offset       = offsets[i];
+				int length       = word.length();
 				
 				StyleRange range = new StyleRange(offset, length, keyword.getColor(), null);
 				
@@ -757,9 +771,9 @@ public class CodeField extends StyledText
 				int offset = offsets[i];
 				int length = word.length();
 				
-				WordList list    = tempIdLists.get(word);
+				WordList     list = tempIdLists.get(word);
 				
-				WordLocation loc = new WordLocation(offset, length);
+				WordLocation loc  = new WordLocation(offset, length);
 				
 				synchronized (list)
 				{
@@ -775,11 +789,11 @@ public class CodeField extends StyledText
 					else
 					{
 						StyleRange range = new StyleRange(offset, length, new Color(Display.getDefault(), 4, 150, 120), null);
-
-						addStyleRange(styles, range);
 						
 						idRanges.add(new WordRange(word, range));
 						identifierWords.put(list, word);
+
+						addStyleRange(styles, range);
 					}
 				}
 				
@@ -936,9 +950,9 @@ public class CodeField extends StyledText
 							}
 						}
 						
-						WordList list    = tempIdLists.get(word);
+						WordList     list = tempIdLists.get(word);
 						
-						WordLocation loc = new WordLocation(offset, length);
+						WordLocation loc  = new WordLocation(offset, length);
 						
 						if (list.containsWordLocation(loc))
 						{
@@ -1148,6 +1162,26 @@ public class CodeField extends StyledText
 		}
 		
 		return style;
+	}
+	
+	private int getScopeDepth(int location)
+	{
+		if (curlyBraceLocations.size() <= 0)
+		{
+			return 0;
+		}
+		
+		int index = 0, i = 0;
+		
+		do
+		{
+			index = curlyBraceLocations.get(i);
+			
+			++i;
+		}
+		while (location > index);
+		
+		return (i) / 2;
 	}
 	
 	private SpaceBetweenResult calculateSpaceBetween(String text, int start, char chars[], ArrayList<StyleRange> styles)
@@ -1540,7 +1574,7 @@ public class CodeField extends StyledText
 		
 //		if (language > 0)
 //		{
-			highlightSyntax();
+//		highlightSyntax();
 //		}
 	}
 	

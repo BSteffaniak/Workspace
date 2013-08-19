@@ -59,6 +59,7 @@ import net.foxycorndog.arrowide.dialog.preferencesdialogpanel.JavaPanel;
 import net.foxycorndog.arrowide.dialog.preferencesdialogpanel.PythonPanel;
 import net.foxycorndog.arrowide.event.CompilerEvent;
 import net.foxycorndog.arrowide.event.CompilerListener;
+import net.foxycorndog.arrowide.event.ProgramListener;
 import net.foxycorndog.arrowide.file.ConfigReader;
 import net.foxycorndog.arrowide.file.FileUtils;
 import net.foxycorndog.arrowide.formatter.Formatter;
@@ -128,7 +129,7 @@ import org.lwjgl.opengl.GLContext;
  * @version	Feb 13, 2013 at 4:46:00 PM
  * @version	v0.7
  */
-public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuListener
+public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuListener, ProgramListener
 {
 	private boolean								filesNeedRefresh;
 	private boolean								custom;
@@ -349,6 +350,8 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	public ArrowIDE(final Display display)
 	{
 		setArchitecture();
+		
+		final ArrowIDE thisIDE = this;
 		
 //		System.out.println(map.get("Contacts.Contact.ContactId")[0].getContents());
 		
@@ -740,19 +743,27 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 						try
 						{
 							Program program = Language.run(codeField.getLanguage(), fileLocation, consoleStream);
+							program.addListener(thisIDE);
 							
 							if (program != null)
 							{
-								for (int i = 0; i < programs.size(); i++)
+								for (int i = programs.size() - 1; i >= 0; i--)
 								{
 									Program p = programs.get(i);
 									
-									
+									if (!p.isRunning())
+									{
+										consoleTabs.closeTab(p.getId());
+										
+										programs.remove(i);
+									}
 								}
 								
 								programs.add(program);
 								
 								int tabId = consoleTabs.addTab(program.getName());
+								
+								program.setId(tabId);
 								
 								consoleTabPrograms.put(tabId, program);
 								
@@ -907,8 +918,6 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		final MenuItem delete = new MenuItem(m, SWT.CASCADE);
 		delete.setText("Delete");
-		
-		final ArrowIDE thisIDE = this;
 		
 		SelectionListener menuListener = new SelectionListener()
 		{
@@ -1444,7 +1453,6 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 				}
 			}
 		}
-		System.out.println("Asdf");
 		
 		if (shell != null && !shell.isDisposed())
 		{
@@ -1821,8 +1829,6 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			
 			codeField.setLanguage(Language.getLanguage(location));
 			
-			codeField.redraw();
-			
 			int tabId = tabFileIds.get(location);
 			
 			String oldLocation = fileLocation;
@@ -1871,8 +1877,6 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			
 			codeField.setText(fileContents, true);
 			
-			codeField.redraw();
-			
 			if (!location.equals(fileLocation))
 			{
 				addTab(location, cache);
@@ -1892,10 +1896,10 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		{
 			codeField.setLanguage(Language.getLanguage(location));
 		}
-			
-		codeField.highlightSyntax();
 		
+		codeField.highlightSyntax();
 		codeField.setFocus();
+		codeField.redraw();
 	}
 	
 	/**
@@ -2749,23 +2753,14 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		{
 			Program program = consoleTabPrograms.get(tabId);
 			
-			program.getProcess().destroy();
-			
-			programs.remove(program);
-			
-			int newId = consoleTabs.getSelected();
-			
-			if (newId <= 0 || newId == tabId)
+			if (program.isRunning())
 			{
-				mainProgram = null;
-				setMainProgram(0);
-			}
-			else
-			{
-				setMainProgram(newId);
+				program.getProcess().destroy();
 			}
 			
-			updateLayout();
+			removeProgram(program);
+			
+			resetMainProgram(tabId);
 		}
 		
 		return !cancel;
@@ -2812,6 +2807,24 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		}
 	}
 	
+	private void resetMainProgram(int tabId)
+	{
+		int newId = consoleTabs.getSelected();
+		
+		if (newId <= 0 || newId == tabId)
+		{
+			mainProgram = null;
+			
+			setMainProgram(0);
+		}
+		else
+		{
+			setMainProgram(newId);
+		}
+		
+		updateLayout();
+	}
+	
 	private void setMainProgram(int tabId)
 	{
 		if (consoleTabPrograms.containsKey(tabId))
@@ -2823,6 +2836,34 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		else
 		{
 			consoleField.setText("");
+		}
+	}
+	
+	/**
+	 * Remove the specified Program from the list of Programs.
+	 * 
+	 * @param program The specified Program to remove.
+	 */
+	public void removeProgram(Program program)
+	{
+		programs.remove(program);
+	}
+	
+	/**
+	 * Remove the Program with the specified id from the list of Programs.
+	 * 
+	 * @param id The specified id of the Program to remove.
+	 */
+	public void removeProgram(int id)
+	{
+		for (int i = programs.size() - 1; i >= 0; i--)
+		{
+			if (programs.get(i).getId() == id)
+			{
+				programs.remove(i);
+				
+				break;
+			}
 		}
 	}
 	
@@ -2851,7 +2892,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	 */
 	public boolean deleteFile(String location)
 	{
-		int treeId    = treeItemIds.get(location);
+		int treeId = treeItemIds.get(location);
 		
 		treeItemLocations.remove(treeId);
 		treeItemDirectories.remove(treeId);
@@ -2876,6 +2917,45 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			if (!consoleField.getText().equals(mainProgram.getText()))
 			{
 				consoleField.setText(mainProgram.getText());
+			}
+		}
+	}
+
+	/**
+	 * @see net.foxycorndog.arrowide.event.ProgramListener#errorMessageReceived(java.lang.String)
+	 */
+	public void errorMessageReceived(String message)
+	{
+		
+	}
+
+	/**
+	 * @see net.foxycorndog.arrowide.event.ProgramListener#messageReceived(java.lang.String)
+	 */
+	public void messageReceived(String message)
+	{
+		
+	}
+
+	/**
+	 * @see net.foxycorndog.arrowide.event.ProgramListener#programTerminated(net.foxycorndog.arrowide.Program)
+	 */
+	public void programTerminated(Program program)
+	{
+		if (!programs.contains(program))
+		{
+			return;
+		}
+		
+		if (program.getText().length() <= 0)
+		{
+			consoleTabs.closeTab(program.getId());
+			
+			programs.remove(program);
+			
+			if (programs.size() <= 0)
+			{
+				resetMainProgram(program.getId());
 			}
 		}
 	}

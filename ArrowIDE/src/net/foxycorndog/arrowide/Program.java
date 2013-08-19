@@ -1,5 +1,9 @@
 package net.foxycorndog.arrowide;
 
+import java.util.ArrayList;
+
+import net.foxycorndog.arrowide.event.ProgramListener;
+
 /**
  * Class used to organize the data that is used for each Program that
  * is ran.
@@ -12,11 +16,17 @@ package net.foxycorndog.arrowide;
  */
 public class Program
 {
+	private boolean			running;
+	
+	private int				id;
+	
 	private String			name;
 	
 	private StringBuilder	text;
 	
 	private Process 		process;
+	
+	private ArrayList<ProgramListener>	listeners;
 	
 	/**
 	 * Create a Program with the specified Process.
@@ -25,11 +35,71 @@ public class Program
 	 */
 	public Program(Process process, String name)
 	{
-		this.process = process;
+		this.process   = process;
 		
-		this.name    = name;
+		this.name      = name;
 		
-		this.text    = new StringBuilder();
+		this.text      = new StringBuilder();
+		
+		this.listeners = new ArrayList<ProgramListener>();
+	}
+	
+	/**
+	 * Get whether or not the program is running.
+	 * 
+	 * @return Whether or not the program is running.
+	 */
+	public boolean isRunning()
+	{
+		return running;
+	}
+	
+	/**
+	 * Set whether or not the program is running.
+	 * 
+	 * @param running Whether or not the program is running.
+	 */
+	public void setRunning(boolean running)
+	{
+		this.running = running;
+		
+		if (!running)
+		{
+			for (int i = listeners.size() - 1; i >= 0; i --)
+			{
+				listeners.get(i).programTerminated(this);
+			}
+		}
+	}
+	
+	/**
+	 * Get the tab id that this program is associated with.
+	 * 
+	 * @return The tab id that this program is associated with.
+	 */
+	public int getId()
+	{
+		return id;
+	}
+	
+	/**
+	 * Set the tab id that this program is associated with.
+	 * 
+	 * @param id The tab id that this program is associated with.
+	 */
+	public void setId(int id)
+	{
+		this.id = id;
+	}
+	
+	/**
+	 * Add the specified listener to the Program.
+	 * 
+	 * @param listener The ProgramListener to add.
+	 */
+	public void addListener(ProgramListener listener)
+	{
+		this.listeners.add(listener);
 	}
 	
 	/**
@@ -70,5 +140,10 @@ public class Program
 	public void append(String text)
 	{
 		this.text.append(text);
+		
+		for (int i = listeners.size() - 1; i >= 0; i --)
+		{
+			listeners.get(i).messageReceived(text);
+		}
 	}
 }

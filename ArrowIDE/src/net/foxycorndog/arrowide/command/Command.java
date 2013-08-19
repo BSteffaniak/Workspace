@@ -88,6 +88,8 @@ public class Command
 		
 		program = new Program(process, title);
 		
+		program.setRunning(true);
+		
 		new Thread()
 		{
 			public void run()
@@ -153,6 +155,14 @@ public class Command
 									process.waitFor();
 									
 									process.destroy();
+									
+									Display.getDefault().syncExec(new Runnable()
+									{
+										public void run()
+										{
+											program.setRunning(false);
+										}
+									});
 									
 									display.syncExec(new Runnable()
 									{
