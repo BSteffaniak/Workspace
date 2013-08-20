@@ -127,6 +127,8 @@ public class CodeField extends StyledText
 	private HashMap<WordList, String>					identifierWords;
 	private HashMap<String, WordList>					methodLists;
 	private HashMap<WordList, String>					methodWords;
+	
+	private static int									ids;
 
 	private static final String							whitespaceRegex;
 
@@ -171,21 +173,21 @@ public class CodeField extends StyledText
 	 */
 	private class WordList
 	{
-		private HashMap<WordLocation, StyleRange> styles;
+		private HashMap<WordLocation, WordRange> styles;
 		
 		public WordList()
 		{
-			styles = new HashMap<WordLocation, StyleRange>();
+			styles = new HashMap<WordLocation, WordRange>();
 		}
 		
-		public void add(StyleRange loc)
+		public void add(WordRange loc)
 		{
-			styles.put(new WordLocation(loc.start, loc.length), loc);
+			styles.put(new WordLocation(loc.range.start, loc.range.length), loc);
 		}
 		
-		public StyleRange[] stylesToArray()
+		public WordRange[] stylesToArray()
 		{
-			return styles.values().toArray(new StyleRange[0]);
+			return styles.values().toArray(new WordRange[0]);
 		}
 		
 		public WordLocation[] locationsToArray()
@@ -221,7 +223,7 @@ public class CodeField extends StyledText
 			{
 				if (arr[i].length == loc.length && arr[i].start == loc.start)
 				{
-					return styles.get(arr[i]);
+					return styles.get(arr[i]).range;
 				}
 			}
 			
@@ -267,6 +269,7 @@ public class CodeField extends StyledText
 		private boolean		isDefinition;
 		
 		private int			scopeStartLocation;
+		private int			id;
 		
 		private String		word;
 		private StyleRange	range;
@@ -277,6 +280,11 @@ public class CodeField extends StyledText
 			
 			this.word  = word;
 			this.range = range;
+			
+			if (isDefinition)
+			{
+				id = ++ids;
+			}
 		}
 	}
 	
@@ -597,27 +605,31 @@ public class CodeField extends StyledText
 	
 	public void setIdentifierSelected(WordRange word)
 	{
-		StyleRange list[] = identifierLists.get(word.word).stylesToArray();
-		
-		System.out.println(word.range.start + " " + word.isDefinition);
+		WordRange list[] = identifierLists.get(word.word).stylesToArray();
 		
 		for (int i = 0; i < list.length; i++)
 		{
-			StyleRange loc = list[i];
-			
-			loc.borderStyle = SWT.BORDER_DASH;
+			if (list[i].id == word.id)
+			{
+				StyleRange loc = list[i].range;
+				
+				loc.borderStyle = SWT.BORDER_DASH;
+			}
 		}
 	}
 	
 	public void setMethodSelected(WordRange word)
 	{
-		StyleRange list[] = methodLists.get(word.word).stylesToArray();
+		WordRange list[] = methodLists.get(word.word).stylesToArray();
 		
 		for (int i = 0; i < list.length; i++)
 		{
-			StyleRange loc = list[i];
-			
-			loc.borderStyle = SWT.BORDER_DASH;
+			if (list[i].id == word.id)
+			{
+				StyleRange loc = list[i].range;
+				
+				loc.borderStyle = SWT.BORDER_DASH;
+			}
 		}
 	}
 	
@@ -836,7 +848,25 @@ public class CodeField extends StyledText
 						}
 					}
 					
+					int id = 0;
+					
+					for (int j = idRanges.size() - 1; j >= 0; j--)
+					{
+						if (idRanges.get(j).word.equals(word))
+						{
+							id = idRanges.get(j).id;
+							
+							break;
+						}
+					}
+					
+					if (id == 0)
+					{
+						id = ++ids;
+					}
+					
 					WordRange wordRange = new WordRange(word, range, isDefinition);
+					wordRange.id        = id;
 					
 					if (isDefinition)
 					{
@@ -942,8 +972,6 @@ public class CodeField extends StyledText
 						else
 						{
 							range = new StyleRange(offset, length, methodProperties.COLOR, null);
-							
-							tempMethodLists.get(word).add(range);
 						}
 						
 						boolean isDefinition = false;
@@ -965,6 +993,11 @@ public class CodeField extends StyledText
 							
 						methodRanges.add(wordRange);
 						addStyleRange(styles, range);
+						
+						if (!list.containsWordLocation(loc))
+						{
+							tempMethodLists.get(word).add(wordRange);
+						}
 					}
 				}
 				else
@@ -972,7 +1005,6 @@ public class CodeField extends StyledText
 					StyleRange range = new StyleRange(offset, length, methodProperties.COLOR, null);
 					
 					WordList locs = new WordList();
-					locs.add(range);
 					
 					boolean isDefinition = false;
 					
@@ -992,6 +1024,7 @@ public class CodeField extends StyledText
 					}
 						
 					methodRanges.add(wordRange);
+					locs.add(wordRange);
 					
 					methodLists.put(word, locs);
 					methodWords.put(locs, word);
@@ -1043,8 +1076,6 @@ public class CodeField extends StyledText
 							range = new StyleRange(offset, length, new Color(Display.getDefault(), 4, 150, 120), null);
 
 							addStyleRange(styles, range);
-
-							tempIdLists.get(word).add(range);
 						}
 						
 						boolean isDefinition = false;
@@ -1054,7 +1085,6 @@ public class CodeField extends StyledText
 							if (!Keyword.isKeyword(language, prevWord))
 							{
 								isDefinition = true;
-								System.out.println(word + " at " + charCount + " is a definition.");
 							}
 						}
 						
@@ -1066,6 +1096,11 @@ public class CodeField extends StyledText
 						}
 							
 						idRanges.add(wordRange);
+						
+						if (!list.containsWordLocation(loc))
+						{
+							tempIdLists.get(word).add(wordRange);
+						}
 					}
 					else
 					{
@@ -1074,7 +1109,6 @@ public class CodeField extends StyledText
 						addStyleRange(styles, range);
 						
 						WordList locs = new WordList();
-						locs.add(range);
 						
 						boolean isDefinition = false;
 						
@@ -1083,7 +1117,6 @@ public class CodeField extends StyledText
 							if (!Keyword.isKeyword(language, prevWord))
 							{
 								isDefinition = true;
-								System.out.println(word + " at " + charCount + " is a definition.");
 							}
 						}
 						
@@ -1095,6 +1128,7 @@ public class CodeField extends StyledText
 						}
 							
 						idRanges.add(wordRange);
+						locs.add(wordRange);
 						
 						identifierLists.put(word, locs);
 						identifierWords.put(locs, word);
@@ -1140,7 +1174,7 @@ public class CodeField extends StyledText
 				continue;
 			}
 			
-			list.add(idRanges.get(i).range);
+			list.add(idRanges.get(i));
 		}
 		
 		for (int i = 0; i < methodRanges.size(); i++)
@@ -1152,7 +1186,7 @@ public class CodeField extends StyledText
 				continue;
 			}
 			
-			list.add(methodRanges.get(i).range);
+			list.add(methodRanges.get(i));
 		}
 		
 		StyleRange range = null;
