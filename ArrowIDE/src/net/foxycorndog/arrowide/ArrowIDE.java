@@ -289,14 +289,14 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		if (os.equals("windows"))
 		{
-			try
-			{
-				System.load(new File("res/SysArch32.dll").getAbsolutePath());
-			}
-			catch (UnsatisfiedLinkError e)
-			{
-				System.load(new File("res/SysArch.dll").getAbsolutePath());
-			}
+//			try
+//			{
+//				System.load(new File("res/SysArch32.dll").getAbsolutePath());
+//			}
+//			catch (UnsatisfiedLinkError e)
+//			{
+//				System.load(new File("res/SysArch.dll").getAbsolutePath());
+//			}
 		}
 		else if (os.equals("macosx"))
 		{
@@ -324,7 +324,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		}
 		else
 		{
-			bitness = cpuSupports64() ? 64 : 32;
+//			bitness = cpuSupports64() ? 64 : 32;
 		}
 		
 		PROPERTIES.put("os.arch", bitness);
