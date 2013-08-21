@@ -848,15 +848,34 @@ public class CodeField extends StyledText
 						}
 					}
 					
+					boolean isGlobal = prevWord.equals("this") && oldResult.firstCharOtherThanSpace == '.' && oldResult.chars.length == 1;
+					
+					WordRange wordRange = new WordRange(word, range, isDefinition);
+					wordRange.scopeStartLocation = getScopeStartLocation(charCount);
+					
 					int id = 0;
 					
-					for (int j = idRanges.size() - 1; j >= 0; j--)
+					if (!isDefinition)
 					{
-						if (idRanges.get(j).word.equals(word))
+						for (int j = idRanges.size() - 1; j >= 0; j--)
 						{
-							id = idRanges.get(j).id;
+							WordRange r = idRanges.get(j);
 							
-							break;
+							if (r.word.equals(word))
+							{
+								if (r.isDefinition)
+								{
+									if (isGlobal && getScopeDepth(r.range.start) == 1 || !isGlobal)
+									{
+										if (isDefinitionOf(r, wordRange))
+										{
+											id = r.id;
+											
+											break;
+										}
+									}
+								}
+							}
 						}
 					}
 					
@@ -865,13 +884,7 @@ public class CodeField extends StyledText
 						id = ++ids;
 					}
 					
-					WordRange wordRange = new WordRange(word, range, isDefinition);
 					wordRange.id        = id;
-					
-					if (isDefinition)
-					{
-						wordRange.scopeStartLocation = getScopeStartLocation(charCount);
-					}
 						
 					idRanges.add(wordRange);
 
@@ -1370,6 +1383,51 @@ public class CodeField extends StyledText
 		while (location > index && i < scopeStartLocations.size());
 		
 		return scopeStartLocations.get(i - 1);
+	}
+	
+	private boolean isDefinitionOf(WordRange definitionCandidate, WordRange identifier)
+	{
+		if (identifier.scopeStartLocation < definitionCandidate.scopeStartLocation)
+		{
+			if (getScopeDepth(definitionCandidate.range.start) == 1)
+			{
+				return true;
+			}
+			
+			return false;
+		}
+		
+		int start = identifier.scopeStartLocation;
+		int delta = 1;
+		
+		int i     = scopeEndLocations.size() - 1;
+		
+		while (scopeEndLocations.get(i) > identifier.range.start)
+		{
+			i--;
+		}
+		
+//		++i;
+		
+		start = scopeEndLocations.get(i);
+		
+		while (start > definitionCandidate.scopeStartLocation && i > 0)
+		{
+			if (scopeEndLocations.get(i) > definitionCandidate.scopeStartLocation)
+			{
+				delta++;
+			}
+			if (scopeStartLocations.get(i) > definitionCandidate.scopeStartLocation)
+			{
+				delta--;
+			}
+			
+			i--;
+		}
+		
+		System.out.println(delta);
+		
+		return delta > 0;
 	}
 	
 	private SpaceBetweenResult calculateSpaceBetween(String text, int start, char chars[], ArrayList<StyleRange> styles)

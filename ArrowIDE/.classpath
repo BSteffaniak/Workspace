@@ -3,6 +3,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="/LWJGL/LWJGL/lwjgl-2.8.5/jar/lwjgl.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.swt 32"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/org.eclipse.swt win_64"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
