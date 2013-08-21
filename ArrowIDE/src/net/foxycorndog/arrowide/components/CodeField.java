@@ -404,6 +404,11 @@ public class CodeField extends StyledText
 	    {
 			public void handleEvent(final Event e)
 			{
+				if (idRanges == null)
+				{
+					return;
+				}
+				
 				final int caretOffset = thisField.getCaretOffset();
 				
 				new Thread()
@@ -1419,7 +1424,10 @@ public class CodeField extends StyledText
 			}
 			if (scopeStartLocations.get(i) > definitionCandidate.scopeStartLocation)
 			{
-				delta--;
+				if (delta > 0)
+				{
+					delta--;
+				}
 			}
 			
 			i--;
