@@ -305,6 +305,11 @@ public class CodeField extends StyledText
 		
 		private char	chars[];
 		
+		public boolean containsWhitespace()
+		{
+			return containsWhitespace(new char[0]);
+		}
+		
 		public boolean containsWhitespace(char exceptions[])
 		{
 			for (int i = 0; i < chars.length; i++)
@@ -698,6 +703,8 @@ public class CodeField extends StyledText
 			
 			int min = Math.min(index1, Math.min(index2, Math.min(index3, index4)));
 			
+			index   = min;
+			
 			if (min < 0)
 			{
 				break;
@@ -707,15 +714,27 @@ public class CodeField extends StyledText
 			
 			if (c == '{' || c == '(')
 			{
-				scopeStartLocations.add(min);
+//				if (c == '(' && !isMethodDefinition(min - 1))
+//				{
+//					System.out.println("def not " + (min - 1));
+//					index = index4;
+//				}
+//				else
+				{
+					scopeStartLocations.add(min);
+				}
 			}
 			else
 			{
-				scopeEndLocations.add(min);
+//				if (scopeEndLocations.size() >= scopeStartLocations.size())
+//				{
+////					System.out.println("def not2 " + (min - 1));
+//				}
+//				else
+				{
+					scopeEndLocations.add(min);
+				}
 			}
-			
-			index = min;
-			
 		}
 		
 		HashMap<String, WordList> tempIdLists     = null;
@@ -833,9 +852,9 @@ public class CodeField extends StyledText
 					
 					boolean isDefinition = false;
 					
-					if (oldResult.containsWhitespace(new char[0]))
+					if (oldResult.containsWhitespace())
 					{
-						if (!Keyword.isKeyword(language, prevWord))
+//						if (!Keyword.isKeyword(language, prevWord))
 						{
 							isDefinition = true;
 						}
@@ -1333,9 +1352,9 @@ public class CodeField extends StyledText
 			return 0;
 		}
 		
-		int index   = 0;
-		int i       = 0;
-		int scope   = 0;
+		int index = 0;
+		int i     = 0;
+		int scope = 0;
 		
 		do
 		{
@@ -1374,20 +1393,18 @@ public class CodeField extends StyledText
 			return -1;
 		}
 		
-		int index   = 0;
-		int i       = 0;
+		int index = 0;
+		int i     = scopeStartLocations.size();
 		
 		do
 		{
-			int start = scopeStartLocations.get(i);
+			int start = scopeStartLocations.get(--i);
 			
 			index = start;
-			
-			++i;
 		}
-		while (location > index && i < scopeStartLocations.size());
+		while (location < index && i > 0);
 		
-		return scopeStartLocations.get(i - 1);
+		return scopeStartLocations.get(i);
 	}
 	
 	private boolean isDefinitionOf(WordRange definitionCandidate, WordRange identifier)
@@ -1402,23 +1419,22 @@ public class CodeField extends StyledText
 			return false;
 		}
 		
-		int start = identifier.scopeStartLocation;
-		int delta = 1;
+		int delta = 0;
 		
 		int i     = scopeEndLocations.size() - 1;
 		
 		while (scopeEndLocations.get(i) > identifier.range.start)
 		{
+			System.out.println("a: " + scopeEndLocations.get(i) + " " + i + " " + scopeEndLocations.size());
 			i--;
 		}
 		
-//		++i;
+		System.out.println(scopeEndLocations.get(i));
 		
-		start = scopeEndLocations.get(i);
-		
-		while (start > definitionCandidate.scopeStartLocation && i > 0)
+		while (i > 0)
 		{
-			if (scopeEndLocations.get(i) > definitionCandidate.scopeStartLocation)
+			// If it is a field then skip.
+			if (i > 1 && scopeEndLocations.get(i) > definitionCandidate.scopeStartLocation)
 			{
 				delta++;
 			}
@@ -1429,13 +1445,34 @@ public class CodeField extends StyledText
 					delta--;
 				}
 			}
+			System.out.println(identifier.word + " " + scopeStartLocations.get(i) + " " + definitionCandidate.scopeStartLocation);
 			
 			i--;
 		}
 		
-		System.out.println(delta);
+		System.out.println(identifier.word + " " + identifier.range.start + " " + delta);
 		
-		return delta > 0;
+		return delta <= 0;
+	}
+	
+	private boolean isMethodDefinition(int location)
+	{
+		if (methodRanges == null)
+		{
+			return false;
+		}
+		
+		for (int i = methodRanges.size() - 1; i >= 0; i--)
+		{
+			WordRange r = methodRanges.get(i);
+			
+			if (r.range.start <= location && r.range.start + r.range.length > location)
+			{
+				return r.isDefinition;
+			}
+		}
+		
+		return false;
 	}
 	
 	private SpaceBetweenResult calculateSpaceBetween(String text, int start, char chars[], ArrayList<StyleRange> styles)
