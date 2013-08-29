@@ -694,18 +694,23 @@ public class CodeField extends StyledText
 		
 		int index = 0;
 		
-		while (index >= 0)
+		while (true)
 		{
 			int index1 = text.indexOf('{', index + 1);
 			int index2 = text.indexOf('}', index + 1);
 			int index3 = text.indexOf('(', index + 1);
 			int index4 = text.indexOf(')', index + 1);
 			
+			index1 = index1 < 0 ? Integer.MAX_VALUE : index1;
+			index2 = index2 < 0 ? Integer.MAX_VALUE : index2;
+			index3 = index3 < 0 ? Integer.MAX_VALUE : index3;
+			index4 = index4 < 0 ? Integer.MAX_VALUE : index4;
+			
 			int min = Math.min(index1, Math.min(index2, Math.min(index3, index4)));
 			
 			index   = min;
 			
-			if (min < 0)
+			if (min >= Integer.MAX_VALUE)
 			{
 				break;
 			}
@@ -1421,34 +1426,37 @@ public class CodeField extends StyledText
 		
 		int delta = 0;
 		
-		int i     = scopeEndLocations.size() - 1;
+//		int i     = scopeStartLocations.size() - 1;
+//		
+//		while (scopeStartLocations.get(i) > identifier.range.start)
+//		{
+//			System.out.println("a: " + scopeStartLocations.get(i) + " " + i + " " + scopeStartLocations.size());
+//			i--;
+//		}
+//		
+//		System.out.println(scopeStartLocations.get(i));
 		
-		while (scopeEndLocations.get(i) > identifier.range.start)
-		{
-			System.out.println("a: " + scopeEndLocations.get(i) + " " + i + " " + scopeEndLocations.size());
-			i--;
-		}
+//		while (i > 0)
+//		{
+//			// If it is a field then skip.
+//			if (i > 1 && scopeEndLocations.get(i) > definitionCandidate.scopeStartLocation)
+//			{
+//				delta++;
+//			}
+//			if (scopeStartLocations.get(i) > definitionCandidate.scopeStartLocation)
+//			{
+//				if (delta > 0)
+//				{
+//					delta--;
+//				}
+//			}
+//			System.out.println(identifier.word + " " + scopeStartLocations.get(i) + " " + definitionCandidate.scopeStartLocation);
+//			
+//			i--;
+//		}
 		
-		System.out.println(scopeEndLocations.get(i));
-		
-		while (i > 0)
-		{
-			// If it is a field then skip.
-			if (i > 1 && scopeEndLocations.get(i) > definitionCandidate.scopeStartLocation)
-			{
-				delta++;
-			}
-			if (scopeStartLocations.get(i) > definitionCandidate.scopeStartLocation)
-			{
-				if (delta > 0)
-				{
-					delta--;
-				}
-			}
-			System.out.println(identifier.word + " " + scopeStartLocations.get(i) + " " + definitionCandidate.scopeStartLocation);
-			
-			i--;
-		}
+		int start = scopeStartLocations.size() - 1;
+		int end   = scopeEndLocations.size() - 1;
 		
 		System.out.println(identifier.word + " " + identifier.range.start + " " + delta);
 		
