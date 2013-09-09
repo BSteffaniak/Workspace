@@ -19,7 +19,9 @@ import net.foxycorndog.jfoxylib.opengl.GL;
  */
 public class ResourceLocator
 {
-	private	static	final	String	projectDirectory;
+	private static String		nativesLocation;
+	
+	private static final String	projectDirectory;
 	
 	/**
 	 * Locate the project.
@@ -118,6 +120,33 @@ public class ResourceLocator
 	}
 	
 	/**
+	 * Get the location of the natives folder in the file system.
+	 * If the value is null, the natives are searched for in the working
+	 * directory.
+	 * 
+	 * @return The location of the natives folder in the file system.
+	 */
+	public static String getNativesLocation()
+	{
+		return nativesLocation;
+	}
+	
+	/**
+	 * Set the location to search for the natives folder in.
+	 * 
+	 * @param nativesLocation The parent directory of the natives folder.
+	 */
+	public static void setNativesLocation(String nativesLocation)
+	{
+		if (!nativesLocation.endsWith("/"))
+		{
+			nativesLocation += "/";
+		}
+		
+		ResourceLocator.nativesLocation = nativesLocation;
+	}
+	
+	/**
 	 * Locate the native files needed to run the LWJGL library. They
 	 * should be located in a folder labeled "native" in the same
 	 * directory that the JFoxyLib is located in.
@@ -147,7 +176,16 @@ public class ResourceLocator
 			throw new RuntimeException("Unknown operating system!");
 		}
 		
-		String nativeLocation = projectDirectory + "native/" + os;
+		String nativeLocation = null;
+		
+		if (nativesLocation == null)
+		{
+			nativeLocation = projectDirectory + "native/" + os;
+		}
+		else
+		{
+			nativeLocation = nativesLocation + "native/" + os;
+		}
 		
 //		System.setProperty("java.library.path", System.getProperty("java.library.path") + ";" + nativeLocation + ";");
 		System.setProperty("org.lwjgl.librarypath", nativeLocation);

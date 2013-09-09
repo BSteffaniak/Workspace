@@ -1456,7 +1456,28 @@ public class CodeField extends StyledText
 //		}
 		
 		int start = scopeStartLocations.size() - 1;
-		int end   = scopeEndLocations.size() - 1;
+		
+		while (start >= 0 && scopeStartLocations.get(start) >= identifier.range.start)
+		{
+			start--;
+		}
+		
+		if (start < 0)
+		{
+			start = 0;
+		}
+		
+		int end = scopeEndLocations.size() - 1;
+		
+		while (end >= 0 && scopeEndLocations.get(end) >= identifier.range.start)
+		{
+			end--;
+		}
+		
+		if (start < 0)
+		{
+			end = 0;
+		}
 		
 		System.out.println(identifier.word + " " + identifier.range.start + " " + delta);
 		

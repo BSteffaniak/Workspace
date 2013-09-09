@@ -217,6 +217,11 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 
 	public native boolean cpuSupports64();
 	
+//	static
+//	{
+//		System.setProperty("java.library.path", "org.eclipse.swt;" + System.getProperty("java.library.path"));
+//	}
+	
 	/**
 	 * Instantiate the {@link #DISPLAY display}, and the color palette.
 	 */
@@ -1326,11 +1331,26 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 //		splash.open(3000);
 		
-		untitledNumber = 0;
+		untitledNumber  = 0;
 		
-		ArrowIDE ide = null;
+		ArrowIDE ide    = null;
 
-		configLocation       = new File("arrow.config").getAbsolutePath().replace('\\', '/');
+		File configFile = new File("arrow.config");
+		
+		if (!configFile.isFile())
+		{
+			try
+			{
+				configFile.createNewFile();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				System.exit(1);
+			}
+		}
+		
+		configLocation = configFile.getAbsolutePath().replace('\\', '/');
 		
 		loadLibs();
 		
@@ -1516,7 +1536,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	{
 		File workspaceDirectory = null;
 		
-		if (!CONFIG_DATA.containsKey("workspace.location"))
+		if (!CONFIG_DATA.containsKey("workspace.location") || new File(CONFIG_DATA.get("workspace.location")).isDirectory() == false)
 		{
 			chooseWorkspace();
 		}
