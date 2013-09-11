@@ -227,7 +227,23 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	 */
 	static
 	{
-		DISPLAY = new Display();
+		Display disp = null;
+		
+		try
+		{
+			disp = new Display();
+		}
+		catch (UnsatisfiedLinkError e)
+		{
+			System.err.println("You probably are getting this error because " +
+					"you have the wrong cpu architecture version downloaded. " +
+					"Try again with a different architecture. (ie. If you " +
+					"downloaded the x32 arch, download the x64, or vice versa)");
+			
+			e.printStackTrace();
+		}
+		
+		DISPLAY = disp;
 		
 		TITLE_BAR_BACKGROUND = new Color(DISPLAY, 240, 240, 240);
 		TITLE_BAR_FOREGROUND = TITLE_BAR_BACKGROUND;

@@ -859,7 +859,7 @@ public class CodeField extends StyledText
 					
 					if (oldResult.containsWhitespace())
 					{
-//						if (!Keyword.isKeyword(language, prevWord))
+						if (!prevWord.equals("return"))//!Keyword.isKeyword(language, prevWord))
 						{
 							isDefinition = true;
 						}
