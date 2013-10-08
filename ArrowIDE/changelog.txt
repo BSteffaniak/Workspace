@@ -1,0 +1,4 @@
+v0.7.5
++ Added support for C language syntax highlighting.
+???- Removed the period character after line numbers.
+* Fixed removing syntax highlighting when switching from Language file to text file.

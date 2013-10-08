@@ -62,7 +62,6 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Text;
 
 import sun.swing.BakedArrayList;
-
 import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
 
 /**
@@ -442,7 +441,7 @@ public class CodeField extends StyledText
 						{
 							StyleRange loc = methodRanges.get(i).range;
 							
-							if (identifier == null && caretOffset >= loc.start && caretOffset <= loc.start + loc.length)
+							if (caretOffset >= loc.start && caretOffset <= loc.start + loc.length)
 							{
 								method = methodRanges.get(i);
 							}
@@ -610,7 +609,13 @@ public class CodeField extends StyledText
 	
 	public void select()
 	{
-		identifierSelectorListener.handleEvent(null);
+		Display.getDefault().syncExec(new Runnable()
+		{
+			public void run()
+			{
+				identifierSelectorListener.handleEvent(null);
+			}
+		});
 	}
 	
 	public void setIdentifierSelected(WordRange word)
@@ -656,15 +661,18 @@ public class CodeField extends StyledText
 				}
 				else
 				{
+					clearRanges();
+					clearScopes();
+					
 					identifierLists.clear();
 					methodLists.clear();
 					identifierWords.clear();
 					methodWords.clear();
-					
-					setStyles(new StyleRange[0]);
 				}
 				
 				clearErrors();
+				
+				select();
 					
 				Display.getDefault().syncExec(new Runnable()
 				{
@@ -676,11 +684,31 @@ public class CodeField extends StyledText
 			}
 		};
 		
+		if (syntaxUpdater.isAlive())
+		{
+			try
+			{
+				syntaxUpdater.join();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
 		syntaxUpdater.start();
 	}
 	
 	public void createSyntaxStyles()
 	{
+		if (methodProperties == null || identifierProperties == null)
+		{
+			clearRanges();
+			clearScopes();
+			
+			return;
+		}
+		
 		Display.getDefault().syncExec(new Runnable()
 		{
 			public void run()
@@ -689,58 +717,7 @@ public class CodeField extends StyledText
 			}
 		});
 		
-		scopeStartLocations = new ArrayList<Integer>();
-		scopeEndLocations   = new ArrayList<Integer>();
-		
-		int index = 0;
-		
-		while (true)
-		{
-			int index1 = text.indexOf('{', index + 1);
-			int index2 = text.indexOf('}', index + 1);
-			int index3 = text.indexOf('(', index + 1);
-			int index4 = text.indexOf(')', index + 1);
-			
-			index1 = index1 < 0 ? Integer.MAX_VALUE : index1;
-			index2 = index2 < 0 ? Integer.MAX_VALUE : index2;
-			index3 = index3 < 0 ? Integer.MAX_VALUE : index3;
-			index4 = index4 < 0 ? Integer.MAX_VALUE : index4;
-			
-			int min = Math.min(index1, Math.min(index2, Math.min(index3, index4)));
-			
-			index   = min;
-			
-			if (min >= Integer.MAX_VALUE)
-			{
-				break;
-			}
-			
-			char c = text.charAt(min);
-			
-			if (c == '{' || c == '(')
-			{
-//				if (c == '(' && !isMethodDefinition(min - 1))
-//				{
-//					System.out.println("def not " + (min - 1));
-//					index = index4;
-//				}
-//				else
-				{
-					scopeStartLocations.add(min);
-				}
-			}
-			else
-			{
-//				if (scopeEndLocations.size() >= scopeStartLocations.size())
-//				{
-////					System.out.println("def not2 " + (min - 1));
-//				}
-//				else
-				{
-					scopeEndLocations.add(min);
-				}
-			}
-		}
+		generateScopes();
 		
 		HashMap<String, WordList> tempIdLists     = null;
 		HashMap<String, WordList> tempMethodLists = null;
@@ -1183,29 +1160,7 @@ public class CodeField extends StyledText
 			oldResult = newResult;
 		}
 		
-		for (int i = 0; i < idRanges.size(); i++)
-		{
-			WordList list = identifierLists.get(idRanges.get(i).word);
-			
-			if (list == null)
-			{
-				continue;
-			}
-			
-			list.styles.clear();
-		}
-		
-		for (int i = 0; i < methodRanges.size(); i++)
-		{
-			WordList list = methodLists.get(methodRanges.get(i).word);
-			
-			if (list == null)
-			{
-				continue;
-			}
-			
-			list.styles.clear();
-		}
+		clearRanges();
 		
 		for (int i = 0; i < idRanges.size(); i++)
 		{
@@ -1288,7 +1243,110 @@ public class CodeField extends StyledText
 			}
 		}
 		
-		thisField.setStyles((StyleRange[])styles.toArray(new StyleRange[0]));
+		setStyles((StyleRange[])styles.toArray(new StyleRange[0]));
+	}
+	
+	private void generateScopes()
+	{
+		scopeStartLocations = new ArrayList<Integer>();
+		scopeEndLocations   = new ArrayList<Integer>();
+		
+		int index = 0;
+		
+		while (true)
+		{
+			int index1 = text.indexOf('{', index + 1);
+			int index2 = text.indexOf('}', index + 1);
+			int index3 = text.indexOf('(', index + 1);
+			int index4 = text.indexOf(')', index + 1);
+			
+			index1 = index1 < 0 ? Integer.MAX_VALUE : index1;
+			index2 = index2 < 0 ? Integer.MAX_VALUE : index2;
+			index3 = index3 < 0 ? Integer.MAX_VALUE : index3;
+			index4 = index4 < 0 ? Integer.MAX_VALUE : index4;
+			
+			int min = Math.min(index1, Math.min(index2, Math.min(index3, index4)));
+			
+			index   = min;
+			
+			if (min >= Integer.MAX_VALUE)
+			{
+				break;
+			}
+			
+			char c = text.charAt(min);
+			
+			if (c == '{' || c == '(')
+			{
+//				if (c == '(' && !isMethodDefinition(min - 1))
+//				{
+//					System.out.println("def not " + (min - 1));
+//					index = index4;
+//				}
+//				else
+				{
+					scopeStartLocations.add(min);
+				}
+			}
+			else
+			{
+//				if (scopeEndLocations.size() >= scopeStartLocations.size())
+//				{
+////					System.out.println("def not2 " + (min - 1));
+//				}
+//				else
+				{
+					scopeEndLocations.add(min);
+				}
+			}
+		}
+	}
+	
+	private void clearScopes()
+	{
+		if (scopeStartLocations != null)
+		{
+			scopeStartLocations.clear();
+		} 
+		if (scopeEndLocations != null)
+		{
+			scopeEndLocations.clear();
+		}
+	}
+	
+	private void clearRanges()
+	{
+		setStyles(new StyleRange[0]);
+		
+		if (idRanges != null)
+		{
+			for (int i = 0; i < idRanges.size(); i++)
+			{
+				WordList list = identifierLists.get(idRanges.get(i).word);
+				
+				if (list == null)
+				{
+					continue;
+				}
+				
+				list.styles.clear();
+			}
+		}
+		
+		if (methodRanges != null)
+		{
+			for (int i = 0; i < methodRanges.size(); i++)
+			{
+				WordList list = methodLists.get(methodRanges.get(i).word);
+				
+				if (list == null)
+				{
+					continue;
+				}
+				
+				list.styles.clear();
+			}
+		}
 	}
 	
 	private void addStyleRange(ArrayList<StyleRange> styles, StyleRange range)
@@ -1479,7 +1537,7 @@ public class CodeField extends StyledText
 			end = 0;
 		}
 		
-		System.out.println(identifier.word + " " + identifier.range.start + " " + delta);
+		//System.out.println(identifier.word + " " + identifier.range.start + " " + delta);
 		
 		return delta <= 0;
 	}
@@ -1894,7 +1952,7 @@ public class CodeField extends StyledText
 		
 //		if (language > 0)
 //		{
-//		highlightSyntax();
+		highlightSyntax();
 //		}
 	}
 	

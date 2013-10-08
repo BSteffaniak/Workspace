@@ -17,6 +17,7 @@ import net.foxycorndog.arrowide.dialog.FileBrowseDialog;
 import net.foxycorndog.arrowide.event.CompilerListener;
 import net.foxycorndog.arrowide.file.FileUtils;
 import net.foxycorndog.arrowide.language.assembly.AssemblyLanguage;
+import net.foxycorndog.arrowide.language.c.CLanguage;
 import net.foxycorndog.arrowide.language.cpp.CppLanguage;
 import net.foxycorndog.arrowide.language.foxy.FoxyLanguage;
 import net.foxycorndog.arrowide.language.glsl.GLSLLanguage;
@@ -47,6 +48,7 @@ public class Language
 		Keyword.addLanguage(ASSEMBLY);
 		Keyword.addLanguage(FOXY);
 		Keyword.addLanguage(CPP);
+		Keyword.addLanguage(C);
 		Keyword.addLanguage(PHP);
 		Keyword.addLanguage(PYTHON);
 		
@@ -55,6 +57,7 @@ public class Language
 		AssemblyLanguage.init();
 		FoxyLanguage.init();
 		CppLanguage.init();
+		CLanguage.init();
 		PHPLanguage.init();
 		PythonLanguage.init();
 		
@@ -63,6 +66,7 @@ public class Language
 		commentProperties.put(ASSEMBLY, AssemblyLanguage.COMMENT_PROPERTIES);
 		commentProperties.put(FOXY, FoxyLanguage.COMMENT_PROPERTIES);
 		commentProperties.put(CPP, CppLanguage.COMMENT_PROPERTIES);
+		commentProperties.put(C, CppLanguage.COMMENT_PROPERTIES);
 		commentProperties.put(PHP, PHPLanguage.COMMENT_PROPERTIES);
 		commentProperties.put(PYTHON, PythonLanguage.COMMENT_PROPERTIES);
 		
@@ -71,6 +75,7 @@ public class Language
 		methodProperties.put(ASSEMBLY, AssemblyLanguage.METHOD_PROPERTIES);
 		methodProperties.put(FOXY, FoxyLanguage.METHOD_PROPERTIES);
 		methodProperties.put(CPP, CppLanguage.METHOD_PROPERTIES);
+		methodProperties.put(C, CppLanguage.METHOD_PROPERTIES);
 		methodProperties.put(PHP, PHPLanguage.METHOD_PROPERTIES);
 		methodProperties.put(PYTHON, PythonLanguage.METHOD_PROPERTIES);
 		
@@ -79,6 +84,7 @@ public class Language
 		identifierProperties.put(ASSEMBLY, AssemblyLanguage.IDENTIFIER_PROPERTIES);
 		identifierProperties.put(FOXY, FoxyLanguage.IDENTIFIER_PROPERTIES);
 		identifierProperties.put(CPP, CppLanguage.IDENTIFIER_PROPERTIES);
+		identifierProperties.put(C, CppLanguage.IDENTIFIER_PROPERTIES);
 		identifierProperties.put(PHP, PHPLanguage.IDENTIFIER_PROPERTIES);
 		identifierProperties.put(PYTHON, PythonLanguage.IDENTIFIER_PROPERTIES);
 	}
@@ -111,6 +117,10 @@ public class Language
 		else if (language == PYTHON)
 		{
 			return PythonLanguage.run(fileLocation, stream);
+		}
+		else
+		{
+			throw new UnsupportedOperationException("The deployment of the specified language is not currently supported by ArrowIDE.");
 		}
 		
 		return null;

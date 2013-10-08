@@ -16,6 +16,15 @@ import org.eclipse.swt.widgets.Listener;
 
 import net.foxycorndog.arrowide.language.Keyword;
 
+/**
+ * 
+ * 
+ * @author	Braden Steffaniak
+ * @since	Oct 5, 2013 at 4:55:34 PM
+ * @since	v0.1
+ * @version	Oct 5, 2013 at 4:55:34 PM
+ * @version	v0.7.5
+ */
 public class FileUtils
 {
 //	private static final HashMap<String, HashSet<String>>	ENDINGS;

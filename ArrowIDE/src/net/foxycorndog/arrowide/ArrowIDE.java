@@ -1863,8 +1863,6 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		{
 			codeField.setText(fileCache.get(location), true, true);
 			
-			codeField.setLanguage(Language.getLanguage(location));
-			
 			int tabId = tabFileIds.get(location);
 			
 			String oldLocation = fileLocation;
@@ -1932,8 +1930,11 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		{
 			codeField.setLanguage(Language.getLanguage(location));
 		}
+		else
+		{
+			codeField.highlightSyntax();
+		}
 		
-		codeField.highlightSyntax();
 		codeField.setFocus();
 		codeField.redraw();
 	}
@@ -2097,7 +2098,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		codeField.setLanguage(Language.getLanguage(fileLocation));
 		
 		boolean highlight = codeField.getLanguage() == 0;
-		//TODO: did if rog et something?
+		//TODO: did if rog et something? <-- Wtf?
 //		System.out.println("done");
 		if (highlight)
 		{
