@@ -31,7 +31,16 @@ public interface ProgramListener
 	public void messageReceived(String message);
 	
 	/**
+	 * Called whenever the Program has been started.
+	 * 
+	 * @param program The Program that was started.
+	 */
+	public void programStarted(Program program);
+	
+	/**
 	 * Called whenever the Program has been terminated.
+	 * 
+	 * @param program The Program that was terminated.
 	 */
 	public void programTerminated(Program program);
 }

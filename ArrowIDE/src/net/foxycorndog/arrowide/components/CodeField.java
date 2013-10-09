@@ -576,19 +576,19 @@ public class CodeField extends StyledText
 					{
 						tabsStr += "\t";
 					}
-		
-					String text   = getText();
-					int    length = text.length();
 					
 					insert(tabsStr);
 					
 					setCaretOffset(caretPosition + tabsStr.length());
 					
-					if (lastChar == '{')
+					if (scopeStartLocations.size() > scopeEndLocations.size())
 					{
-						String endingBrace = "\r\n" + tabsStr.substring(0, tabsStr.length() - 1) + "}";
-						
-						insert(endingBrace);
+						if (lastChar == '{')
+						{
+							String endingBrace = "\r\n" + tabsStr.substring(0, tabsStr.length() - 1) + "}";
+							
+							insert(endingBrace);
+						}
 					}
 				}
 				

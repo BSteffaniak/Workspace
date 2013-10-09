@@ -379,6 +379,18 @@ public class Window
 		numberOpen++;
 	}
 	
+	public void close()
+	{
+		numberOpen--;
+		
+		shell.close();
+		
+//		if (numberOpen <= 0)
+//		{
+//			System.exit(0);
+//		}
+	}
+	
 	public void setFocus()
 	{
 		shell.setFocus();
@@ -593,18 +605,6 @@ public class Window
 	public Rectangle getClientArea()
 	{
 		return new Rectangle(0, 0, content.getSize().x, content.getSize().y);
-	}
-	
-	public void close()
-	{
-		numberOpen--;
-		
-		shell.close();
-		
-//		if (numberOpen <= 0)
-//		{
-//			System.exit(0);
-//		}
 	}
 	
 	public boolean isVisible()

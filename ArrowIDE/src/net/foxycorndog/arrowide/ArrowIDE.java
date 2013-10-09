@@ -202,6 +202,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	public static final Display					DISPLAY;
 
 	public static final Color					TITLE_BAR_BACKGROUND, TITLE_BAR_FOREGROUND, FOCUS_COLOR, NON_FOCUS_COLOR;
+	public static final Color					CONSOLE_RUNNING_COLOR, CONSOLE_TERMINATED_COLOR, CONSOLE_DEFAULT_COLOR;
 	
 	public static final HashMap<String, String>	CONFIG_DATA;
 	
@@ -250,6 +251,10 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		FOCUS_COLOR = new Color(DISPLAY, 255, 255, 255);
 		NON_FOCUS_COLOR = ColorUtils.lighten(TITLE_BAR_BACKGROUND, 10);
+
+		CONSOLE_DEFAULT_COLOR = new Color(DISPLAY, 255, 255, 255);
+		CONSOLE_RUNNING_COLOR = new Color(DISPLAY, 230, 255, 230);
+		CONSOLE_TERMINATED_COLOR = new Color(DISPLAY, 255, 230, 230);
 	}
 	
 	/**
@@ -519,15 +524,15 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		codeField.setBackground(FOCUS_COLOR);
 		codeField.setAutoUpdate(true);
 		
-		int contentWidth  = (int)(contentPanel.getSize().x / 100f * 80);
-		int conHeight     = (int)(contentPanel.getSize().y / 100f * 20);
-		int toolbarHeight = (int)(25);
+		int toolbarHeight = 25;
+		int contentWidth  = (int)(contentPanel.getSize().x / 100f * 83);
+		int conHeight     = (int)((contentPanel.getSize().y) / 100f * 25);
 		
 		codeField.setSize(contentWidth, contentPanel.getSize().y - conHeight - toolbarHeight - 16);
 		codeField.setLocation(contentPanel.getSize().x - codeField.getWidth(), toolbarHeight);//contentPanel.getSize().y - codeField.getHeight());
 		codeField.setShowLineNumbers(true);
 		
-		consoleField.setSize(contentWidth, conHeight - 5);
+		consoleField.setSize(contentWidth, conHeight);
 		consoleField.setLocation(codeField.getBounds().x, codeField.getHeight() + codeField.getBounds().y + 5);
 		
 		try
@@ -765,6 +770,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 						{
 							Program program = Language.run(codeField.getLanguage(), fileLocation, consoleStream);
 							program.addListener(thisIDE);
+							programStarted(program);
 							
 							if (program != null)
 							{
@@ -1290,6 +1296,8 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			
 			setConfigDataValue("last.tabs", builder.toString());
 		}
+		
+		updateLayout();
 	}
 	
 	/**
@@ -1311,7 +1319,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		boolean cTabs = programs.size() > 0;
 		int cOffset   = cTabs ? consoleTabs.getHeight() : 0;
 		
-		consoleField.setSize(codeField.getWidth(), window.getClientArea().height - 5 - cOffset - codeField.getHeight());
+		consoleField.setSize(codeField.getWidth(), window.getClientArea().height - codeFieldSizer.getHeight() - cOffset - codeField.getHeight() - fileTabs.getHeight() - fileTabs.getY());
 		consoleField.setLocation(codeField.getBounds().x, codeField.getHeight() + codeField.getBounds().y + 5 + cOffset);
 		
 //		tabs.setWidth(codeField.getWidth() + 2);
@@ -1372,16 +1380,12 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		createConfigData();
 		
-		if (workspaceCreated())
-		{
-			ide = openIDE();
-		}
-		else
+		if (!workspaceCreated())
 		{
 			chooseWorkspace();
-			
-			ide = openIDE();
 		}
+			
+		ide = openIDE();
 		
 //		System.out.println(OS.SendMessage(shell.handle, OS.EM_SETSEL, 5, 9));//new TCHAR(0, "2dasdf", true)));
 		
@@ -1389,6 +1393,14 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		window.forceActive();
 		window.forceFocus();
 		window.setActive();
+		
+		if (window.isFullscreen())
+		{
+			window.setFullscreen(false);
+			window.setMaximized(true);
+			window.setMaximized(false);
+			window.setFullscreen(true);
+		}
 		
 		while (!window.isDisposed())
 		{
@@ -2835,7 +2847,9 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 				
 				codeField.setSelection(tabSelection.get(tabId));
 				codeField.setTopPixel(tabTopPixels.get(tabId));
-				codeField.select();
+				
+				// Did not select the current tab content...
+				//codeField.select();
 			}
 		}
 		else if (event.getSource() == consoleTabs)
@@ -2853,6 +2867,8 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			mainProgram = null;
 			
 			setMainProgram(0);
+			
+			consoleField.setBackground(CONSOLE_DEFAULT_COLOR);
 		}
 		else
 		{
@@ -2866,9 +2882,27 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	{
 		if (consoleTabPrograms.containsKey(tabId))
 		{
-			mainProgram = consoleTabPrograms.get(tabId);
+			Program selectedProgram = consoleTabPrograms.get(tabId);
 			
-			consoleField.setText(mainProgram.getText());
+			if (mainProgram != selectedProgram)
+			{
+				mainProgram = selectedProgram;
+				
+				consoleField.setText(mainProgram.getText());
+				
+				Color color = null;
+				
+				if (selectedProgram.isRunning())
+				{
+					color = CONSOLE_RUNNING_COLOR;
+				}
+				else
+				{
+					color = CONSOLE_TERMINATED_COLOR;
+				}
+				
+				consoleField.setBackground(color);
+			}
 		}
 		else
 		{
@@ -2975,10 +3009,20 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	}
 
 	/**
+	 * @see net.foxycorndog.arrowide.event.ProgramListener#programStarted(net.foxycorndog.arrowide.Program)
+	 */
+	public void programStarted(Program program)
+	{
+		consoleField.setBackground(CONSOLE_RUNNING_COLOR);
+	}
+
+	/**
 	 * @see net.foxycorndog.arrowide.event.ProgramListener#programTerminated(net.foxycorndog.arrowide.Program)
 	 */
 	public void programTerminated(Program program)
 	{
+		consoleField.setBackground(CONSOLE_TERMINATED_COLOR);
+		
 		if (!programs.contains(program))
 		{
 			return;

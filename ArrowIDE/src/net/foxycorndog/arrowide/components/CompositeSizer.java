@@ -279,4 +279,14 @@ public class CompositeSizer
 	{
 		composite.setForeground(color);
 	}
+	
+	public int getWidth()
+	{
+		return composite.getSize().x;
+	}
+	
+	public int getHeight()
+	{
+		return composite.getSize().y;
+	}
 }

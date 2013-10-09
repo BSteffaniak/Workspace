@@ -70,6 +70,13 @@ public class Program
 				listeners.get(i).programTerminated(this);
 			}
 		}
+		else
+		{
+			for (int i = listeners.size() - 1; i >= 0; i --)
+			{
+				listeners.get(i).programStarted(this);
+			}
+		}
 	}
 	
 	/**
