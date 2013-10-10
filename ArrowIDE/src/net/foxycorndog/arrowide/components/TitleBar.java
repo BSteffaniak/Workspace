@@ -1,5 +1,6 @@
 package net.foxycorndog.arrowide.components;
 
+import java.awt.MouseInfo;
 import java.io.InputStream;
 
 import net.foxycorndog.arrowide.color.ColorUtils;
@@ -13,6 +14,8 @@ import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -39,7 +42,7 @@ public class TitleBar
 {
 	private boolean			dragging, dontSetX, wasRestored, wasMaximized;
 	
-	private int				startX, startY, mouseX, mouseY;
+	private int				startX, startY, mouseX, mouseY, dx, dy, oldX, oldY;
 	private int				flags;
 	
 	private Color			hoverColor, normalColor;
@@ -148,7 +151,7 @@ public class TitleBar
 				{
 					if (wasMaximized && !dontSetX)
 					{
-						parent.setLocation(mouseX - parent.getSize().x / 2, parent.getLocation().y);
+						//parent.setLocation(mouseX - parent.getSize().x / 2, parent.getLocation().y);
 					}
 					
 					if (restoreButton != null)
@@ -195,7 +198,7 @@ public class TitleBar
 		
 		parent.addControlListener(resizeListener);
 		
-		final Tracker tracker = new Tracker(parent.getShell(), SWT.NONE);
+		/*final Tracker tracker = new Tracker(parent.getShell(), SWT.NONE);
 		
 		tracker.addControlListener(new ControlListener()
 		{
@@ -221,9 +224,73 @@ public class TitleBar
 				startX = loc.x;
 				startY = loc.y;
 			}
+		});*/
+		
+		composite.addMouseListener(new MouseListener()
+		{
+			public void mouseUp(MouseEvent e)
+			{
+				dragging = false;
+				
+				if (parent.getLocation().y < 0)
+				{
+					wasRestored = true;
+					parent.setMaximized(true);
+				}
+			}
+			
+			public void mouseDown(MouseEvent e)
+			{
+				dragging = true;
+				
+				oldX = e.x;
+				oldY = e.y;
+			}
+			
+			public void mouseDoubleClick(MouseEvent e)
+			{
+				parent.setMaximized(!parent.isMaximized());
+				
+				if (!parent.isMaximized() && parent.getLocation().y < 0)
+				{
+					parent.setLocation(parent.getLocation().x, 0);
+				}
+			}
 		});
 		
-		Listener moveListener = new Listener()
+		composite.addListener(SWT.MouseMove, new Listener()
+		{
+			public void handleEvent(Event e)
+			{
+				if (dragging)
+				{
+					int x = e.x;
+					int y = e.y;
+					
+					dx = x - oldX;
+					dy = y - oldY;
+					
+					oldX = x - dx;
+					oldY = y - dy;
+					
+					if (parent.isMaximized())
+					{
+						parent.setMaximized(false);
+						
+						parent.setLocation(MouseInfo.getPointerInfo().getLocation().x - composite.getSize().x / 2 - composite.getLocation().x, dy);
+						
+						oldX = composite.getSize().x / 2 + composite.getLocation().x;
+						oldY = y;
+					}
+					else
+					{
+						parent.setLocation(parent.getLocation().x + dx, parent.getLocation().y + dy);
+					}
+				}
+			}
+		});
+		
+		/*Listener moveListener = new Listener()
 		{
 			public void handleEvent(Event event)
 			{
@@ -268,7 +335,7 @@ public class TitleBar
 		titleLabel.addListener(SWT.MouseDown, moveListener);
 		titleLabel.addListener(SWT.MouseDoubleClick, moveListener);
 		composite.addListener(SWT.MouseDown, moveListener);
-		composite.addListener(SWT.MouseDoubleClick, moveListener);
+		composite.addListener(SWT.MouseDoubleClick, moveListener);*/
 		
 		parent.addWindowListener(new WindowListener()
 		{

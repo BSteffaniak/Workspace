@@ -1,7 +1,5 @@
 package net.foxycorndog.arrowide.components;
 
-import java.awt.Color;
-
 import net.foxycorndog.arrowide.ArrowIDE;
 
 import org.eclipse.swt.SWT;
@@ -13,6 +11,7 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -34,11 +33,15 @@ public class LineNumberPanel extends Composite
 	
 	private CodeField	field;
 	
+	private Color		backgroundColor;
+	
 	public LineNumberPanel(Composite parent, int param, final CodeField field)
 	{
 		super(parent, param);
 		
 		this.field = field;
+		
+		this.backgroundColor = new Color(Display.getDefault(), 220, 220, 220);
 		
 		final LineNumberPanel thisPanel = this;
 		
@@ -72,6 +75,9 @@ public class LineNumberPanel extends Composite
 				thisPanel.setSize((String.valueOf(field.getLineCount()).length() + 1) * getCharWidth(), thisPanel.getSize().y);
 				
 				thisPanel.redraw();
+				
+				createBuffer();
+				drawBuffer();
 			}
 		});
 		
@@ -96,41 +102,43 @@ public class LineNumberPanel extends Composite
 		field.setLocation(field.getLocation().x + getSize().x, field.getLocation().y);
 		field.setSize(field.getWidth() - getSize().x, field.getHeight());
 		
-		PaletteData palette = new PaletteData(0xFF , 0xFF00 , 0xFF0000);
-		
-		ImageData data = new ImageData(getSize().x, getSize().y, 24, palette);
-		
-		org.eclipse.swt.graphics.Color white = new org.eclipse.swt.graphics.Color(Display.getDefault(), 255, 255, 255);
-		
-		buffer = new Image(Display.getDefault(), data);
-		
-		buffer.setBackground(white);
-		
-		bufferGC = new GC(buffer);
-		
-		bufferGC.setFont(field.getFont());
-				
-		bufferGC.setBackground(white);
+		createBuffer();
+		drawBuffer();
 		
 		addPaintListener(new PaintListener()
 		{
 			public void paintControl(PaintEvent e)
 			{
-				int height = getCharHeight();
-
-                bufferGC.setBackground(e.gc.getBackground());
-				bufferGC.fillRectangle(0, 0, getSize().x, getSize().y);
+				e.gc.drawImage(buffer, 0, -field.getTopPixel());
 				
-				for (int i = 0; i < field.getLineCount(); i++)
-				{
-					bufferGC.drawString((i + 1) + ".", 0, height * i - field.getTopPixel() + 1);
-				}
-				
-				e.gc.drawImage(buffer, 0, 0);
-				
-				//e.gc.dispose();
+				e.gc.dispose();
 			}
 		});
+	}
+	
+	private void drawBuffer()
+	{
+		int height = getCharHeight();
+
+        bufferGC.setBackground(backgroundColor);
+		bufferGC.fillRectangle(0, 0, buffer.getImageData().width, buffer.getImageData().height);
+		
+		for (int i = 0; i < field.getLineCount(); i++)
+		{
+			bufferGC.drawString((i + 1) + ".", 0, height * i + 1);
+		}
+	}
+	
+	private void createBuffer()
+	{	
+		PaletteData palette = new PaletteData(0xFF , 0xFF00 , 0xFF0000);
+		ImageData data = new ImageData(getSize().x, field.getLineCount() * getCharHeight(), 24, palette);
+		buffer = new Image(Display.getDefault(), data);
+		buffer.setBackground(backgroundColor);
+		
+		bufferGC = new GC(buffer);
+		bufferGC.setFont(field.getFont());
+		bufferGC.setBackground(backgroundColor);
 	}
 	
 	public int getCharWidth()
