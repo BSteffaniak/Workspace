@@ -106,6 +106,8 @@ public class CodeField extends StyledText
 
 	private LineStyleListener							lineNumbers, lineSpaces, syntaxHighlighting;
 	
+	private LineNumberPanel								lineNumberPanel;
+	
 	private StyledText									lineNumberText;
 
 	private Composite									composite;
@@ -360,11 +362,23 @@ public class CodeField extends StyledText
 		methodLists        = new HashMap<String, WordList>();
 		methodWords        = new HashMap<WordList, String>();
 		
+		syntaxHighlighting = new LineStyleListener()
+	    {
+			public void lineGetStyle(LineStyleEvent event)
+			{
+				StyleRange styles[] = thisField.getStyles();
+				
+				event.styles = styles;
+			}
+	    };
+	    
+	    addLineStyleListener(syntaxHighlighting);
+		
 		setText("");
 		setBounds(new Rectangle(0, 0, 100, 100));
 	    setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, true, true, 1, 1));
 	    
-	    int fontSize = 10;
+	    int fontSize = 12;
 	    
 	    if (PROPERTIES.get("os.name").equals("macosx"))
 	    {
@@ -373,11 +387,6 @@ public class CodeField extends StyledText
 	    
 	    Font f = FileUtils.loadMonospacedFont(Display.getDefault(), "courier new", "res/fonts/CECOUR.ttf", fontSize, SWT.NORMAL);
 	    setFont(f);
-	    
-	    GC g = new GC(this);
-	    FontMetrics fm = g.getFontMetrics();
-	    this.charWidth = fm.getAverageCharWidth();
-	    g.dispose();
 	    
 //	    tabs = new ArrayList<ArrayList<Boolean>>();
 //	    tabs.add(new ArrayList<Boolean>());
@@ -581,7 +590,7 @@ public class CodeField extends StyledText
 					
 					setCaretOffset(caretPosition + tabsStr.length());
 					
-					if (scopeStartLocations.size() > scopeEndLocations.size())
+					if (scopeStartLocations != null && scopeStartLocations.size() > scopeEndLocations.size())
 					{
 						if (lastChar == '{')
 						{
@@ -1917,6 +1926,82 @@ public class CodeField extends StyledText
 		return getBounds().height;
 	}
 	
+	public Rectangle getBounds()
+	{
+		Rectangle bounds = super.getBounds();
+		
+		if (lineNumberPanel != null)
+		{
+			bounds.width += lineNumberPanel.getSize().x;
+			bounds.x     -= lineNumberPanel.getSize().x;
+		}
+		
+		return bounds;
+	}
+	
+	public void setBounds(int x, int y, int width, int height)
+	{
+		if (lineNumberText != null)
+		{
+			lineNumberText.setLocation(x, y);
+		}
+		
+		if (lineNumberPanel != null)
+		{
+			lineNumberPanel.setLocation(x, y);
+			
+			super.setLocation(x + lineNumberPanel.getSize().x, y);
+			super.setSize(width - lineNumberPanel.getSize().x, height);
+		}
+		else
+		{
+			super.setLocation(x, y);
+			super.setSize(width, height);
+		}
+		
+		updatePercent();
+	}
+	
+	public Point getSize()
+	{
+		Point size = super.getSize();
+		
+		if (lineNumberPanel != null)
+		{
+			size.x += lineNumberPanel.getSize().x;
+		}
+		
+		return size;
+	}
+	
+	/**
+	 * Overridden method that set the size of the CodeField.
+	 * 
+	 * @param width The new width of the CodeField.
+	 * @param height The new height of the CodeField.
+	 */
+	public void setSize(int width, int height)
+	{
+		setBounds(getX(), getY(), width, height);
+	}
+	
+	public Point getLocation()
+	{
+		Point location = super.getLocation();
+		
+		if (lineNumberPanel != null)
+		{
+			location.x = lineNumberPanel.getLocation().x;
+		}
+		
+		return location;
+	}
+	
+	public void setLocation(int x, int y)
+	{
+		setBounds(x, y, getWidth(), getHeight());
+	}
+	
 	public CommentProperties getCommentProperties()
 	{
 		return commentProperties;
@@ -1976,16 +2061,6 @@ public class CodeField extends StyledText
 //		super.setSize(width, height);
 //	}
 	
-	public void setLocation(int x, int y)
-	{
-		if (lineNumberText != null)
-		{
-			lineNumberText.setLocation(x, y);
-		}
-		
-		super.setLocation(x, y);
-	}
-	
 	public void paste()
 	{
 		String before = getText();
@@ -2012,41 +2087,37 @@ public class CodeField extends StyledText
 	{
 		if (show)
 		{
-//			lineNumberText = new StyledText(composite, SWT.MULTI);
-//			lineNumberText.setFont(getFont());
-//			lineNumberText.setSize(new String(getLineCount() + ".").length() * charWidth, getHeight() - getHorizontalBar().getSize().y + 1);
-//			lineNumberText.setBackground(new Color(Display.getCurrent(), 200, 200, 200));
-//			lineNumberText.moveAbove(this);
-//			
-////			composite.
-//			
-//			setFocus();
+			lineNumberPanel = new LineNumberPanel(getParent(), SWT.NONE, this);
 			
 //			lineNumbers = new LineStyleListener()
 //		    {
 //				public void lineGetStyle(LineStyleEvent e)
 //				{
-//					e.bulletIndex = lineNumberText.getLineAtOffset(e.lineOffset);
+//					e.bulletIndex = getLineAtOffset(e.lineOffset);
 //					e.alignment   = SWT.RIGHT;
 //					
 //					String count  = e.bulletIndex + 1 + "";
 //					
 //					String prefix = "";
 //					
-//					int l = count.length();
+//					String text = count + ".";
 //					
-//					int biggestLength = new String((getLineCount()) + "").length();
+//					int offset = new String((getLineCount()) + ".").length();
 //					
-//					while (l++ < biggestLength)
+//					int wid = (((offset % 4) + 4 - (offset % 4)) + (4 * (offset / 5)));
+//					
+//					lineNumberOffset = wid - offset;
+//					
+//					for (int i = 0; i < wid - text.length(); i ++)
 //					{
 //						prefix += " ";
 //					}
 //					
-//					String text = prefix + count + ".";
+//					text = prefix + text;
 //					
 //					StyleRange style = new StyleRange();
-//					style.metrics = new GlyphMetrics(0, 0, (text.length() + 1) * charWidth);
-////					style.background = new Color(Display.getCurrent(), 200, 200, 200);
+//					style.metrics = new GlyphMetrics(0, 0, wid * charWidth);
+//					style.background = new Color(Display.getCurrent(), 200, 200, 200);
 //					
 //					Bullet bullet = new Bullet(ST.BULLET_TEXT, style);
 //					
@@ -2055,93 +2126,20 @@ public class CodeField extends StyledText
 //					e.bullet = bullet;
 //				}
 //		    };
-//			
-//			lineNumberText.addLineStyleListener(lineNumbers);
-			
-			lineNumbers = new LineStyleListener()
-		    {
-				public void lineGetStyle(LineStyleEvent e)
-				{
-//					e.bulletIndex = getLineAtOffset(e.lineOffset);
-//					e.alignment = SWT.RIGHT;
-//					
-//					String count = e.bulletIndex + 1 + "";
-//					
-//					String prefix = "";
-//					
-//					int l = 0;
-//					
-//					int biggestLength = new String((getLineCount()) + ".").length();
-//					
-//					while (l++ < biggestLength)
-//					{
-//						prefix += " ";
-//					}
-//					
-//					int wid = (prefix.length());
-//					
-//					StyleRange style = new StyleRange();
-//					style.metrics = new GlyphMetrics(0, 0, wid * charWidth);
-//					
-//					Bullet bullet = new Bullet(ST.BULLET_TEXT, style);
-//					
-//					bullet.text = prefix;
-//					
-//					e.bullet = bullet;
-					
-					e.bulletIndex = getLineAtOffset(e.lineOffset);
-					e.alignment   = SWT.RIGHT;
-					
-					String count  = e.bulletIndex + 1 + "";
-					
-					String prefix = "";
-					
-					String text = count + ".";
-					
-					int offset = new String((getLineCount()) + ".").length();
-					
-					int wid = (((offset % 4) + 4 - (offset % 4)) + (4 * (offset / 5)));
-					
-					lineNumberOffset = wid - offset;
-					
-					for (int i = 0; i < wid - text.length(); i ++)
-					{
-						prefix += " ";
-					}
-					
-					text = prefix + text;
-					
-					StyleRange style = new StyleRange();
-					style.metrics = new GlyphMetrics(0, 0, wid * charWidth);
-					style.background = new Color(Display.getCurrent(), 200, 200, 200);
-					
-					Bullet bullet = new Bullet(ST.BULLET_TEXT, style);
-					
-					bullet.text = text;
-					
-					e.bullet = bullet;
-				}
-		    };
-		    
-		    syntaxHighlighting = new LineStyleListener()
-		    {
-				public void lineGetStyle(LineStyleEvent event)
-				{
-					StyleRange styles[] = thisField.getStyles();
-					
-					event.styles = styles;
-				}
-		    };
-		    
-		    addLineStyleListener(lineNumbers);
-		    addLineStyleListener(syntaxHighlighting);
+//		    
+//		    addLineStyleListener(lineNumbers);
 		}
 		else
 		{
-			lineNumberText.removeLineStyleListener(lineNumbers);
-			removeLineStyleListener(lineSpaces);
-			lineNumberText.dispose();
-			lineNumberText = null;
+			lineNumberPanel = null;
+			
+			if (lineNumberText != null)
+			{
+				lineNumberText.removeLineStyleListener(lineNumbers);
+				removeLineStyleListener(lineSpaces);
+				lineNumberText.dispose();
+				lineNumberText = null;
+			}
 		}
 	}
 	
@@ -2155,19 +2153,6 @@ public class CodeField extends StyledText
 	public void setAutoUpdate(boolean autoUpdate)
 	{
 		this.autoUpdate = autoUpdate;
-	}
-	
-	/**
-	 * Overridden method that set the size of the CodeField.
-	 * 
-	 * @param width The new width of the CodeField.
-	 * @param height The new height of the CodeField.
-	 */
-	public void setSize(int width, int height)
-	{
-		super.setSize(width, height);
-		
-		updatePercent();
 	}
 	
 	/**
