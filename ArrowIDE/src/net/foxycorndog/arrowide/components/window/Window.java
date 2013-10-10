@@ -26,6 +26,7 @@ import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
 public class Window
 {
 	private boolean						dragging, maximized, fullscreen;
+	private boolean						resizable;
 	private boolean						custom;
 	
 	private int							minimumWidth, minimumHeight;
@@ -57,16 +58,16 @@ public class Window
 	
 	public Window(Display display, boolean custom)
 	{
+		this(display, custom ? SWT.NO_TRIM : SWT.NONE);
+		
+		setCustom(custom);
+	}
+	
+	public Window(Display display, int style)
+	{
 		this.display = display;
 		
-		if (custom)
-		{
-			shell = new Shell(display, SWT.NO_TRIM);
-		}
-		else
-		{
-			shell = new Shell(display);
-		}
+		shell = new Shell(display, style);
 //		shell.setCapture(true);
 //		shell.setLayoutDeferred(true);
 //		shell.setTouchEnabled(false);
@@ -78,7 +79,7 @@ public class Window
 		
 		content = new Composite(shell, SWT.NONE);
 		
-		setCustom(custom);
+		setResizable(true);
 		
 		shell.addControlListener(new ControlListener()
 		{
@@ -171,6 +172,16 @@ public class Window
 		}
 	}
 	
+	public boolean isResizable()
+	{
+		return resizable;
+	}
+	
+	public void setResizable(boolean resizable)
+	{
+		this.resizable = resizable;
+	}
+	
 	public void setCustom(boolean custom)
 	{
 		if (this.custom != custom)
@@ -210,6 +221,11 @@ public class Window
 					
 					public void controlMoved(ControlEvent e)
 					{
+						if (!isResizable())
+						{
+							return;
+						}
+						
 						Point loc = new Point(tracker.getRectangles()[0].x + 99999, tracker.getRectangles()[0].y + 99999);
 						
 						int dx = loc.x - startX;
@@ -537,6 +553,11 @@ public class Window
 	
 	public void setMaximized(boolean maximized)
 	{
+		if (!isResizable())
+		{
+			return;
+		}
+		
 		this.maximized = maximized;
 		
 		if (custom)
@@ -576,6 +597,11 @@ public class Window
 	
 	public void setFullscreen(boolean fullscreen)
 	{
+		if (!isResizable())
+		{
+			return;
+		}
+		
 		this.fullscreen = fullscreen;
 		
 //		if (fullscreen)

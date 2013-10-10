@@ -1,5 +1,9 @@
 package net.foxycorndog.arrowide.components;
 
+import java.awt.Color;
+
+import net.foxycorndog.arrowide.ArrowIDE;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -11,7 +15,11 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
@@ -20,6 +28,9 @@ import com.sun.xml.internal.messaging.saaj.util.CharWriter;
 public class LineNumberPanel extends Composite
 {
 	private GC			gc;
+	private GC			bufferGC;
+	
+	private Image		buffer;
 	
 	private CodeField	field;
 	
@@ -49,6 +60,7 @@ public class LineNumberPanel extends Composite
 			public void controlResized(ControlEvent e)
 			{
 				thisPanel.setSize(thisPanel.getSize().x, field.getSize().y);
+				field.getSize();
 //				thisPanel.setLocation(field.getX(), field.getY());
 			}
 		});
@@ -84,20 +96,39 @@ public class LineNumberPanel extends Composite
 		field.setLocation(field.getLocation().x + getSize().x, field.getLocation().y);
 		field.setSize(field.getWidth() - getSize().x, field.getHeight());
 		
+		PaletteData palette = new PaletteData(0xFF , 0xFF00 , 0xFF0000);
+		
+		ImageData data = new ImageData(getSize().x, getSize().y, 24, palette);
+		
+		org.eclipse.swt.graphics.Color white = new org.eclipse.swt.graphics.Color(Display.getDefault(), 255, 255, 255);
+		
+		buffer = new Image(Display.getDefault(), data);
+		
+		buffer.setBackground(white);
+		
+		bufferGC = new GC(buffer);
+		
+		bufferGC.setFont(field.getFont());
+				
+		bufferGC.setBackground(white);
+		
 		addPaintListener(new PaintListener()
 		{
 			public void paintControl(PaintEvent e)
 			{
 				int height = getCharHeight();
-				
-				e.gc.setFont(field.getFont());
+
+                bufferGC.setBackground(e.gc.getBackground());
+				bufferGC.fillRectangle(0, 0, getSize().x, getSize().y);
 				
 				for (int i = 0; i < field.getLineCount(); i++)
 				{
-					e.gc.drawString((i + 1) + ".", 0, height * i - field.getTopPixel());
+					bufferGC.drawString((i + 1) + ".", 0, height * i - field.getTopPixel() + 1);
 				}
 				
-				e.gc.dispose();
+				e.gc.drawImage(buffer, 0, 0);
+				
+				//e.gc.dispose();
 			}
 		});
 	}
@@ -114,9 +145,16 @@ public class LineNumberPanel extends Composite
 	
 	public int getCharHeight()
 	{
+		int offset = 0;
+		
+		if (ArrowIDE.PROPERTIES.get("os.name").equals("windows"))
+		{
+			offset = 1;
+		}
+		
 		GC g = new GC(field);
 	    FontMetrics fm = g.getFontMetrics();
-	    int charHeight = fm.getHeight() + 1;
+	    int charHeight = fm.getHeight() + offset;
 	    g.dispose();
 	    
 	    return charHeight;

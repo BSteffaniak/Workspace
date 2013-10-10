@@ -24,6 +24,8 @@ public class PropertiesDialog extends PanelledDialog
 		super(parent);
 		
 		panels = new HashMap<Integer, ArrayList<DialogPanel>>();
+		
+		getWindow().setResizable(false);
 	}
 	
 	public void addDialogPanel(int types[], DialogPanel panel)

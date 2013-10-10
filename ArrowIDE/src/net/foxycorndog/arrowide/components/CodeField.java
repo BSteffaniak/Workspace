@@ -2175,6 +2175,6 @@ public class CodeField extends StyledText
 		int width  = Math.round(widthPercent * composite.getSize().x);
 		int height = Math.round(heightPercent * composite.getSize().y);
 		
-		super.setSize(width, height);
+		setSize(width, height);
 	}
 }

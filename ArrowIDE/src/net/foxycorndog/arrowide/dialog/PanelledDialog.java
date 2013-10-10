@@ -39,10 +39,15 @@ public abstract class PanelledDialog implements Dialog
 
 	public PanelledDialog(Composite parent)
 	{
+		this(parent, SWT.NONE);
+	}
+	
+	public PanelledDialog(Composite parent, int style)
+	{
 		panels = new HashMap<Integer, DialogPanel>();
 		ids    = new HashMap<DialogPanel, Integer>();
 		
-		createWindow();
+		createWindow(style);
 		
 		currentPanelId = -1;
 		
@@ -89,7 +94,7 @@ public abstract class PanelledDialog implements Dialog
 		return thisDialog;
 	}
 	
-	private void createWindow()
+	private void createWindow(int style)
 	{
 		Rectangle bounds = Display.getDefault().getPrimaryMonitor().getBounds();
 		
@@ -100,7 +105,15 @@ public abstract class PanelledDialog implements Dialog
 			custom = Boolean.valueOf(CONFIG_DATA.get("window.custom"));
 		}
 		
-		window = new Window(Display.getDefault(), custom);
+		if (custom)
+		{
+			window = new Window(Display.getDefault(), SWT.NO_TRIM);
+		}
+		else
+		{
+			window = new Window(Display.getDefault(), SWT.NONE);
+		}
+		
 		window.setSize(750, 540);
 		window.setLocation(bounds.width / 2 - window.getSize().x / 2, bounds.height / 2 - window.getSize().y / 2);
 		
@@ -278,5 +291,10 @@ public abstract class PanelledDialog implements Dialog
 	public Composite getContentPanel()
 	{
 		return contentPanel;
+	}
+	
+	public Window getWindow()
+	{
+		return window;
 	}
 }
