@@ -35,6 +35,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tracker;
+import org.eclipse.swt.widgets.Widget;
 
 import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
 
@@ -198,35 +199,43 @@ public class TitleBar
 		
 		parent.addControlListener(resizeListener);
 		
-		/*final Tracker tracker = new Tracker(parent.getShell(), SWT.NONE);
-		
-		tracker.addControlListener(new ControlListener()
+		Listener moveListener = new Listener()
 		{
-			public void controlResized(ControlEvent e)
+			public void handleEvent(Event e)
 			{
-				
-			}
-			
-			public void controlMoved(ControlEvent e)
-			{
-				if (parent.isMaximized())
+				if (dragging)
 				{
-					parent.setMaximized(false);
+					int x = e.x;
+					int y = e.y;
+					
+					dx = x - oldX;
+					dy = y - oldY;
+					
+					oldX = x - dx;
+					oldY = y - dy;
+					
+					if (parent.isMaximized())
+					{
+						parent.setMaximized(false);
+						
+						Control item = (Control)e.widget;
+						
+						int offset = item.getSize().x / 2;
+						
+						parent.setLocation(MouseInfo.getPointerInfo().getLocation().x - offset, dy);
+						
+						oldX = offset;
+						oldY = y;
+					}
+					else
+					{
+						parent.setLocation(parent.getLocation().x + dx, parent.getLocation().y + dy);
+					}
 				}
-				
-				Point loc = new Point(tracker.getRectangles()[0].x + 99999, tracker.getRectangles()[0].y + 99999);
-				
-				int dx = loc.x - startX;
-				int dy = loc.y - startY;
-				
-				parent.setLocation(parent.getLocation().x + dx, parent.getLocation().y + dy);
-				
-				startX = loc.x;
-				startY = loc.y;
 			}
-		});*/
+		};
 		
-		composite.addMouseListener(new MouseListener()
+		MouseListener mouseListener = new MouseListener()
 		{
 			public void mouseUp(MouseEvent e)
 			{
@@ -256,86 +265,12 @@ public class TitleBar
 					parent.setLocation(parent.getLocation().x, 0);
 				}
 			}
-		});
-		
-		composite.addListener(SWT.MouseMove, new Listener()
-		{
-			public void handleEvent(Event e)
-			{
-				if (dragging)
-				{
-					int x = e.x;
-					int y = e.y;
-					
-					dx = x - oldX;
-					dy = y - oldY;
-					
-					oldX = x - dx;
-					oldY = y - dy;
-					
-					if (parent.isMaximized())
-					{
-						parent.setMaximized(false);
-						
-						parent.setLocation(MouseInfo.getPointerInfo().getLocation().x - composite.getSize().x / 2 - composite.getLocation().x, dy);
-						
-						oldX = composite.getSize().x / 2 + composite.getLocation().x;
-						oldY = y;
-					}
-					else
-					{
-						parent.setLocation(parent.getLocation().x + dx, parent.getLocation().y + dy);
-					}
-				}
-			}
-		});
-		
-		/*Listener moveListener = new Listener()
-		{
-			public void handleEvent(Event event)
-			{
-				if (!parent.isFullscreen())
-				{
-					if (event.type == SWT.MouseDown)
-					{
-						dragging = true;
-						
-						Control control = (Control)event.widget;
-						
-						mouseX = event.x + parent.getBorderSize() + control.getLocation().x;
-						mouseY = event.y + parent.getBorderSize() + control.getLocation().y;
-						
-						wasMaximized = parent.isMaximized();
-						
-						startX = 0;
-						startY = 0;
-						
-						tracker.setRectangles(new Rectangle[] { new Rectangle(-99999, -99999, 0, 0) });
-						tracker.open();
-						
-						tracker.close();
-						dragging = false;
-						
-						if (parent.getLocation().y + mouseY <= 0)
-						{
-							wasRestored = true;
-							parent.setMaximized(true);
-						}
-					}
-					else if (event.type == SWT.MouseDoubleClick)
-					{
-						dontSetX = true;
-						wasRestored = true;
-						parent.setMaximized(!parent.isMaximized());
-					}
-				}
-			}
 		};
 		
-		titleLabel.addListener(SWT.MouseDown, moveListener);
-		titleLabel.addListener(SWT.MouseDoubleClick, moveListener);
-		composite.addListener(SWT.MouseDown, moveListener);
-		composite.addListener(SWT.MouseDoubleClick, moveListener);*/
+		titleLabel.addMouseListener(mouseListener);
+		titleLabel.addListener(SWT.MouseMove, moveListener);
+		composite.addMouseListener(mouseListener);
+		composite.addListener(SWT.MouseMove, moveListener);
 		
 		parent.addWindowListener(new WindowListener()
 		{
