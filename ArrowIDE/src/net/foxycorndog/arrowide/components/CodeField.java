@@ -5,7 +5,9 @@ import java.util.Arrays;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -75,6 +77,7 @@ import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
  */
 public class CodeField extends StyledText
 {
+	private boolean										syntaxUpdaterRunning;
 	private boolean										commentStarted, textStarted;
 	private boolean										isEscape;
 	private boolean										redrawReady;
@@ -372,13 +375,61 @@ public class CodeField extends StyledText
 			}
 	    };
 	    
+	    syntaxUpdater = new Thread()
+		{
+			public void run()
+			{
+				syntaxUpdaterRunning = true;
+				
+				if (language > 0)
+				{
+					Display.getDefault().syncExec(new Runnable()
+					{
+						public void run()
+						{
+							text = getText();//.replace("\\", "\\\\");
+						}
+					});
+					
+					generateScopes();
+					
+					createSyntaxStyles();
+					createSyntaxStyles();
+				}
+				else
+				{
+					clearRanges();
+					clearScopes();
+					
+					identifierLists.clear();
+					methodLists.clear();
+					identifierWords.clear();
+					methodWords.clear();
+				}
+				
+				clearErrors();
+				
+				select();
+				
+				Display.getDefault().syncExec(new Runnable()
+				{
+					public void run()
+					{
+						thisField.redraw();
+					}
+				});
+				
+				syntaxUpdaterRunning = false;
+			}
+		};
+	    
 	    addLineStyleListener(syntaxHighlighting);
 		
 		setText("");
 		setBounds(new Rectangle(0, 0, 100, 100));
 	    setLayoutData(new GridData(SWT.RIGHT, SWT.TOP, true, true, 1, 1));
 	    
-	    int fontSize = 12;
+	    int fontSize = 10;
 	    
 	    if (PROPERTIES.get("os.name").equals("macosx"))
 	    {
@@ -659,45 +710,24 @@ public class CodeField extends StyledText
 	
 	public void highlightSyntax()
 	{
-		syntaxUpdater = new Thread()
+		if (syntaxUpdaterRunning)
 		{
-			public void run()
-			{
-				if (language > 0)
-				{
-					createSyntaxStyles();
-					createSyntaxStyles();
-				}
-				else
-				{
-					clearRanges();
-					clearScopes();
-					
-					identifierLists.clear();
-					methodLists.clear();
-					identifierWords.clear();
-					methodWords.clear();
-				}
-				
-				clearErrors();
-				
-				select();
-					
-				Display.getDefault().syncExec(new Runnable()
-				{
-					public void run()
-					{
-						thisField.redraw();//Range(0, thisField.getText().length(), true);
-					}
-				});
-			}
-		};
+//			try
+//			{
+//				syntaxUpdater.join(0);
+//			System.out.println("DONE--");
+//			}
+//			catch (InterruptedException e)
+//			{
+//				e.printStackTrace();
+//			}
+		}
 		
-		if (syntaxUpdater.isAlive())
+		if (syntaxUpdater != null && syntaxUpdater.isAlive())
 		{
 			try
 			{
-				syntaxUpdater.join();
+				syntaxUpdater.join(1);
 			}
 			catch (InterruptedException e)
 			{
@@ -705,7 +735,7 @@ public class CodeField extends StyledText
 			}
 		}
 		
-		syntaxUpdater.start();
+		syntaxUpdater.run();
 	}
 	
 	public void createSyntaxStyles()
@@ -718,25 +748,15 @@ public class CodeField extends StyledText
 			return;
 		}
 		
-		Display.getDefault().syncExec(new Runnable()
-		{
-			public void run()
-			{
-				text = getText();//.replace("\\", "\\\\");
-			}
-		});
-		
-		generateScopes();
-		
 		HashMap<String, WordList> tempIdLists     = null;
 		HashMap<String, WordList> tempMethodLists = null;
 		HashMap<WordList, String> tempIdWords     = null;
 		HashMap<WordList, String> tempMethodWords = null;
 		
-		tempIdLists     = (HashMap<String, WordList>) identifierLists.clone();
-		tempMethodLists = (HashMap<String, WordList>) methodLists.clone();
-		tempIdWords     = (HashMap<WordList, String>) identifierWords.clone();
-		tempMethodWords = (HashMap<WordList, String>) methodWords.clone();
+		tempIdLists     = copyString(identifierLists);
+		tempMethodLists = copyString(methodLists);
+		tempIdWords     = copyWordList(identifierWords);
+		tempMethodWords = copyWordList(methodWords);
 		
 		idRanges     = new ArrayList<WordRange>();
 		methodRanges = new ArrayList<WordRange>();
@@ -1255,6 +1275,42 @@ public class CodeField extends StyledText
 		setStyles((StyleRange[])styles.toArray(new StyleRange[0]));
 	}
 	
+	private HashMap<WordList, String> copyWordList(HashMap<WordList, String> map)
+	{
+		HashMap<WordList, String> copy = new HashMap<WordList, String>();
+		
+		Set<WordList> keys = copy.keySet();
+		
+		Iterator<WordList> i = keys.iterator();
+		
+		while (i.hasNext())
+		{
+			WordList key = i.next();
+			
+			copy.put(key, map.get(key));
+		}
+		
+		return copy;
+	}
+	
+	private HashMap<String, WordList> copyString(HashMap<String, WordList> map)
+	{
+		HashMap<String, WordList> copy = new HashMap<String, WordList>();
+		
+		Set<String> keys = copy.keySet();
+		
+		Iterator<String> i = keys.iterator();
+		
+		while (i.hasNext())
+		{
+			String key = i.next();
+			
+			copy.put(key, map.get(key));
+		}
+		
+		return copy;
+	}
+	
 	private void generateScopes()
 	{
 		scopeStartLocations = new ArrayList<Integer>();
@@ -1294,7 +1350,7 @@ public class CodeField extends StyledText
 //				}
 //				else
 				{
-					scopeStartLocations.add(min);
+					scopeStartLocations.add(scopeStartLocations.size(), min);
 				}
 			}
 			else
@@ -1305,7 +1361,7 @@ public class CodeField extends StyledText
 //				}
 //				else
 				{
-					scopeEndLocations.add(min);
+					scopeEndLocations.add(scopeEndLocations.size(), min);
 				}
 			}
 		}
@@ -1466,11 +1522,13 @@ public class CodeField extends StyledText
 		}
 		
 		int index = 0;
-		int i     = scopeStartLocations.size();
+		int i     = scopeStartLocations.size() + 0;
 		
 		do
 		{
-			int start = scopeStartLocations.get(--i);
+			i--;
+			
+			int start = scopeStartLocations.get(i);
 			
 			index = start;
 		}
@@ -1974,6 +2032,11 @@ public class CodeField extends StyledText
 		return size;
 	}
 	
+	private Point getSuperSize()
+	{
+		return super.getSize();
+	}
+	
 	/**
 	 * Overridden method that set the size of the CodeField.
 	 * 
@@ -1983,6 +2046,11 @@ public class CodeField extends StyledText
 	public void setSize(int width, int height)
 	{
 		setBounds(getX(), getY(), width, height);
+	}
+	
+	private void setSuperSize(int width, int height)
+	{
+		super.setSize(width, height);
 	}
 	
 	public Point getLocation()
@@ -1997,9 +2065,19 @@ public class CodeField extends StyledText
 		return location;
 	}
 	
+	private Point getSuperLocation()
+	{
+		return super.getLocation();
+	}
+	
 	public void setLocation(int x, int y)
 	{
 		setBounds(x, y, getWidth(), getHeight());
+	}
+	
+	private void setSuperLocation(int x, int y)
+	{
+		super.setLocation(x, y);
 	}
 	
 	public CommentProperties getCommentProperties()
@@ -2088,6 +2166,22 @@ public class CodeField extends StyledText
 		if (show)
 		{
 			lineNumberPanel = new LineNumberPanel(getParent(), SWT.NONE, this);
+			
+			lineNumberPanel.addControlListener(new ControlListener()
+			{
+				public void controlResized(ControlEvent e)
+				{
+					int offset = (lineNumberPanel.getLocation().x + lineNumberPanel.getSize().x) - thisField.getSuperLocation().x;
+					
+					setSuperLocation(getSuperLocation().x + offset, getSuperLocation().y);
+					setSuperSize(getSuperSize().x - offset, getSuperSize().y);
+				}
+				
+				public void controlMoved(ControlEvent e)
+				{
+					
+				}
+			});
 			
 //			lineNumbers = new LineStyleListener()
 //		    {

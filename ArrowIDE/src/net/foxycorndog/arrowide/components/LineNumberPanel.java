@@ -72,12 +72,21 @@ public class LineNumberPanel extends Composite
 		{
 			public void modifyText(ModifyEvent e)
 			{
-				thisPanel.setSize((String.valueOf(field.getLineCount()).length() + 1) * getCharWidth(), thisPanel.getSize().y);
+				int length   = String.valueOf(field.getLineCount()).length() + 1;
 				
-				thisPanel.redraw();
+				int newWidth = length * getCharWidth();
+				
+				if (newWidth != thisPanel.getSize().x)
+				{
+					thisPanel.setSize(newWidth, thisPanel.getSize().y);
+					
+					
+				}
 				
 				createBuffer();
 				drawBuffer();
+				
+				thisPanel.redraw();
 			}
 		});
 		

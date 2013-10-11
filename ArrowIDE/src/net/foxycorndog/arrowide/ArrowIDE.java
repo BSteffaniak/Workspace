@@ -524,7 +524,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		codeField.setBackground(FOCUS_COLOR);
 		codeField.setAutoUpdate(true);
 		
-		int toolbarHeight = 25;
+		int toolbarHeight = 35;
 		int contentWidth  = (int)(contentPanel.getSize().x / 100f * 83);
 		int conHeight     = (int)((contentPanel.getSize().y) / 100f * 25);
 		
@@ -1313,7 +1313,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 //		codeField.setSize(propCodeWidth, propCodeHeight);
 		codeField.setLocation(contentPanel.getSize().x - codeField.getWidth(), fileTabs.getHeight() + fileTabs.getY());
 		
-		toolbar.setSize(toolbar.getWidth(), 25);
+		toolbar.setSize(toolbar.getWidth(), 35);
 		toolbar.setLocation(codeField.getX(), menubar.getY() + menubar.getHeight());
 		
 		boolean cTabs = programs.size() > 0;
@@ -1444,18 +1444,25 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		window.open();
 		
-		Image largeIcon = null;
+		Image icon = null;
 
 		try
 		{
-			largeIcon = new Image(DISPLAY, new FileInputStream("res/images/iconlarge.png"));
+			if (PROPERTIES.get("os.name").equals("windows") || PROPERTIES.get("os.name").equals("macosx"))
+			{
+				icon = new Image(DISPLAY, new FileInputStream("res/images/iconlarge.png"));
+			}
+			else if (PROPERTIES.get("os.name").equals("linux"))
+			{
+				icon = new Image(DISPLAY, new FileInputStream("res/images/iconmedium.png"));
+			}
 		}
 		catch (FileNotFoundException e)
 		{
 			e.printStackTrace();
 		}
-
-		window.setIcon(largeIcon);
+		
+		window.setIcon(icon);
 		
 		ide.refreshFileViewer(true);
 		
