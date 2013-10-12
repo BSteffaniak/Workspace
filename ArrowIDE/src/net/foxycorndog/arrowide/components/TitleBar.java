@@ -16,6 +16,8 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.MouseTrackListener;
+import org.eclipse.swt.events.PaintEvent;
+import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
@@ -46,6 +48,8 @@ public class TitleBar
 	private int				startX, startY, mouseX, mouseY, dx, dy, oldX, oldY;
 	private int				flags;
 	
+	private String			title;
+	
 	private Color			hoverColor, normalColor;
 
 	private GC				titleGC;
@@ -53,7 +57,7 @@ public class TitleBar
 	private Composite		composite;
 
 	private Label			closeButton, restoreButton, minimizeButton;
-	private Label			titleLabel, iconLabel;
+	private Label			iconLabel;
 
 	private Listener		buttonListener;
 
@@ -117,12 +121,26 @@ public class TitleBar
 		addButtons();
 		layoutButtons();
 		
-		titleLabel = new Label(composite, SWT.NONE);
-		FontData fd = titleLabel.getFont().getFontData()[0];
+		FontData fd = Display.getDefault().getSystemFont().getFontData()[0];
 		fd.setHeight(14);
-		titleLabel.setFont(new Font(Display.getDefault(), fd));
+		composite.setFont(new Font(Display.getDefault(), fd));
 		
-		titleGC    = new GC(titleLabel);
+		composite.addPaintListener(new PaintListener()
+		{
+			public void paintControl(PaintEvent e)
+			{
+				Point extent = e.gc.textExtent(title);
+				
+				int   width  = extent.x;
+				int   height = extent.y;
+				
+				e.gc.drawString(title, composite.getSize().x / 2 - width / 2, composite.getSize().y / 2 - height / 2);
+				
+				e.gc.dispose();
+			}
+		});
+		
+		titleGC    = new GC(composite);
 		setTitle(parent.getTitle());
 		
 		iconLabel = new Label(composite, SWT.NONE);
@@ -137,8 +155,6 @@ public class TitleBar
 			public void controlResized(ControlEvent e)
 			{
 				composite.setSize(parent.getClientArea().width, size);
-				
-				setTitleLocation();
 				
 				layoutButtons();
 				
@@ -200,7 +216,7 @@ public class TitleBar
 		
 		parent.addControlListener(resizeListener);
 		
-		Listener moveListener = new Listener()
+		final Listener moveListener = new Listener()
 		{
 			public void handleEvent(Event e)
 			{
@@ -236,7 +252,7 @@ public class TitleBar
 			}
 		};
 		
-		MouseListener mouseListener = new MouseListener()
+		final MouseListener mouseListener = new MouseListener()
 		{
 			public void mouseUp(MouseEvent e)
 			{
@@ -268,8 +284,8 @@ public class TitleBar
 			}
 		};
 		
-		titleLabel.addMouseListener(mouseListener);
-		titleLabel.addListener(SWT.MouseMove, moveListener);
+//		titleLabel.addMouseListener(mouseListener);
+//		titleLabel.addListener(SWT.MouseMove, moveListener);
 		composite.addMouseListener(mouseListener);
 		composite.addListener(SWT.MouseMove, moveListener);
 		
@@ -295,33 +311,34 @@ public class TitleBar
 	
 	private void setTitle(String title)
 	{
-		int textWidth  = titleGC.textExtent(title).x;
-		int textHeight = titleGC.textExtent(title).y;
+//		int textWidth  = titleGC.textExtent(title).x;
+//		int textHeight = titleGC.textExtent(title).y;
 		
-		titleLabel.setText(title);
-		titleLabel.setSize(textWidth, textHeight);
+		this.title = title;
 		
-		setTitleLocation();
+		composite.redraw();
+		
+//		setTitleLocation();
 	}
 	
-	private void setTitleLocation()
-	{
-		int textWidth  = titleLabel.getSize().x;
-		int textHeight = titleLabel.getSize().y;
-		
-		if ((flags & SWT.CENTER) != 0)
-		{
-			titleLabel.setLocation(getWidth() / 2 - textWidth / 2, 0);
-		}
-		else if ((flags & SWT.RIGHT) != 0)
-		{
-			titleLabel.setLocation(getWidth() - textWidth, 0);
-		}
-		else
-		{
-			titleLabel.setLocation(0, 0);
-		}
-	}
+//	private void setTitleLocation()
+//	{
+//		int textWidth  = titleLabel.getSize().x;
+//		int textHeight = titleLabel.getSize().y;
+//		
+//		if ((flags & SWT.CENTER) != 0)
+//		{
+//			titleLabel.setLocation(getWidth() / 2 - textWidth / 2, 0);
+//		}
+//		else if ((flags & SWT.RIGHT) != 0)
+//		{
+//			titleLabel.setLocation(getWidth() - textWidth, 0);
+//		}
+//		else
+//		{
+//			titleLabel.setLocation(0, 0);
+//		}
+//	}
 	
 	private void setIcon(Image icon)
 	{

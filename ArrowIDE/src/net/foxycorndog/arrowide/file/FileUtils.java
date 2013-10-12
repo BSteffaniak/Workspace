@@ -479,7 +479,7 @@ public class FileUtils
 		return loc.replace('\\', '/');
 	}
 	
-	private static ArrayList<String> listChildDirectoriesList(String parent, String root, String extension)
+	private static ArrayList<String> listChildFilesList(String parent, String root, String extension)
 	{
 		parent = parent.replace('\\', '/');
 		parent = removeEndingSlashes(parent) + "/";
@@ -499,25 +499,33 @@ public class FileUtils
 			{
 				if (children[i].isDirectory())
 				{
-					File children2[] = children[i].listFiles();
+//					File children2[] = children[i].listFiles();
+//					
+//					boolean able = false;
+//					
+//					for (int j = 0; j < children2.length; j++)
+//					{
+//						if (children2[j].getName().endsWith(".java"))
+//						{
+//							able = true;
+//							
+//							break;
+//						}
+//					}
+//					
+//					if (able)
+//					{
+//						directories.add(children[i].getAbsolutePath().replace('\\', '/').replace(root, ""));
+//					}
 					
-					boolean able = false;
-					
-					for (int j = 0; j < children2.length; j++)
-					{
-						if (children2[j].getName().endsWith(".java"))
-						{
-							able = true;
-							break;
-						}
-					}
-					
-					if (able)
+					directories.addAll(listChildFilesList(children[i].getAbsolutePath(), root, extension));
+				}
+				else
+				{
+					if (children[i].getName().endsWith(".java"))
 					{
 						directories.add(children[i].getAbsolutePath().replace('\\', '/').replace(root, ""));
 					}
-					
-					directories.addAll(listChildDirectoriesList(children[i].getAbsolutePath(), root, extension));
 				}
 			}
 		}
@@ -525,8 +533,8 @@ public class FileUtils
 		return directories;
 	}
 	
-	public static String[] listChildDirectories(String parent, String extension)
+	public static String[] listChildFiles(String parent, String extension)
 	{
-		return listChildDirectoriesList(parent, parent, extension).toArray(new String[0]);
+		return listChildFilesList(parent, parent, extension).toArray(new String[0]);
 	}
 }

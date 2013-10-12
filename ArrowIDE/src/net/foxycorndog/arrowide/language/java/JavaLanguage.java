@@ -421,9 +421,9 @@ public class JavaLanguage
 		
 		String projSrc = projectLocation + "/src/";
 		
-		String children[] = FileUtils.listChildDirectories(projSrc, ".java");
+		String children[] = FileUtils.listChildFiles(projSrc, ".java");
 		
-		String params[] = new String[5 + children.length + 1];
+		String params[] = new String[5 + children.length];
 		
 		params[0] = CONFIG_DATA.get("jdk.location") + "/bin/javac";
 		params[1] = "-d";
@@ -433,10 +433,8 @@ public class JavaLanguage
 		
 		for (int i = 0; i < children.length; i++)
 		{
-			params[5 + i] = "src/" + children[i] + "/*.java";
+			params[5 + i] = "src/" + children[i];
 		}
-		
-		params[params.length - 1] = "src/*.java";
 		
 		final Command c = new Command(Display.getDefault(), params, projectLocation);
 		
