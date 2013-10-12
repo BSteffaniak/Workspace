@@ -36,18 +36,13 @@ public abstract class PanelledDialog implements Dialog
 	private HashMap<DialogPanel, Integer>	ids;
 
 	private static PanelledDialog			thisDialog;
-
-	public PanelledDialog(Composite parent)
-	{
-		this(parent, SWT.NONE);
-	}
 	
-	public PanelledDialog(Composite parent, int style)
+	public PanelledDialog(Composite parent)
 	{
 		panels = new HashMap<Integer, DialogPanel>();
 		ids    = new HashMap<DialogPanel, Integer>();
 		
-		createWindow(style);
+		createWindow();
 		
 		currentPanelId = -1;
 		
@@ -94,7 +89,7 @@ public abstract class PanelledDialog implements Dialog
 		return thisDialog;
 	}
 	
-	private void createWindow(int style)
+	private void createWindow()
 	{
 		Rectangle bounds = Display.getDefault().getPrimaryMonitor().getBounds();
 		
@@ -107,11 +102,11 @@ public abstract class PanelledDialog implements Dialog
 		
 		if (custom)
 		{
-			window = new Window(Display.getDefault(), SWT.NO_TRIM);
+			window = new Window(Display.getDefault(), true);
 		}
 		else
 		{
-			window = new Window(Display.getDefault(), SWT.NONE);
+			window = new Window(Display.getDefault(), false, SWT.MIN | SWT.CLOSE);
 		}
 		
 		window.setSize(750, 540);

@@ -58,16 +58,27 @@ public class Window
 	
 	public Window(Display display, boolean custom)
 	{
-		this(display, custom ? SWT.NO_TRIM : SWT.NONE);
-		
-		setCustom(custom);
+		this(display, custom, custom ? 0 : -1);
 	}
 	
-	public Window(Display display, int style)
+	public Window(Display display, boolean custom, int style)
 	{
 		this.display = display;
 		
-		shell = new Shell(display, style);
+		if (custom)
+		{
+			shell = new Shell(display, SWT.NO_TRIM);
+		}
+		else if (style == -1)
+		{
+			shell = new Shell(display);
+		}
+		else
+		{
+			shell = new Shell(display, style);
+		}
+		
+		setCustom(custom);
 //		shell.setCapture(true);
 //		shell.setLayoutDeferred(true);
 //		shell.setTouchEnabled(false);
@@ -391,6 +402,8 @@ public class Window
 	public void open()
 	{
 		shell.open();
+		shell.setMinimized(false);
+		shell.setActive();
 		
 		numberOpen++;
 	}
@@ -553,7 +566,7 @@ public class Window
 	
 	public void setMaximized(boolean maximized)
 	{
-		if (!isResizable())
+		if (!isResizable() || isFullscreen())
 		{
 			return;
 		}

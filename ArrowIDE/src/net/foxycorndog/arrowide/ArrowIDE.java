@@ -166,6 +166,8 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	private CompositeSizer						treeMenuSizer, codeFieldSizer;
 
 	private TabMenu								fileTabs, consoleTabs;
+	
+	private Menu								treeMenuItemMenu;
 
 	private ConsoleStream						consoleStream;
 
@@ -822,7 +824,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 				
 				final boolean isInViewer = treeItemLocations.containsKey(fileLocation);
 				
-				if (outputs[0].getResult() == 0)
+//				if (outputs[0].getResult() == 0)
 				{
 					display.syncExec(new Runnable()
 					{
@@ -831,7 +833,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 							// TODO: Update the use of the stream!
 							if (stream != null)
 							{
-								stream.println("Compiled successfully.");
+								stream.println(outputs[0].getMessage());//"Compiled successfully.");
 							}
 						}
 					});
@@ -931,19 +933,19 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			}
 		});
 		
-		Menu m = new Menu(treeMenu);
-		treeMenu.setMenu(m);
+		treeMenuItemMenu = new Menu(treeMenu);
+		treeMenu.setMenu(treeMenuItemMenu);
 		
-		final MenuItem newFolder = new MenuItem(m, SWT.CASCADE);
+		final MenuItem newFolder = new MenuItem(treeMenuItemMenu, SWT.CASCADE);
 		newFolder.setText("New Folder");
 		
-		final MenuItem newFile = new MenuItem(m, SWT.CASCADE);
+		final MenuItem newFile = new MenuItem(treeMenuItemMenu, SWT.CASCADE);
 		newFile.setText("New File");
 		
-		final MenuItem rename = new MenuItem(m, SWT.CASCADE);
+		final MenuItem rename = new MenuItem(treeMenuItemMenu, SWT.CASCADE);
 		rename.setText("Rename");
 		
-		final MenuItem delete = new MenuItem(m, SWT.CASCADE);
+		final MenuItem delete = new MenuItem(treeMenuItemMenu, SWT.CASCADE);
 		delete.setText("Delete");
 		
 		SelectionListener menuListener = new SelectionListener()

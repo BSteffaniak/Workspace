@@ -16,7 +16,7 @@ public class PreferencesDialog extends PanelledDialog
 {
 	public PreferencesDialog(Composite parent)
 	{
-		super(parent, SWT.NO_TRIM);
+		super(parent);
 		
 		getWindow().setResizable(false);
 	}

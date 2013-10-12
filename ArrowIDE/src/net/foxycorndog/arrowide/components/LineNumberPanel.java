@@ -132,9 +132,17 @@ public class LineNumberPanel extends Composite
         bufferGC.setBackground(backgroundColor);
 		bufferGC.fillRectangle(0, 0, buffer.getImageData().width, buffer.getImageData().height);
 		
+		int charWidth = getCharWidth();
+		
+		int maxLength = String.valueOf(field.getLineCount()).length() + 1;
+		
 		for (int i = 0; i < field.getLineCount(); i++)
 		{
-			bufferGC.drawString((i + 1) + ".", 0, height * i + 1);
+			int length = String.valueOf((i + 1)).length() + 1;
+			
+			int dif    = maxLength - length;
+			
+			bufferGC.drawString((i + 1) + ".", dif * charWidth, height * i + 1);
 		}
 	}
 	

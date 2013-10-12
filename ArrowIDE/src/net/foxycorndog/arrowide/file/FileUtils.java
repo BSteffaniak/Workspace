@@ -478,4 +478,55 @@ public class FileUtils
 		
 		return loc.replace('\\', '/');
 	}
+	
+	private static ArrayList<String> listChildDirectoriesList(String parent, String root, String extension)
+	{
+		parent = parent.replace('\\', '/');
+		parent = removeEndingSlashes(parent) + "/";
+		
+		root   = root.replace('\\', '/');
+		root   = removeEndingSlashes(root) + "/";
+		
+		ArrayList<String> directories = new ArrayList<String>();
+		
+		File parentFile = new File(parent);
+		
+		File children[] = parentFile.listFiles();
+		
+		if (children != null)
+		{
+			for (int i = 0; i < children.length; i++)
+			{
+				if (children[i].isDirectory())
+				{
+					File children2[] = children[i].listFiles();
+					
+					boolean able = false;
+					
+					for (int j = 0; j < children2.length; j++)
+					{
+						if (children2[j].getName().endsWith(".java"))
+						{
+							able = true;
+							break;
+						}
+					}
+					
+					if (able)
+					{
+						directories.add(children[i].getAbsolutePath().replace('\\', '/').replace(root, ""));
+					}
+					
+					directories.addAll(listChildDirectoriesList(children[i].getAbsolutePath(), root, extension));
+				}
+			}
+		}
+		
+		return directories;
+	}
+	
+	public static String[] listChildDirectories(String parent, String extension)
+	{
+		return listChildDirectoriesList(parent, parent, extension).toArray(new String[0]);
+	}
 }

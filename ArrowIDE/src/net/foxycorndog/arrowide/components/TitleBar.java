@@ -115,6 +115,7 @@ public class TitleBar
 		};
 		
 		addButtons();
+		layoutButtons();
 		
 		titleLabel = new Label(composite, SWT.NONE);
 		FontData fd = titleLabel.getFont().getFontData()[0];
@@ -415,19 +416,19 @@ public class TitleBar
 		}
 		else
 		{
-			if (closeButton != null && closeButton.isVisible())
+			if (closeButton != null)// && closeButton.isVisible())
 			{
 				closeButton.setLocation(getWidth() - closeButton.getSize().x - offset, 0);
 				
 				offset += getHeight() + 1 + closeButton.getSize().x;
 			}
-			if (restoreButton != null && restoreButton.isVisible())
+			if (restoreButton != null)// && restoreButton.isVisible())
 			{
 				restoreButton.setLocation(getWidth() - offset, 0);
 				
 				offset += getHeight() + 1;
 			}
-			if (minimizeButton != null && minimizeButton.isVisible())
+			if (minimizeButton != null)// && minimizeButton.isVisible())
 			{
 				minimizeButton.setLocation(getWidth() - offset, 0);
 				

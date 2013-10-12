@@ -4,3 +4,6 @@ v0.7.5
 * Fixed removing syntax highlighting when switching from Language file to text file.
 * Only auto adds ending curly brace whenever it is needed.
 * Fixed other minute bugs.
+
+KNOWN BUGS:
+[-] Right click menu options when no file selected in the file viewer.

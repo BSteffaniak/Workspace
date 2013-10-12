@@ -45,7 +45,6 @@ import net.foxycorndog.arrowide.language.CompileOutput;
 import net.foxycorndog.arrowide.language.IdentifierProperties;
 import net.foxycorndog.arrowide.language.MethodProperties;
 import net.foxycorndog.arrowide.xml.XMLItem;
-
 import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
 import static net.foxycorndog.arrowide.ArrowIDE.CONFIG_DATA;
 import static net.foxycorndog.arrowide.ArrowIDE.PROJECT_CLASSPATHS;
@@ -387,11 +386,20 @@ public class JavaLanguage
 		return JavaLanguage.compiler;
 	}
 	
-	public static void compile(String fileLocation, String code, String outputLocation, final PrintStream stream, ArrayList<CompilerListener> compilerListeners)
+	public static void compile(String fileLocation, String code, String outputLocation, final PrintStream stream, final ArrayList<CompilerListener> compilerListeners)
 	{
-		if (!CONFIG_DATA.containsKey("jdk.location") || !(new File(CONFIG_DATA.get("jdk.location")).isDirectory()))
+		fileLocation = FileUtils.removeExtension(fileLocation);
+		
+		// TODO: Fix the issue with the /src/ possible ambiguities.
+		String projectLocation = FileUtils.getPrecedingPath(fileLocation, "/src/");
+		
+		String className  = FileUtils.getPathRelativeTo(fileLocation, "/src/");
+		
+		String classLocation = projectLocation + "/bin/" + className;
+		
+		if (!FileUtils.fileExists(CONFIG_DATA.get("jdk.location")))
 		{
-			FileBrowseDialog jdkSearch = new FileBrowseDialog("Specify your JDK location.", "Location:", FileBrowseDialog.DIRECTORY);
+			FileBrowseDialog jdkSearch = new FileBrowseDialog("Specify your JDK location.", "Location:", CONFIG_DATA.get("jdk.location"), FileBrowseDialog.DIRECTORY);
 			
 			String jdkLoc = jdkSearch.open();
 			
@@ -409,161 +417,257 @@ public class JavaLanguage
 			}
 		}
 		
+		String classpath = getClasspath(projectLocation);
+		
+		String projSrc = projectLocation + "/src/";
+		
+		String children[] = FileUtils.listChildDirectories(projSrc, ".java");
+		
+		String params[] = new String[5 + children.length + 1];
+		
+		params[0] = CONFIG_DATA.get("jdk.location") + "/bin/javac";
+		params[1] = "-d";
+		params[2] = projectLocation + "/bin/";
+		params[3] = "-cp";
+		params[4] = classpath;
+		
+		for (int i = 0; i < children.length; i++)
+		{
+			params[5 + i] = "src/" + children[i] + "/*.java";
+		}
+		
+		params[params.length - 1] = "src/*.java";
+		
+		final Command c = new Command(Display.getDefault(), params, projectLocation);
+		
 		String fileName = FileUtils.getFileNameWithoutExtension(fileLocation);
 		
-		fileLocation = FileUtils.removeExtension(fileLocation);
-		
-		String projectLocation = FileUtils.getPrecedingPath(fileLocation, "/src/");
-		
-		outputLocation = projectLocation + "/bin/";
+		final String fileLoc = fileLocation;
 		
 		try
 		{
-			outputLocation = FileUtils.getAbsolutePath(outputLocation) + "/";
-		}
-		catch (IOException e2)
-		{
-			e2.printStackTrace();
-		}
-		
-		new File(outputLocation).mkdirs();
-		
-//		fileName = fileName == null ? "" : fileName;
-//		
-//		JavacJavaCompilerSettings settings = new JavacJavaCompilerSettings();
-//		
-//		org.apache.commons.jci.compilers.JavaCompiler compiler = new JavacJavaCompiler(settings);//new JavaCompilerFactory().createCompiler("javac");//new JavacJavaCompiler(settings);
-//		
-////		org.apache.commons.jci.compilers.JavaCompiler compiler = new JavaCompilerFactory().createCompiler("eclipse");
-//
-//		MemoryResourceReader mrr = new MemoryResourceReader();
-//		mrr.add("Test", code.getBytes());
-//
-//		MemoryResourceStore mrs = new MemoryResourceStore();
-//		
-//		
-//		CompilationResult result = compiler.compile(new String[] { fileName }, mrr, mrs);
-//		
-//		return result.getErrors().length + " ";
-		
-		/*Creating dynamic java source code file object*/
-		
-		SimpleJavaFileObject fileObject  = new DynamicJavaSourceCodeObject(fileName, code);
-		
-		JavaFileObject javaFileObjects[] = new JavaFileObject[] { fileObject };
-		
-		/*Instantiating the java compiler*/
-		JavaCompiler compiler = getCompiler();
- 
-		/**
-		 * Retrieving the standard file manager from compiler object, which is used to provide
-		 * basic building block for customizing how a compiler reads and writes to files.
-		 *
-		 * The same file manager can be reopened for another compiler task.
-		 * Thus we reduce the overhead of scanning through file system and jar files each time
-		 */
-		StandardJavaFileManager stdFileManager = compiler.getStandardFileManager(null, Locale.getDefault(), null);
- 
-		/* Prepare a list of compilation units (java source code file objects) to input to compilation task*/
-		Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(javaFileObjects);
-		
-		String classpath = getClasspath(projectLocation);
- 
-		/*Prepare any compilation options to be used during compilation*/
-		//In this example, we are asking the compiler to place the output files under bin folder.
-		String[] compileOptions = new String[]
-		{
-//			"-cp", classpath,
-			"-cp", classpath,
-			"-d", outputLocation
-		};
-		
-		Iterable<String> compilationOptions = Arrays.asList(compileOptions);
- 
-//		if (true)return;
-		
-		/*Create a diagnostic controller, which holds the compilation problems*/
-		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
- 
-		/*Create a compilation task from compiler by passing in the required input objects prepared above*/
-		CompilationTask compilerTask = compiler.getTask(null, stdFileManager, diagnostics, compilationOptions, null, compilationUnits);
-		
-		//Perform the compilation by calling the call method on compilerTask object.
-		boolean status = compilerTask.call();
-		
-		final StringBuilder error = new StringBuilder();
-		
-		String outputFile = outputLocation + fileName + ".class";
-		
-		final String outputFiles[] = new String[] { outputFile };
-		
-		ArrayList<Diagnostic> ds = new ArrayList<Diagnostic>();
-		
-		ArrayList<String> errors = new ArrayList<String>();
-		
-		//If compilation error occurs
-		if (!status)
-		{
-			/*Iterate through each compilation problem and print it*/
-			for (Diagnostic d : diagnostics.getDiagnostics())
-			{
-				String err = d.getMessage(Locale.getDefault());
-				
-				errors.add(String.format("Error on line %d: %s", d.getLineNumber(), err));
-				
-				ds.add(d);
-			}
+			c.execute(fileName);
 			
-			String strs[] = errors.toArray(new String[0]);
-			
-			for (String str : strs)
-			{
-				error.append(str);
-			}
-			
-			Display.getDefault().syncExec(new Runnable()
+			new Thread()
 			{
 				public void run()
 				{
-					if (stream != null)
+					int result = 1;
+					
+					try
 					{
-						stream.println(error.toString());
+						result = c.getProgram().getProcess().waitFor();
+					}
+					catch (InterruptedException e)
+					{
+						e.printStackTrace();
+					}
+					
+					if (result == 0)
+					{
+						CompileOutput output = new CompileOutput(0, 0, 0, 0, "Successfully compiled.");
+						
+						for (int i = 0; i < compilerListeners.size(); i++)
+						{
+							CompilerEvent event = new CompilerEvent(new String[0], new CompileOutput[] { output }, stream, fileLoc);
+							
+							compilerListeners.get(i).compiled(event);
+						}
+					}
+					else
+					{
+						CompileOutput output = new CompileOutput(0, 0, 0, result, "Unsuccessfully compiled.");
+						
+						for (int i = 0; i < compilerListeners.size(); i++)
+						{
+							CompilerEvent event = new CompilerEvent(new String[0], new CompileOutput[] { output }, stream, fileLoc);
+							
+							compilerListeners.get(i).compiled(event);
+						}
 					}
 				}
-			});
-		}
-		
-		CompileOutput output = null;
-		
-		CompileOutput outputs[] = new CompileOutput[ds.size() > 0 ? ds.size() : 1];
-		
-		if (ds.size() > 0)
-		{
-			for (int i = 0; i < ds.size(); i++)
-			{
-				outputs[i] = new CompileOutput((int)ds.get(i).getStartPosition(), (int)ds.get(i).getEndPosition(), (int)ds.get(i).getLineNumber(), status ? 0 : 1, errors.get(i));
-			}
-		}
-		else
-		{
-			outputs[0] = new CompileOutput(0, 0, 0, status ? 0 : 1, "");
-		}
-		
-		for (int i = compilerListeners.size() - 1; i >= 0; i--)
-		{
-			CompilerEvent event = new CompilerEvent(outputFiles, outputs, stream, fileLocation);
-			
-			compilerListeners.get(i).compiled(event);
-		}
-		
-		try
-		{
-			stdFileManager.close();
+			}.start();
 		}
 		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
+		
+//		if (!CONFIG_DATA.containsKey("jdk.location") || !(new File(CONFIG_DATA.get("jdk.location")).isDirectory()))
+//		{
+//			FileBrowseDialog jdkSearch = new FileBrowseDialog("Specify your JDK location.", "Location:", FileBrowseDialog.DIRECTORY);
+//			
+//			String jdkLoc = jdkSearch.open();
+//			
+//			if (jdkLoc != null)
+//			{
+//				String location = FileUtils.removeEndingSlashes(jdkLoc.replace('\\', '/'));
+//			
+//				ArrowIDE.setConfigDataValue("jdk.location", location);
+//			}
+//			else
+//			{
+//				stream.println("You must specify a valid jdk to compile this program.");
+//				
+//				return;
+//			}
+//		}
+//		
+//		String fileName = FileUtils.getFileNameWithoutExtension(fileLocation);
+//		
+//		fileLocation = FileUtils.removeExtension(fileLocation);
+//		
+//		String projectLocation = FileUtils.getPrecedingPath(fileLocation, "/src/");
+//		
+//		outputLocation = projectLocation + "/bin/";
+//		
+//		try
+//		{
+//			outputLocation = FileUtils.getAbsolutePath(outputLocation) + "/";
+//		}
+//		catch (IOException e2)
+//		{
+//			e2.printStackTrace();
+//		}
+//		
+//		new File(outputLocation).mkdirs();
+//		
+////		fileName = fileName == null ? "" : fileName;
+////		
+////		JavacJavaCompilerSettings settings = new JavacJavaCompilerSettings();
+////		
+////		org.apache.commons.jci.compilers.JavaCompiler compiler = new JavacJavaCompiler(settings);//new JavaCompilerFactory().createCompiler("javac");//new JavacJavaCompiler(settings);
+////		
+//////		org.apache.commons.jci.compilers.JavaCompiler compiler = new JavaCompilerFactory().createCompiler("eclipse");
+////
+////		MemoryResourceReader mrr = new MemoryResourceReader();
+////		mrr.add("Test", code.getBytes());
+////
+////		MemoryResourceStore mrs = new MemoryResourceStore();
+////		
+////		
+////		CompilationResult result = compiler.compile(new String[] { fileName }, mrr, mrs);
+////		
+////		return result.getErrors().length + " ";
+//		
+//		/*Creating dynamic java source code file object*/
+//		
+//		SimpleJavaFileObject fileObject  = new DynamicJavaSourceCodeObject(fileName, code);
+//		
+//		JavaFileObject javaFileObjects[] = new JavaFileObject[] { fileObject };
+//		
+//		/*Instantiating the java compiler*/
+//		JavaCompiler compiler = getCompiler();
+// 
+//		/**
+//		 * Retrieving the standard file manager from compiler object, which is used to provide
+//		 * basic building block for customizing how a compiler reads and writes to files.
+//		 *
+//		 * The same file manager can be reopened for another compiler task.
+//		 * Thus we reduce the overhead of scanning through file system and jar files each time
+//		 */
+//		StandardJavaFileManager stdFileManager = compiler.getStandardFileManager(null, Locale.getDefault(), null);
+// 
+//		/* Prepare a list of compilation units (java source code file objects) to input to compilation task*/
+//		Iterable<? extends JavaFileObject> compilationUnits = Arrays.asList(javaFileObjects);
+//		
+//		String classpath = getClasspath(projectLocation);
+// 
+//		/*Prepare any compilation options to be used during compilation*/
+//		//In this example, we are asking the compiler to place the output files under bin folder.
+//		String[] compileOptions = new String[]
+//		{
+////			"-cp", classpath,
+//			"-cp", classpath,
+//			"-d", outputLocation
+//		};
+//		
+//		Iterable<String> compilationOptions = Arrays.asList(compileOptions);
+// 
+////		if (true)return;
+//		
+//		/*Create a diagnostic controller, which holds the compilation problems*/
+//		DiagnosticCollector<JavaFileObject> diagnostics = new DiagnosticCollector<JavaFileObject>();
+// 
+//		/*Create a compilation task from compiler by passing in the required input objects prepared above*/
+//		CompilationTask compilerTask = compiler.getTask(null, stdFileManager, diagnostics, compilationOptions, null, compilationUnits);
+//		
+//		//Perform the compilation by calling the call method on compilerTask object.
+//		boolean status = compilerTask.call();
+//		
+//		final StringBuilder error = new StringBuilder();
+//		
+//		String outputFile = outputLocation + fileName + ".class";
+//		
+//		final String outputFiles[] = new String[] { outputFile };
+//		
+//		ArrayList<Diagnostic> ds = new ArrayList<Diagnostic>();
+//		
+//		ArrayList<String> errors = new ArrayList<String>();
+//		
+//		//If compilation error occurs
+//		if (!status)
+//		{
+//			/*Iterate through each compilation problem and print it*/
+//			for (Diagnostic d : diagnostics.getDiagnostics())
+//			{
+//				String err = d.getMessage(Locale.getDefault());
+//				
+//				errors.add(String.format("Error on line %d: %s", d.getLineNumber(), err));
+//				
+//				ds.add(d);
+//			}
+//			
+//			String strs[] = errors.toArray(new String[0]);
+//			
+//			for (String str : strs)
+//			{
+//				error.append(str);
+//			}
+//			
+//			Display.getDefault().syncExec(new Runnable()
+//			{
+//				public void run()
+//				{
+//					if (stream != null)
+//					{
+//						stream.println(error.toString());
+//					}
+//				}
+//			});
+//		}
+//		
+//		CompileOutput output = null;
+//		
+//		CompileOutput outputs[] = new CompileOutput[ds.size() > 0 ? ds.size() : 1];
+//		
+//		if (ds.size() > 0)
+//		{
+//			for (int i = 0; i < ds.size(); i++)
+//			{
+//				outputs[i] = new CompileOutput((int)ds.get(i).getStartPosition(), (int)ds.get(i).getEndPosition(), (int)ds.get(i).getLineNumber(), status ? 0 : 1, errors.get(i));
+//			}
+//		}
+//		else
+//		{
+//			outputs[0] = new CompileOutput(0, 0, 0, status ? 0 : 1, "");
+//		}
+//		
+//		for (int i = compilerListeners.size() - 1; i >= 0; i--)
+//		{
+//			CompilerEvent event = new CompilerEvent(outputFiles, outputs, stream, fileLocation);
+//			
+//			compilerListeners.get(i).compiled(event);
+//		}
+//		
+//		try
+//		{
+//			stdFileManager.close();
+//		}
+//		catch (IOException e)
+//		{
+//			e.printStackTrace();
+//		}
 	}
 }
 
