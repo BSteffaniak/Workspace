@@ -11,9 +11,21 @@ public class ConsoleStream extends PrintStream
 	
 	private ConsoleListener listener;
 	
-	public ConsoleStream(String location) throws FileNotFoundException
+	public ConsoleStream(final String location) throws FileNotFoundException
 	{
 		super(location);
+		
+		final ConsoleStream thisStream = this;
+		
+		Runtime.getRuntime().addShutdownHook(new Thread()
+		{
+			public void run()
+			{
+				thisStream.close();
+				
+				new File(location).delete();
+			}
+		});
 		
 		this.location = location;
 	}
@@ -48,11 +60,6 @@ public class ConsoleStream extends PrintStream
 	public void addConsoleListener(ConsoleListener listener)
 	{
 		this.listener = listener;
-	}
-	
-	public File getFile()
-	{
-		return new File(location);
 	}
 	
 	public void setOutputStream(OutputStream os)

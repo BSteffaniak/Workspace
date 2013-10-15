@@ -1,14 +1,9 @@
 package net.foxycorndog.arrowide.language.cpp;
 
 import static net.foxycorndog.arrowide.language.Language.CPP;
-import static net.foxycorndog.arrowide.language.Language.GLSL;
-
-import net.foxycorndog.arrowide.language.Keyword;
-import net.foxycorndog.arrowide.language.glsl.GLSLLanguage;
-import net.foxycorndog.arrowide.language.java.JavaLanguage;
-
-import static net.foxycorndog.arrowide.language.cpp.CppLanguage.KEYWORD_COLOR;
 import static net.foxycorndog.arrowide.language.cpp.CppLanguage.INCLUDE_COLOR;
+import static net.foxycorndog.arrowide.language.cpp.CppLanguage.KEYWORD_COLOR;
+import net.foxycorndog.arrowide.language.Keyword;
 
 public class CppKeyword
 {

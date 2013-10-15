@@ -1,20 +1,13 @@
 package net.foxycorndog.arrowide.language;
 
-import static net.foxycorndog.arrowide.ArrowIDE.CONFIG_DATA;
-
-import java.io.File;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
-
-import net.foxycorndog.arrowide.ArrowIDE;
 import net.foxycorndog.arrowide.Program;
 import net.foxycorndog.arrowide.console.ConsoleStream;
-import net.foxycorndog.arrowide.dialog.FileBrowseDialog;
 import net.foxycorndog.arrowide.event.CompilerListener;
+import net.foxycorndog.arrowide.event.ProgramListener;
 import net.foxycorndog.arrowide.file.FileUtils;
 import net.foxycorndog.arrowide.language.assembly.AssemblyLanguage;
 import net.foxycorndog.arrowide.language.c.CLanguage;
@@ -96,11 +89,16 @@ public class Language
 	
 	public static Program run(int language, String fileLocation, ConsoleStream stream)
 	{
+		return run(language, fileLocation, stream, null);
+	}
+	
+	public static Program run(int language, String fileLocation, ConsoleStream stream, ProgramListener listener)
+	{
 		fileLocation = FileUtils.removeEndingSlashes(fileLocation.replace('\\', '/'));
 		
 		if (language == JAVA)
 		{
-			return JavaLanguage.run(fileLocation, stream);
+			return JavaLanguage.run(fileLocation, stream, listener);
 		}
 		else if (language == GLSL)
 		{

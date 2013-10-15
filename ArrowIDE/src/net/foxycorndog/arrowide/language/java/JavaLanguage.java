@@ -1,53 +1,41 @@
 package net.foxycorndog.arrowide.language.java;
 
-import java.io.BufferedReader;
+import static net.foxycorndog.arrowide.ArrowIDE.CONFIG_DATA;
+import static net.foxycorndog.arrowide.ArrowIDE.PROJECT_CLASSPATHS;
+import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
 
-import javax.tools.Diagnostic;
-import javax.tools.DiagnosticCollector;
 import javax.tools.JavaCompiler;
-import javax.tools.JavaFileObject;
 import javax.tools.SimpleJavaFileObject;
-import javax.tools.StandardJavaFileManager;
-import javax.tools.ToolProvider;
-import javax.tools.JavaCompiler.CompilationTask;
-import javax.tools.JavaFileObject.Kind;
-
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
 
 import net.foxycorndog.arrowide.ArrowIDE;
 import net.foxycorndog.arrowide.Program;
 import net.foxycorndog.arrowide.command.Command;
+import net.foxycorndog.arrowide.command.CommandListener;
 import net.foxycorndog.arrowide.console.ConsoleStream;
 import net.foxycorndog.arrowide.dialog.FileBrowseDialog;
 import net.foxycorndog.arrowide.event.CompilerEvent;
 import net.foxycorndog.arrowide.event.CompilerListener;
+import net.foxycorndog.arrowide.event.ProgramListener;
 import net.foxycorndog.arrowide.file.FileUtils;
 import net.foxycorndog.arrowide.language.CommentProperties;
 import net.foxycorndog.arrowide.language.CompileOutput;
 import net.foxycorndog.arrowide.language.IdentifierProperties;
 import net.foxycorndog.arrowide.language.MethodProperties;
 import net.foxycorndog.arrowide.xml.XMLItem;
-import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
-import static net.foxycorndog.arrowide.ArrowIDE.CONFIG_DATA;
-import static net.foxycorndog.arrowide.ArrowIDE.PROJECT_CLASSPATHS;
+
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
 
 public class JavaLanguage
 {
@@ -109,6 +97,11 @@ public class JavaLanguage
 	}
 	
 	public static Program run(String fileLocation, final ConsoleStream stream)
+	{
+		return run(fileLocation, stream, null);
+	}
+	
+	public static Program run(String fileLocation, final ConsoleStream stream, ProgramListener programListener)
 	{
 		fileLocation = FileUtils.removeExtension(fileLocation);
 		
@@ -202,7 +195,7 @@ public class JavaLanguage
 		
 		try
 		{
-			c.execute(fileName);
+			c.execute(fileName, programListener);
 			
 			return c.getProgram();
 		}
@@ -433,10 +426,35 @@ public class JavaLanguage
 		
 		for (int i = 0; i < children.length; i++)
 		{
-			params[5 + i] = "src/" + children[i];
+			params[5 + i] = children[i];
 		}
 		
-		final Command c = new Command(Display.getDefault(), params, projectLocation);
+		final Command c = new Command(Display.getDefault(), params, projSrc);
+		
+		final ArrayList<String> messages = new ArrayList<String>();
+		
+		ProgramListener programListener = new ProgramListener()
+		{
+			public void programTerminated(Program program)
+			{
+				
+			}
+			
+			public void programStarted(Program program)
+			{
+				
+			}
+			
+			public void messageReceived(String message)
+			{
+				messages.add(message);
+			}
+			
+			public void errorMessageReceived(String message)
+			{
+				messageReceived(message);
+			}
+		};
 		
 		String fileName = FileUtils.getFileNameWithoutExtension(fileLocation);
 		
@@ -444,23 +462,12 @@ public class JavaLanguage
 		
 		try
 		{
-			c.execute(fileName);
+			c.execute(fileName, programListener);
 			
-			new Thread()
+			c.addCommandListener(new CommandListener()
 			{
-				public void run()
+				public void resultReceived(int result)
 				{
-					int result = 1;
-					
-					try
-					{
-						result = c.getProgram().getProcess().waitFor();
-					}
-					catch (InterruptedException e)
-					{
-						e.printStackTrace();
-					}
-					
 					if (result == 0)
 					{
 						CompileOutput output = new CompileOutput(0, 0, 0, 0, "Successfully compiled.");
@@ -474,7 +481,14 @@ public class JavaLanguage
 					}
 					else
 					{
-						CompileOutput output = new CompileOutput(0, 0, 0, result, "Unsuccessfully compiled.");
+						StringBuilder message = new StringBuilder();
+						
+						for (int i = 0; i < messages.size(); i++)
+						{
+							message.append(messages.get(i));
+						}
+						
+						CompileOutput output = new CompileOutput(0, 0, 0, result, message.toString());
 						
 						for (int i = 0; i < compilerListeners.size(); i++)
 						{
@@ -484,7 +498,12 @@ public class JavaLanguage
 						}
 					}
 				}
-			}.start();
+				
+				public void commandExecuted()
+				{
+					
+				}
+			});
 		}
 		catch (IOException e)
 		{

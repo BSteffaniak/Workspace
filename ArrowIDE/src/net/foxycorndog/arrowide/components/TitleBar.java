@@ -1,7 +1,8 @@
 package net.foxycorndog.arrowide.components;
 
+import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
+
 import java.awt.MouseInfo;
-import java.io.InputStream;
 
 import net.foxycorndog.arrowide.color.ColorUtils;
 import net.foxycorndog.arrowide.components.window.Window;
@@ -10,12 +11,8 @@ import net.foxycorndog.arrowide.components.window.WindowListener;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
-import org.eclipse.swt.events.DisposeEvent;
-import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Color;
@@ -23,23 +20,13 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.graphics.RGB;
-import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.graphics.Region;
-import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Shell;
-import org.eclipse.swt.widgets.Tracker;
-import org.eclipse.swt.widgets.Widget;
-
-import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
 
 public class TitleBar
 {
@@ -77,7 +64,7 @@ public class TitleBar
 		
 		composite = new Composite(parent.getContentPanel(), SWT.NONE);
 		
-		composite.setSize(parent.getSize().x, size);
+		composite.setSize(parent.getClientArea().width, size);
 		
 		buttonListener = new Listener()
 		{
@@ -220,7 +207,7 @@ public class TitleBar
 		{
 			public void handleEvent(Event e)
 			{
-				if (dragging)
+				if (dragging && parent.isMovable())
 				{
 					int x = e.x;
 					int y = e.y;
@@ -256,9 +243,14 @@ public class TitleBar
 		{
 			public void mouseUp(MouseEvent e)
 			{
+				if (e.button != 1)
+				{
+					return;
+				}
+				
 				dragging = false;
 				
-				if (parent.getLocation().y < 0)
+				if (parent.getLocation().y < parent.getCurrentMonitor().getBounds().y)
 				{
 					wasRestored = true;
 					parent.setMaximized(true);
@@ -267,6 +259,11 @@ public class TitleBar
 			
 			public void mouseDown(MouseEvent e)
 			{
+				if (e.button != 1)
+				{
+					return;
+				}
+				
 				dragging = true;
 				
 				oldX = e.x;
@@ -275,6 +272,11 @@ public class TitleBar
 			
 			public void mouseDoubleClick(MouseEvent e)
 			{
+				if (e.button != 1)
+				{
+					return;
+				}
+				
 				parent.setMaximized(!parent.isMaximized());
 				
 				if (!parent.isMaximized() && parent.getLocation().y < 0)
@@ -433,23 +435,25 @@ public class TitleBar
 		}
 		else
 		{
+			offset += closeButton.getSize().x;
+			
 			if (closeButton != null)// && closeButton.isVisible())
 			{
-				closeButton.setLocation(getWidth() - closeButton.getSize().x - offset, 0);
+				closeButton.setLocation(getWidth() - offset, 0);
 				
-				offset += getHeight() + 1 + closeButton.getSize().x;
+				offset += closeButton.getSize().x + 1;
 			}
 			if (restoreButton != null)// && restoreButton.isVisible())
 			{
 				restoreButton.setLocation(getWidth() - offset, 0);
 				
-				offset += getHeight() + 1;
+				offset += restoreButton.getSize().x + 1;
 			}
 			if (minimizeButton != null)// && minimizeButton.isVisible())
 			{
 				minimizeButton.setLocation(getWidth() - offset, 0);
 				
-				offset += getHeight() + 1;
+				offset += minimizeButton.getSize().x + 1;
 			}
 		}
 	}

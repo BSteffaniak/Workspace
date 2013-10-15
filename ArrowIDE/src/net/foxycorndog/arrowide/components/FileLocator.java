@@ -2,10 +2,8 @@ package net.foxycorndog.arrowide.components;
 
 import net.foxycorndog.arrowide.dialog.FileBrowseDialog;
 
-import org.eclipse.swt.custom.ViewForm;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.DirectoryDialog;
@@ -15,7 +13,6 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.swt.widgets.Widget;
 
 public class FileLocator extends Composite
 {

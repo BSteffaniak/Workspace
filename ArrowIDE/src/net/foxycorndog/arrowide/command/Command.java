@@ -1,30 +1,26 @@
 package net.foxycorndog.arrowide.command;
 
+import static net.foxycorndog.arrowide.ArrowIDE.CONFIG_DATA;
+
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.eclipse.swt.widgets.Display;
-
 import net.foxycorndog.arrowide.Program;
-import net.foxycorndog.arrowide.console.ConsoleStream;
-import net.foxycorndog.arrowide.file.FileUtils;
+import net.foxycorndog.arrowide.event.ProgramListener;
 
-import static net.foxycorndog.arrowide.ArrowIDE.CONFIG_DATA;
+import org.eclipse.swt.widgets.Display;
 
 public class Command
 {
-	private String                      directory, line;
+	private String                      directory;
 	
 	private Program						program;
 	
@@ -70,10 +66,10 @@ public class Command
 	
 	public void execute() throws IOException
 	{
-		execute(null);
+		execute(null, null);
 	}
 	
-	public void execute(String title) throws IOException
+	public void execute(String title, ProgramListener listener) throws IOException
 	{
 //		System.out.println(Arrays.asList(commands) + ", " + directory);
 		
@@ -84,9 +80,26 @@ public class Command
 			builder.directory(new File(directory));
 		}
 		
+		final File error = File.createTempFile("processError", ".txt");
+		final File input = File.createTempFile("processInput", ".txt");
+		
+		final InputStream errorStream = new FileInputStream(error);
+		final InputStream inputStream = new FileInputStream(input);
+		
+		builder.redirectError(error);
+		builder.redirectInput(input);
+		
+		final Result     result = new Result();
+		final ExecValues values = new ExecValues();
+		
 		final Process process = builder.start();
 		
 		program = new Program(process, title);
+		
+		if (listener != null)
+		{
+			program.addListener(listener);
+		}
 		
 		program.setRunning(true);
 		
@@ -102,72 +115,77 @@ public class Command
 						{
 							public void run()
 							{
-								int result = 0;
+								values.lsr = new LogStreamReader(display, process.getInputStream(), program, CONFIG_DATA.get("workspace.location") + "/");
+								values.thread = new Thread(values.lsr, "LogStreamReader");
+								values.thread.start();
+								
+								values.reader = new BufferedReader(new InputStreamReader(errorStream));
 								
 								try
 								{
-									LogStreamReader lsr = new LogStreamReader(display, process.getInputStream(), program, CONFIG_DATA.get("workspace.location") + "/");
-									Thread thread = new Thread(lsr, "LogStreamReader");
-									thread.start();
+									String line = null;
 									
-									BufferedReader reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-									
-									try
+									while ((line = values.reader.readLine()) != null)
 									{
-										while ((line = reader.readLine()) != null)
+										result.value = 1;
+										
+										if (program != null)
 										{
-											result = 1;
-											
-				    						if (program != null)
-											{
-				    							program.append(line + "\n");
-											}
-											
-											if (!reader.ready())
-											{
-												break;
-											}
+											program.append(line + "\n");
+										}
+										
+										if (!values.reader.ready())
+										{
+											break;
 										}
 									}
-									catch (IOException e)
+									
+									if (result.value == 0)
 									{
-										result = 1;
+										result.value = process.waitFor();
 										
-										e.printStackTrace();
+										StringBuilder builder = new StringBuilder();
+										
+										line = null;
+										
+										while ((line = values.reader.readLine()) != null)
+										{
+											builder.append(line + "\n");
+										}
+										
+										if (builder.length() > 0)
+										{
+											while (builder.charAt(builder.length() - 1) == '\n' || builder.charAt(builder.length() - 1) == '\r')
+											{
+												builder.deleteCharAt(builder.length() - 1);
+											}
+											
+											program.append(builder.toString());
+										}
+									
+										values.thread.join();
+										values.reader.close();
+										values.lsr.stop();
+										inputStream.close();
+										errorStream.close();
+										
+										error.delete();
+										input.delete();
 									}
-									
-									line = null;
-									
-									for (int i = listeners.size() - 1; i >= 0; i --)
-									{
-										listeners.get(i).resultReceived(result);
-									}
-									
-									if (result == 0)
-									{
-										result = process.waitFor();
-									
-										thread.join();
-										reader.close();
-										lsr.stop();
-									}
-									
-									process.waitFor();
 									
 									process.destroy();
-									
-									Display.getDefault().syncExec(new Runnable()
-									{
-										public void run()
-										{
-											program.setRunning(false);
-										}
-									});
 									
 									display.syncExec(new Runnable()
 									{
 										public void run()
 										{
+											program.setRunning(false);
+											
+											for (int i = listeners.size() - 1; i >= 0; i --)
+											{
+												listeners.get(i).resultReceived(result.value);
+											}
+											
 											for (int i = listeners.size() - 1; i >= 0; i --)
 											{
 												listeners.get(i).commandExecuted();
@@ -215,6 +233,18 @@ public class Command
 //	{
 //		return program.getProcess();
 //	}
+
+	private class Result
+	{
+		int value;
+	}
+	
+	private class ExecValues
+	{
+		LogStreamReader	lsr;
+		BufferedReader	reader;
+		Thread			thread;
+	}
 }
 
 /**

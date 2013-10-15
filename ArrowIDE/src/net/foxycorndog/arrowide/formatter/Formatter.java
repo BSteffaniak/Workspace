@@ -3,11 +3,8 @@ package net.foxycorndog.arrowide.formatter;
 import net.foxycorndog.arrowide.components.CodeField;
 import net.foxycorndog.arrowide.language.CommentProperties;
 
-import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Display;
 
 public class Formatter
 {

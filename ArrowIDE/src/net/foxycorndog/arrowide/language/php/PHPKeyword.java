@@ -2,7 +2,6 @@ package net.foxycorndog.arrowide.language.php;
 
 import static net.foxycorndog.arrowide.language.Language.PHP;
 import net.foxycorndog.arrowide.language.Keyword;
-import net.foxycorndog.arrowide.language.php.PHPLanguage;
 
 public class PHPKeyword
 {

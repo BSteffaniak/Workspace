@@ -11,9 +11,11 @@ import net.foxycorndog.arrowide.ArrowIDE;
 import net.foxycorndog.arrowide.Program;
 import net.foxycorndog.arrowide.command.Command;
 import net.foxycorndog.arrowide.command.CommandListener;
+import net.foxycorndog.arrowide.console.ConsoleStream;
 import net.foxycorndog.arrowide.dialog.FileBrowseDialog;
 import net.foxycorndog.arrowide.event.CompilerEvent;
 import net.foxycorndog.arrowide.event.CompilerListener;
+import net.foxycorndog.arrowide.event.ProgramListener;
 import net.foxycorndog.arrowide.file.FileUtils;
 import net.foxycorndog.arrowide.language.CommentProperties;
 import net.foxycorndog.arrowide.language.CompileOutput;
@@ -45,7 +47,12 @@ public class CLanguage
 		CKeyword.init();
 	}
 	
-	public static Program run(final String fileLocation, final PrintStream stream)
+	public static Program run(final String fileLocation, final ConsoleStream stream)
+	{
+		return run(fileLocation, stream, null);
+	}
+	
+	public static Program run(String fileLocation, final ConsoleStream stream, ProgramListener programListener)
 	{
 		int lastInd = fileLocation.lastIndexOf('.');
 		lastInd = lastInd < 0 ? fileLocation.length() : lastInd;
@@ -58,7 +65,7 @@ public class CLanguage
 		
 		try
 		{
-			command.execute(fileName);
+			command.execute(fileName, programListener);
 			
 			return command.getProgram();
 		}

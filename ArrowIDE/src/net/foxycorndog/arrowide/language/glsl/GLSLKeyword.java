@@ -1,13 +1,9 @@
 package net.foxycorndog.arrowide.language.glsl;
 
-import net.foxycorndog.arrowide.ArrowIDE;
-import net.foxycorndog.arrowide.language.Keyword;
-
-import org.eclipse.swt.graphics.Color;
-
 import static net.foxycorndog.arrowide.language.Language.GLSL;
 import static net.foxycorndog.arrowide.language.glsl.GLSLLanguage.KEYWORD_COLOR;
 import static net.foxycorndog.arrowide.language.glsl.GLSLLanguage.VERSION_COLOR;
+import net.foxycorndog.arrowide.language.Keyword;
 
 public class GLSLKeyword
 {

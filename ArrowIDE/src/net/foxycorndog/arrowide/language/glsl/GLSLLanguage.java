@@ -15,17 +15,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
-
-import net.foxycorndog.arrowide.ArrowIDE;
 import net.foxycorndog.arrowide.console.ConsoleStream;
 import net.foxycorndog.arrowide.event.CompilerEvent;
 import net.foxycorndog.arrowide.event.CompilerListener;
@@ -34,6 +25,9 @@ import net.foxycorndog.arrowide.language.CommentProperties;
 import net.foxycorndog.arrowide.language.CompileOutput;
 import net.foxycorndog.arrowide.language.IdentifierProperties;
 import net.foxycorndog.arrowide.language.MethodProperties;
+
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.widgets.Display;
 
 public class GLSLLanguage
 {

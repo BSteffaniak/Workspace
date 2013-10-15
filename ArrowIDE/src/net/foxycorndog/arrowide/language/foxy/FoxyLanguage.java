@@ -1,15 +1,11 @@
 package net.foxycorndog.arrowide.language.foxy;
 
-import static net.foxycorndog.arrowide.language.Language.FOXY;
+import net.foxycorndog.arrowide.language.CommentProperties;
+import net.foxycorndog.arrowide.language.IdentifierProperties;
+import net.foxycorndog.arrowide.language.MethodProperties;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
-
-import net.foxycorndog.arrowide.language.CommentProperties;
-import net.foxycorndog.arrowide.language.IdentifierProperties;
-import net.foxycorndog.arrowide.language.Keyword;
-import net.foxycorndog.arrowide.language.MethodProperties;
-import net.foxycorndog.arrowide.language.php.PHPKeyword;
 
 public class FoxyLanguage
 {

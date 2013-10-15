@@ -1,23 +1,23 @@
 package net.foxycorndog.arrowide.language.python;
 
+import static net.foxycorndog.arrowide.ArrowIDE.CONFIG_DATA;
+
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 
 import net.foxycorndog.arrowide.ArrowIDE;
 import net.foxycorndog.arrowide.Program;
 import net.foxycorndog.arrowide.command.Command;
+import net.foxycorndog.arrowide.console.ConsoleStream;
 import net.foxycorndog.arrowide.dialog.FileBrowseDialog;
+import net.foxycorndog.arrowide.event.ProgramListener;
 import net.foxycorndog.arrowide.file.FileUtils;
 import net.foxycorndog.arrowide.language.CommentProperties;
 import net.foxycorndog.arrowide.language.IdentifierProperties;
 import net.foxycorndog.arrowide.language.MethodProperties;
-import net.foxycorndog.arrowide.language.python.PythonKeyword;
 
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
-
-import static net.foxycorndog.arrowide.ArrowIDE.CONFIG_DATA;
 
 public class PythonLanguage
 {
@@ -40,7 +40,12 @@ public class PythonLanguage
 		PythonKeyword.init();
 	}
 	
-	public static Program run(String fileLocation, PrintStream stream)
+	public static Program run(String fileLocation, ConsoleStream stream)
+	{
+		return run(fileLocation, stream, null);
+	}
+	
+	public static Program run(String fileLocation, final ConsoleStream stream, ProgramListener programListener)
 	{
 		if (!CONFIG_DATA.containsKey("python.location") || !(new File(CONFIG_DATA.get("python.location")).isDirectory()))
 		{
@@ -68,7 +73,7 @@ public class PythonLanguage
 		
 		try
 		{
-			command.execute(fileName);
+			command.execute(fileName, programListener);
 			
 			return command.getProgram();
 		}

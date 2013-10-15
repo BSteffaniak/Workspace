@@ -12,4 +12,6 @@ package net.foxycorndog.arrowide.event;
 public interface CompilerListener
 {
 	public void compiled(CompilerEvent event);
+//	
+//	public void outputReceived(CompilerEvent event);
 }

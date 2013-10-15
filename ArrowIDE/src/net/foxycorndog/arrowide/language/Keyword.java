@@ -1,19 +1,8 @@
 package net.foxycorndog.arrowide.language;
 
 import java.util.HashMap;
-import java.util.HashSet;
-
-import net.foxycorndog.arrowide.ArrowIDE;
-import net.foxycorndog.arrowide.language.assembly.AssemblyKeyword;
-import net.foxycorndog.arrowide.language.cpp.CppKeyword;
-import net.foxycorndog.arrowide.language.foxy.FoxyKeyword;
-import net.foxycorndog.arrowide.language.glsl.GLSLKeyword;
-import net.foxycorndog.arrowide.language.java.JavaKeyword;
-import net.foxycorndog.arrowide.language.php.PHPKeyword;
 
 import org.eclipse.swt.graphics.Color;
-
-import static net.foxycorndog.arrowide.language.Language.*;
 
 public class Keyword
 {

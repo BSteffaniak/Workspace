@@ -2,7 +2,6 @@ package net.foxycorndog.arrowide.components;
 
 import net.foxycorndog.arrowide.ArrowIDE;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.ModifyEvent;
@@ -19,13 +18,13 @@ import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Listener;
-
-import com.sun.xml.internal.messaging.saaj.util.CharWriter;
 
 public class LineNumberPanel extends Composite
 {
+	private int			leftMargin, rightMargin;
+	
+	private String		prefix, postfix;
+	
 	private GC			gc;
 	private GC			bufferGC;
 	
@@ -42,6 +41,9 @@ public class LineNumberPanel extends Composite
 		this.field = field;
 		
 		this.backgroundColor = new Color(Display.getDefault(), 220, 220, 220);
+		
+		setPrefix("");
+		setPostfix("");
 		
 		final LineNumberPanel thisPanel = this;
 		
@@ -62,9 +64,10 @@ public class LineNumberPanel extends Composite
 
 			public void controlResized(ControlEvent e)
 			{
-				thisPanel.setSize(thisPanel.getSize().x, field.getSize().y);
+				thisPanel.setSize(thisPanel.getSize().x, field.getClientArea().height);
 				field.getSize();
-//				thisPanel.setLocation(field.getX(), field.getY());
+				
+				updateSize();
 			}
 		});
 		
@@ -72,21 +75,7 @@ public class LineNumberPanel extends Composite
 		{
 			public void modifyText(ModifyEvent e)
 			{
-				int length   = String.valueOf(field.getLineCount()).length() + 1;
-				
-				int newWidth = length * getCharWidth();
-				
-				if (newWidth != thisPanel.getSize().x)
-				{
-					thisPanel.setSize(newWidth, thisPanel.getSize().y);
-					
-					
-				}
-				
-				createBuffer();
-				drawBuffer();
-				
-				thisPanel.redraw();
+				updateSize();
 			}
 		});
 		
@@ -105,7 +94,7 @@ public class LineNumberPanel extends Composite
 		
 		int charWidth = getCharWidth();
 		
-		setSize(charWidth * 2, field.getSize().y);
+		setSize(charWidth, field.getClientArea().height);
 		setLocation(field.getX(), field.getY());
 		
 		field.setLocation(field.getLocation().x + getSize().x, field.getLocation().y);
@@ -125,31 +114,88 @@ public class LineNumberPanel extends Composite
 		});
 	}
 	
+	private void updateSize()
+	{
+		int preLength = 0;
+		
+		if (prefix != null)
+		{
+			preLength = prefix.length();
+		}
+
+		int postLength = 0;
+		
+		if (postfix != null)
+		{
+			postLength = postfix.length();
+		}
+		
+		int length   = preLength + String.valueOf(field.getLineCount()).length() + postLength;
+		
+		int newWidth = length * getCharWidth() + leftMargin + rightMargin;
+		
+		if (newWidth != getSize().x)
+		{
+			setSize(newWidth, getSize().y);
+		}
+		
+		createBuffer();
+		drawBuffer();
+		
+		redraw();
+	}
+	
 	private void drawBuffer()
 	{
+		if (buffer == null)
+		{
+			return;
+		}
+		
 		int height = getCharHeight();
 
         bufferGC.setBackground(backgroundColor);
 		bufferGC.fillRectangle(0, 0, buffer.getImageData().width, buffer.getImageData().height);
 		
 		int charWidth = getCharWidth();
+
+		int preLength = 0;
 		
-		int maxLength = String.valueOf(field.getLineCount()).length() + 1;
+		if (prefix != null)
+		{
+			preLength = prefix.length();
+		}
+
+		int postLength = 0;
+		
+		if (postfix != null)
+		{
+			postLength = postfix.length();
+		}
+		
+		int maxLength = preLength + String.valueOf(field.getLineCount()).length() + postLength;
 		
 		for (int i = 0; i < field.getLineCount(); i++)
 		{
-			int length = String.valueOf((i + 1)).length() + 1;
+			int length = preLength + String.valueOf((i + 1)).length() + postLength;
 			
 			int dif    = maxLength - length;
 			
-			bufferGC.drawString((i + 1) + ".", dif * charWidth, height * i + 1);
+			bufferGC.drawString(prefix + (i + 1) + postfix, dif * charWidth + leftMargin, height * i + 1);
 		}
 	}
 	
 	private void createBuffer()
-	{	
+	{
+		if (getSize().x <= 0 || getSize().y <= 0)
+		{
+			return;
+		}
+		
+		int height = Math.max(field.getLineCount() * getCharHeight(), getSize().y);
+		
 		PaletteData palette = new PaletteData(0xFF , 0xFF00 , 0xFF0000);
-		ImageData data = new ImageData(getSize().x, field.getLineCount() * getCharHeight(), 24, palette);
+		ImageData data = new ImageData(getSize().x, height, 24, palette);
 		buffer = new Image(Display.getDefault(), data);
 		buffer.setBackground(backgroundColor);
 		
@@ -160,9 +206,10 @@ public class LineNumberPanel extends Composite
 	
 	public int getCharWidth()
 	{
-		GC g = new GC(field);
-	    FontMetrics fm = g.getFontMetrics();
-	    int charWidth = fm.getAverageCharWidth();
+		GC          g         = new GC(field);
+	    FontMetrics fm        = g.getFontMetrics();
+	    int         charWidth = fm.getAverageCharWidth();
+	    
 	    g.dispose();
 	    
 	    return charWidth;
@@ -183,5 +230,51 @@ public class LineNumberPanel extends Composite
 	    g.dispose();
 	    
 	    return charHeight;
+	}
+	
+	public void setPrefix(String prefix)
+	{
+		this.prefix = prefix;
+		
+		updateSize();
+	}
+	
+	public void setPostfix(String postfix)
+	{
+		this.postfix = postfix;
+		
+		updateSize();
+	}
+	
+	public int getLeftMargin()
+	{
+		return leftMargin;
+	}
+	
+	public void setLeftMargin(int leftMargin)
+	{
+		this.leftMargin = leftMargin;
+		
+		updateSize();
+	}
+	
+	public int getRightMargin()
+	{
+		return rightMargin;
+	}
+	
+	public void setRightMargin(int rightMargin)
+	{
+		this.rightMargin = rightMargin;
+		
+		updateSize();
+	}
+	
+	public void setMargin(int leftMargin, int rightMargin)
+	{
+		setLeftMargin(leftMargin);
+		setRightMargin(rightMargin);
+		
+		updateSize();
 	}
 }

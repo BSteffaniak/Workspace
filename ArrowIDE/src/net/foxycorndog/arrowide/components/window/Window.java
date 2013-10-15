@@ -1,8 +1,5 @@
 package net.foxycorndog.arrowide.components.window;
 
-import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
-import java.awt.Toolkit;
 import java.util.ArrayList;
 
 import org.eclipse.swt.SWT;
@@ -18,10 +15,9 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tracker;
-
-import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
 
 public class Window
 {
@@ -577,14 +573,20 @@ public class Window
 		{
 			if (maximized)
 			{
-				sizeBefore = shell.getSize();
+				sizeBefore     = shell.getSize();
 				locationBefore = shell.getLocation();
 				
-				Dimension screenSize  = Toolkit.getDefaultToolkit().getScreenSize();
-				java.awt.Rectangle useableSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
+//				Dimension screenSize  = Toolkit.getDefaultToolkit().getScreenSize();
+//				java.awt.Rectangle useableSize = GraphicsEnvironment.getLocalGraphicsEnvironment().getMaximumWindowBounds();
 				
-				shell.setSize(screenSize.width, useableSize.height);
-				shell.setLocation(useableSize.x, useableSize.y);
+//				System.out.println(taskbarHeight);
+				
+				Monitor monitor = getCurrentMonitor();
+				
+//				int taskbarHeight = monitor.getBounds().height - monitor.getClientArea().height;
+				
+				shell.setSize(monitor.getClientArea().width, monitor.getClientArea().height);
+				shell.setLocation(monitor.getClientArea().x, monitor.getClientArea().y);
 			}
 			else
 			{
@@ -596,6 +598,36 @@ public class Window
 		{
 			shell.setMaximized(maximized);
 		}
+	}
+	
+	public Monitor getCurrentMonitor()
+	{
+		Monitor monitors[] = Display.getDefault().getMonitors();
+		
+		Monitor monitor = null;
+		
+		int     maxSize = 0;
+		
+		for (int i = 0; i < monitors.length; i++)
+		{
+			Monitor m = monitors[i];
+			
+			int size = intersectionArea(m.getBounds().x, m.getBounds().y, m.getBounds().width, m.getBounds().height, shell.getBounds().x, shell.getBounds().y, shell.getBounds().width, shell.getBounds().height);
+			
+			if (size > maxSize)
+			{
+				monitor = m;
+				
+				maxSize = size;
+			}
+		}
+		
+		return monitor;
+	}
+	
+	public boolean isMovable()
+	{
+		return !isFullscreen();
 	}
 	
 	public boolean isMinimized()
@@ -713,5 +745,18 @@ public class Window
 	public void addWindowListener(WindowListener listener)
 	{
 		listeners.add(listener);
+	}
+	
+	private int intersectionArea(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2)
+	{
+        int newX = Math.max(x1, x2);
+        int newY = Math.max(y1, y2);
+
+        int newWidth = Math.min(x1 + width1, x2 + width2) - newX;
+        int newHeight = Math.min(y1 + height1, y2 + height2) - newY;
+
+        if (newWidth <= 0 || newHeight <= 0) return 0;
+
+        return newWidth * newHeight;
 	}
 }

@@ -1,7 +1,6 @@
 package net.foxycorndog.arrowide.language;
 
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
 
 public class CommentProperties
 {

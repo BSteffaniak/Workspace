@@ -1,26 +1,20 @@
 package net.foxycorndog.arrowide.components.treemenu;
 
+import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
+
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.TouchEvent;
-import org.eclipse.swt.events.TouchListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeItem;
-
-import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
 
 public class TreeMenu extends Composite
 {

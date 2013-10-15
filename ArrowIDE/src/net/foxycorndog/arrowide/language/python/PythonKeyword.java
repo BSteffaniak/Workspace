@@ -2,7 +2,6 @@ package net.foxycorndog.arrowide.language.python;
 
 import static net.foxycorndog.arrowide.language.Language.PYTHON;
 import net.foxycorndog.arrowide.language.Keyword;
-import net.foxycorndog.arrowide.language.python.PythonLanguage;
 
 public class PythonKeyword
 {

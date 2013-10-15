@@ -1,6 +1,5 @@
 package net.foxycorndog.arrowide.dialog;
 
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 
 /**

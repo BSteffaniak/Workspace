@@ -1,13 +1,8 @@
 package net.foxycorndog.arrowide.language.java;
 
-import net.foxycorndog.arrowide.ArrowIDE;
-import net.foxycorndog.arrowide.language.Keyword;
-
-import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.widgets.Display;
-
 import static net.foxycorndog.arrowide.language.Language.JAVA;
-import static net.foxycorndog.arrowide.language.java.JavaLanguage.KEYWORD_COLOR;;
+import static net.foxycorndog.arrowide.language.java.JavaLanguage.KEYWORD_COLOR;
+import net.foxycorndog.arrowide.language.Keyword;
 
 public class JavaKeyword
 {

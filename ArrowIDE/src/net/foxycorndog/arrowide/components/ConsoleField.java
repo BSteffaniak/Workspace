@@ -1,7 +1,6 @@
 package net.foxycorndog.arrowide.components;
 
-import java.util.ArrayList;
-
+import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
 import net.foxycorndog.arrowide.file.FileUtils;
 
 import org.eclipse.swt.SWT;
@@ -11,8 +10,6 @@ import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-
-import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
 
 public class ConsoleField extends StyledText
 {

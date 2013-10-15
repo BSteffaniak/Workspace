@@ -1,12 +1,8 @@
 package net.foxycorndog.arrowide.language.assembly;
 
-import net.foxycorndog.arrowide.ArrowIDE;
-import net.foxycorndog.arrowide.language.Keyword;
-
-import org.eclipse.swt.graphics.Color;
-
 import static net.foxycorndog.arrowide.language.Language.ASSEMBLY;
 import static net.foxycorndog.arrowide.language.assembly.AssemblyLanguage.KEYWORD_COLOR;
+import net.foxycorndog.arrowide.language.Keyword;
 
 public class AssemblyKeyword
 {
