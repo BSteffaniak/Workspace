@@ -86,8 +86,8 @@ public class Command
 		final InputStream errorStream = new FileInputStream(error);
 		final InputStream inputStream = new FileInputStream(input);
 		
-		builder.redirectError(error);
-		builder.redirectInput(input);
+//		builder.redirectError(error);
+//		builder.redirectInput(input);
 		
 		final Result     result = new Result();
 		final ExecValues values = new ExecValues();
@@ -119,7 +119,7 @@ public class Command
 								values.thread = new Thread(values.lsr, "LogStreamReader");
 								values.thread.start();
 								
-								values.reader = new BufferedReader(new InputStreamReader(errorStream));
+								values.reader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
 								
 								try
 								{
@@ -134,10 +134,10 @@ public class Command
 											program.append(line + "\n");
 										}
 										
-										if (!values.reader.ready())
-										{
-											break;
-										}
+//										if (!values.reader.ready())
+//										{
+//											break;
+//										}
 									}
 									
 									if (result.value == 0)

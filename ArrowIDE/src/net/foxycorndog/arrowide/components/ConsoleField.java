@@ -58,6 +58,27 @@ public class ConsoleField extends StyledText
 		return getBounds().height;
 	}
 	
+	public void append(String string)
+	{
+		super.append(string);
+
+		moveTextToTop();
+	}
+	
+	public void setText(String text)
+	{
+		super.setText(text);
+
+		moveTextToTop();
+	}
+	
+	private void moveTextToTop()
+	{
+		int lines = getHeight() / getLineHeight();
+		
+		setTopIndex(getLineCount() - lines);
+	}
+	
 //	public void append(String s)
 //	{
 //		append(s, false);
