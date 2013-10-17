@@ -101,7 +101,7 @@ public class JavaLanguage
 		return run(fileLocation, stream, null);
 	}
 	
-	public static Program run(String fileLocation, final ConsoleStream stream, ProgramListener programListener)
+	public static Program run(String fileLocation, final ConsoleStream stream, final ProgramListener programListener)
 	{
 		fileLocation = FileUtils.removeExtension(fileLocation);
 		
@@ -111,61 +111,6 @@ public class JavaLanguage
 		String className  = FileUtils.getPathRelativeTo(fileLocation, "/src/");
 		
 		String classLocation = projectLocation + "/bin/" + className;
-		
-//		try
-//		{
-//			URL url = new URL("file://" + FileUtils.getParentFolder(classLocation) + "/");
-//			
-//			final ClassLoader cLoader   = new URLClassLoader(new URL[] { url });
-//			
-//			final String      className = FileUtils.getFileNameWithoutExtension(classLocation);
-//			
-////			Class        clazz     = cLoader.loadClass(className);//classLocation.substring(0, classLocation.lastIndexOf('.')));
-//			
-////			final Method m         = clazz.getMethod("main", String[].class);
-//			
-////			classRunning = true;
-//			
-//			new Thread()
-//			{
-//				public void run()
-//				{
-//					try
-//					{
-//						Class clazz = null;
-//						
-//						if (classes.containsKey(classLocation))
-//						{
-//							clazz = classes.get(classLocation);
-//						}
-//						else
-//						{
-//							clazz = cLoader.loadClass(className);
-//							
-//							classes.put(classLocation, clazz);
-//						}
-//						
-//						exec(clazz, classLocation, stream);
-//					}
-//					catch (ClassNotFoundException e)
-//					{
-//						e.printStackTrace();
-//					}
-//					catch (InterruptedException e)
-//					{
-//						e.printStackTrace();
-//					}
-//					catch (IOException e)
-//					{
-//						e.printStackTrace();
-//					}
-//				}
-//			}.start();
-//		}
-//		catch (MalformedURLException e)
-//		{
-//			e.printStackTrace();
-//		}
 		
 		if (!FileUtils.fileExists(CONFIG_DATA.get("jdk.location")))
 		{
@@ -189,13 +134,49 @@ public class JavaLanguage
 		
 		String classpath = getClasspath(projectLocation);
 		
-		Command c = new Command(Display.getDefault(), new String[] { CONFIG_DATA.get("jdk.location") + "/bin/java", "-cp", classpath, className }, projectLocation);
+		Command c = new Command(Display.getDefault(), new String[] { CONFIG_DATA.get("jdk.location") + "/bin/java", "-cp", classpath, "-Xdebug", "-agentlib:jdwp=transport=dt_socket,address=4003,server=y,suspend=y", className }, projectLocation);
+		final Command c2 = new Command(Display.getDefault(), new String[] { "telnet", "localhost", "4003" }, projectLocation);
 		
 		String fileName = FileUtils.getFileNameWithoutExtension(fileLocation);
 		
+		ProgramListener listener = new ProgramListener()
+		{
+			public void programTerminated(Program program)
+			{
+				programListener.programTerminated(program);
+			}
+			
+			public void programStarted(Program program)
+			{
+					System.out.println("yyy");
+				programListener.programStarted(program);
+				
+				try
+				{
+					messageReceived("test");
+					
+					c2.execute();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+			
+			public void messageReceived(String message)
+			{
+				programListener.messageReceived(message);
+			}
+			
+			public void errorMessageReceived(String message)
+			{
+				programListener.errorMessageReceived(message);
+			}
+		};
+		
 		try
 		{
-			c.execute(fileName, programListener);
+			c.execute(fileName, listener);
 			
 			return c.getProgram();
 		}

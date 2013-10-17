@@ -1483,7 +1483,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		ide.codeField.setFocus();
 		
-		while (!window.isDisposed())
+		while (!window.isDisposed() && !exiting)
 		{
 			if (!DISPLAY.readAndDispatch())
 			{
@@ -1495,6 +1495,18 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		}
 		
 		ide.updateTabsConfig();
+		
+		for (int i = 0; i < ide.programs.size(); i++)
+		{
+			try
+			{
+				ide.programs.get(i).terminate();
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
 		
 		if (restarting)
 		{
@@ -1509,6 +1521,10 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		{
 			exit(window);
 		}
+		
+		DISPLAY.close();
+		
+		System.exit(0);
 	}
 	
 	/**
@@ -1601,14 +1617,10 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			}
 		}
 		
-		if (shell != null && !shell.isDisposed())
-		{
-			shell.dispose();
-		}
-		
-		DISPLAY.close();
-		
-		System.exit(0);
+//		if (shell != null && !shell.isDisposed())
+//		{
+//			shell.dispose();
+//		}
 	}
 	
 	private void updateTabsConfig()
@@ -2323,6 +2335,17 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	public void addToFileViewer(String location)
 	{
 		if (treeItemLocations.containsValue(location))
+		{
+			return;
+		}
+		
+		location.replace('\\', '/');
+		
+		String workspace = CONFIG_DATA.get("workspace.location");
+		
+		workspace.replace('\\', '/');
+		
+		if (!location.toLowerCase().contains(workspace.toLowerCase()))
 		{
 			return;
 		}

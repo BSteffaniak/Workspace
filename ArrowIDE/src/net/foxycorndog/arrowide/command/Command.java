@@ -26,6 +26,8 @@ public class Command
 	
 	private Display						display;
 	
+	private Thread						commandThread, commandThread2;
+	
 	private String						commands[];
 
 	private ArrayList<CommandListener>	listeners;
@@ -95,6 +97,7 @@ public class Command
 		final Process process = builder.start();
 		
 		program = new Program(process, title);
+		program.setCommand(this);
 		
 		if (listener != null)
 		{
@@ -103,7 +106,7 @@ public class Command
 		
 		program.setRunning(true);
 		
-		new Thread()
+		commandThread = new Thread()
 		{
 			public void run()
 			{
@@ -111,7 +114,7 @@ public class Command
 				{
 					public void run()
 					{
-						new Thread()
+						commandThread2 = new Thread()
 						{
 							public void run()
 							{
@@ -173,7 +176,14 @@ public class Command
 										input.delete();
 									}
 									
+									process.waitFor();
+									
 									process.destroy();
+									
+									if (display.isDisposed())
+									{
+										return;
+									}
 									
 									display.syncExec(new Runnable()
 									{
@@ -202,11 +212,21 @@ public class Command
 									e.printStackTrace();
 								}
 							}
-						}.start();
+						};
+						
+						commandThread2.start();
 					}
 				});
 			}
-		}.start();
+		};
+		
+		commandThread.start();
+	}
+	
+	public void terminate() throws InterruptedException
+	{
+		commandThread.join(1);
+		commandThread2.join(1);
 	}
 	
 	public void addCommandListener(CommandListener lisetener)

@@ -2,6 +2,7 @@ package net.foxycorndog.arrowide;
 
 import java.util.ArrayList;
 
+import net.foxycorndog.arrowide.command.Command;
 import net.foxycorndog.arrowide.event.ProgramListener;
 
 /**
@@ -25,6 +26,8 @@ public class Program
 	private StringBuilder	text;
 	
 	private Process 		process;
+	
+	private Command			command;
 	
 	private ArrayList<ProgramListener>	listeners;
 	
@@ -77,6 +80,30 @@ public class Program
 				listeners.get(i).programStarted(this);
 			}
 		}
+	}
+	
+	public void terminate() throws InterruptedException
+	{
+		listeners.clear();
+		
+		process.destroy();
+		
+		if (command != null)
+		{
+			command.terminate();
+		}
+		
+		setRunning(false);
+	}
+	
+	public Command getCommand()
+	{
+		return command;
+	}
+	
+	public void setCommand(Command command)
+	{
+		this.command = command;
 	}
 	
 	/**
