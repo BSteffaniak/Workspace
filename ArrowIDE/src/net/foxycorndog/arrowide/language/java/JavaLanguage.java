@@ -105,7 +105,7 @@ public class JavaLanguage
 	{
 		fileLocation = FileUtils.removeExtension(fileLocation);
 		
-		// TODO: Fix the issue with the /src/ possible ambiguities.
+		// TODO: Fix the issue with the possible '/src/' ambiguities.
 		String projectLocation = FileUtils.getPrecedingPath(fileLocation, "/src/");
 		
 		String className  = FileUtils.getPathRelativeTo(fileLocation, "/src/");
@@ -134,8 +134,8 @@ public class JavaLanguage
 		
 		String classpath = getClasspath(projectLocation);
 		
-		Command c = new Command(Display.getDefault(), new String[] { CONFIG_DATA.get("jdk.location") + "/bin/java", "-cp", classpath, "-Xdebug", "-agentlib:jdwp=transport=dt_socket,address=4003,server=y,suspend=y", className }, projectLocation);
-		final Command c2 = new Command(Display.getDefault(), new String[] { "telnet", "localhost", "4003" }, projectLocation);
+		Command c = new Command(Display.getDefault(), new String[] { CONFIG_DATA.get("jdk.location") + "/bin/java", "-cp", classpath, /*"-Xdebug", "-agentlib:jdwp=transport=dt_socket,address=4003,server=y,suspend=y",*/ className }, projectLocation);
+//		final Command c2 = new Command(Display.getDefault(), new String[] { "telnet", "localhost", "4003" }, projectLocation);
 		
 		String fileName = FileUtils.getFileNameWithoutExtension(fileLocation);
 		
@@ -148,19 +148,19 @@ public class JavaLanguage
 			
 			public void programStarted(Program program)
 			{
-					System.out.println("yyy");
 				programListener.programStarted(program);
 				
-				try
-				{
-					messageReceived("test");
-					
-					c2.execute();
-				}
-				catch (IOException e)
-				{
-					e.printStackTrace();
-				}
+//				try
+//				{
+//					messageReceived("test");
+//					System.out.println("yyy2");
+//					
+//					c2.execute();
+//				}
+//				catch (IOException e)
+//				{
+//					e.printStackTrace();
+//				}
 			}
 			
 			public void messageReceived(String message)
