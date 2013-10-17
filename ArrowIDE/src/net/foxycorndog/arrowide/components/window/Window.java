@@ -10,6 +10,7 @@ import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -74,6 +75,8 @@ public class Window
 			shell = new Shell(display, style);
 		}
 		
+		content = new Composite(shell, SWT.NONE);
+		
 		setCustom(custom);
 //		shell.setCapture(true);
 //		shell.setLayoutDeferred(true);
@@ -83,8 +86,6 @@ public class Window
 		locationBefore = new Point(0, 0);
 		
 		listeners = new ArrayList<WindowListener>();
-		
-		content = new Composite(shell, SWT.NONE);
 		
 		setResizable(true);
 		
@@ -209,13 +210,38 @@ public class Window
 				image = new Image(display, "res/images/toprightresizecursor.png");
 				topRightResizeCursor = new Cursor(display, image.getImageData(), image.getBounds().width / 2, image.getBounds().height / 2);
 				
-				borderSize = 4;
+				Color bg = shell.getBackground();
+				
+				int offset = 26;
+				RGB rgb    = bg.getRGB();
+				rgb.red   -= offset;
+				rgb.green -= offset;
+				rgb.blue  -= offset;
+				
+				if (rgb.red < 0)
+				{
+					rgb.red += offset * 2;
+				}
+				if (rgb.green < 0)
+				{
+					rgb.green += offset * 2;
+				}
+				if (rgb.blue < 0)
+				{
+					rgb.blue += offset * 2;
+				}
+				
+				Color color = new Color(Display.getDefault(), rgb);
+				
+				setBorderColor(color);
+				
+				setBorderSize(3);
 				
 				minimumWidth  = borderSize * 2;
 				minimumHeight = borderSize * 2;
 				
-				width  = minimumWidth  + 1;
-				height = minimumHeight + 1;
+				width   = minimumWidth  + 1;
+				height  = minimumHeight + 1;
 				
 				tracker = new Tracker(shell, SWT.NONE);
 				
@@ -328,23 +354,26 @@ public class Window
 						}
 						else if (event.type == SWT.MouseMove)
 						{
-							int type = getDragType(event.x, event.y);
-							
-							if (type == TOP_LEFT || type == BOTTOM_RIGHT)
+							if (isResizable())
 							{
-								shell.setCursor(topLeftResizeCursor);
-							}
-							else if (type == TOP || type == BOTTOM)
-							{
-								shell.setCursor(topResizeCursor);
-							}
-							else if (type == LEFT || type == RIGHT)
-							{
-								shell.setCursor(leftResizeCursor);
-							}
-							else if (type == TOP_RIGHT || type == BOTTOM_LEFT)
-							{
-								shell.setCursor(topRightResizeCursor);
+								int type = getDragType(event.x, event.y);
+								
+								if (type == TOP_LEFT || type == BOTTOM_RIGHT)
+								{
+									shell.setCursor(topLeftResizeCursor);
+								}
+								else if (type == TOP || type == BOTTOM)
+								{
+									shell.setCursor(topResizeCursor);
+								}
+								else if (type == LEFT || type == RIGHT)
+								{
+									shell.setCursor(leftResizeCursor);
+								}
+								else if (type == TOP_RIGHT || type == BOTTOM_LEFT)
+								{
+									shell.setCursor(topRightResizeCursor);
+								}
 							}
 						}
 						else if (event.type == SWT.MouseExit)

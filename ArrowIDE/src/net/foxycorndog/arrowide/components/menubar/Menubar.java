@@ -1,11 +1,17 @@
 package net.foxycorndog.arrowide.components.menubar;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.DragDetectEvent;
+import org.eclipse.swt.events.DragDetectListener;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
@@ -18,8 +24,11 @@ import org.eclipse.swt.widgets.Listener;
 public class Menubar
 {
 	private int								currentSize;
+	private int								oldX, oldY;
 	
 	private Composite						composite, parent;
+	
+	private Font							font;
 
 	private GC								gc;
 	
@@ -34,6 +43,8 @@ public class Menubar
 	public Menubar(final Composite parent)
 	{
 		this.parent = parent;
+		
+		font        = Display.getDefault().getSystemFont();
 		
 		composite = new Composite(parent, SWT.NONE);
 		composite.setSize(parent.getSize().x, 25);
@@ -63,6 +74,36 @@ public class Menubar
 				}
 			}
 		};
+		
+		oldX = parent.getShell().getLocation().x;
+		oldY = parent.getShell().getLocation().y;
+		
+		parent.getShell().addListener(SWT.Move, new Listener()
+		{
+			public void handleEvent(Event event)
+			{
+				int dx = event.x - oldX;
+				int dy = event.y - oldY;
+				
+				Collection<DropdownMenu> ms = menus.values();
+				
+				Iterator<DropdownMenu> i = ms.iterator();
+				
+				while (i.hasNext())
+				{
+					DropdownMenu menu = i.next();
+					
+					int x = menu.getLocation().x;
+					int y = menu.getLocation().y;
+					
+					menu.setLocation(x + dx, y + dy);
+				}
+				
+				
+				oldX = event.x;
+				oldY = event.x;
+			}
+		});
 		
 		menuListener = new DropdownMenuListener()
 		{
@@ -148,10 +189,14 @@ public class Menubar
 	
 	public void addMenuHeader(String name)
 	{
+		Label item = new Label(composite, SWT.NONE);
+		item.setFont(font);
+		
+		gc.setFont(item.getFont());
+		
 		int textWidth  = gc.stringExtent(name).x;
 		int textHeight = gc.stringExtent(name).y;
 		
-		Label item = new Label(composite, SWT.NONE);
 		item.setSize(textWidth, textHeight);
 		item.setLocation(currentSize, 0);
 		item.setText(name);
@@ -217,5 +262,29 @@ public class Menubar
 	public void addListener(MenubarListener listener)
 	{
 		listeners.add(listener);
+	}
+	
+	public Font getFont()
+	{
+		return font;
+	}
+	
+	public void setFont(Font font)
+	{
+		this.font = font;
+	}
+	
+	public int getFontSize()
+	{
+		return font.getFontData()[0].getHeight();
+	}
+	
+	public void setFontSize(int size)
+	{
+		FontData[] fd = font.getFontData();
+		
+		fd[0].setHeight(size);
+		
+		setFont(new Font(Display.getDefault(), fd[0]));
 	}
 }

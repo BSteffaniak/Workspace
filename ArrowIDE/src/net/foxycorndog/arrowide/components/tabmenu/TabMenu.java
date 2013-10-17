@@ -1,5 +1,6 @@
 package net.foxycorndog.arrowide.components.tabmenu;
 
+//import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -8,6 +9,8 @@ import org.eclipse.swt.custom.CTabFolder;
 import org.eclipse.swt.custom.CTabFolder2Listener;
 import org.eclipse.swt.custom.CTabFolderEvent;
 import org.eclipse.swt.custom.CTabItem;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
@@ -17,10 +20,14 @@ import org.eclipse.swt.widgets.Display;
 public class TabMenu
 {
 	private int							maxCharacters, maxWidth;
+	
+//	private long						oldTime;
 
 	private Composite					composite;
 
 	private CTabFolder					tabFolder, widthFolder;
+	
+	private CTabItem					oldItem;
 
 	private TabMenu						thisObject;
 
@@ -31,6 +38,8 @@ public class TabMenu
 	private ArrayList<TabMenuListener>	listeners;
 
 	private static int					staticId;
+	
+//	private static final int			doubleClickDelay = (Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
 	
 	public TabMenu(Composite composite)
 	{
@@ -67,6 +76,18 @@ public class TabMenu
 				CTabItem item = (CTabItem)e.item;
 				
 				tabSelected(item);
+				
+				if (item == oldItem)
+				{
+					int id = tabIds.get(item);
+					
+					for (int i = listeners.size() - 1; i >= 0; i--)
+					{
+						listeners.get(i).tabDoubleClicked(new TabMenuEvent(thisObject, id));
+					}
+				}
+				
+				oldItem = item;
 			}
 
 			public void widgetDefaultSelected(SelectionEvent e)
@@ -96,6 +117,9 @@ public class TabMenu
 				if (e.doit)
 				{
 					closeTab((CTabItem)e.item);
+					
+					// Prevent it from thinking it double clicked the tab.
+					oldItem = null;
 				}
 			}
 
@@ -173,6 +197,8 @@ public class TabMenu
 	{
 		tabsText.put(id, text);
 		
+		String origText = text;
+		
 		if (text.length() > maxCharacters)
 		{
 			text = text.substring(0, maxCharacters - 3) + "...";
@@ -188,6 +214,7 @@ public class TabMenu
 		wid.dispose();
 		
 		item.setText(text);
+		item.setToolTipText(origText);
 		
 //		tabFolder.redraw();
 	}
@@ -197,6 +224,8 @@ public class TabMenu
 		int id = ++staticId;
 		
 		tabsText.put(id, text);
+		
+		String origText = text;
 		
 		if (text.length() > maxCharacters)
 		{
@@ -208,6 +237,7 @@ public class TabMenu
 		
 		CTabItem item = new CTabItem(tabFolder, SWT.CLOSE);
 		item.setText(text);
+		item.setToolTipText(origText);
 		
 		addWidth(wid.getBounds().width);
 		
@@ -311,6 +341,11 @@ public class TabMenu
 	public void addListener(TabMenuListener listener)
 	{
 		listeners.add(listener);
+	}
+	
+	public int getNumTabs()
+	{
+		return tabs.size();
 	}
 	
 	private class CTabMenu extends CTabFolder

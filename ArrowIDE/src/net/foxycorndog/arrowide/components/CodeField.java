@@ -377,6 +377,12 @@ public class CodeField extends StyledText
 					methodLists.clear();
 					identifierWords.clear();
 					methodWords.clear();
+					
+					if (methodRanges != null)
+					{
+						methodRanges.clear();
+						idRanges.clear();
+					}
 				}
 				
 				clearErrors();
@@ -641,13 +647,13 @@ public class CodeField extends StyledText
 	
 	public void select()
 	{
-		Display.getDefault().syncExec(new Runnable()
-		{
-			public void run()
-			{
+//		Display.getDefault().syncExec(new Runnable()
+//		{
+//			public void run()
+//			{
 				identifierSelectorListener.handleEvent(null);
-			}
-		});
+//			}
+//		});
 	}
 	
 	public void setIdentifierSelected(WordRange word)

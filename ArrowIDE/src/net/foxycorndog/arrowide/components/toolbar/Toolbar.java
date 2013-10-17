@@ -51,6 +51,7 @@ public class Toolbar
 	public void addToolItem(final String name, Image image)
 	{
 		ToolItem item = new ToolItem(toolbar, SWT.PUSH);
+		
 		if (image == null)
 		{
 			item.setText(name);
@@ -59,7 +60,6 @@ public class Toolbar
 		{
 			item.setImage(image);
 		}
-		
 		
 		toolItems.put(name, item);
 		subItems.put(name, new HashMap<String, ToolItem>());

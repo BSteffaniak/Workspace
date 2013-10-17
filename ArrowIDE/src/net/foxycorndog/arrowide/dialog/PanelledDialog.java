@@ -23,6 +23,7 @@ public abstract class PanelledDialog implements Dialog
 	private int								currentPanelId;
 
 	private Composite						contentPanel;
+	private Composite						parent;
 
 	private Button							apply, ok, cancel;
 
@@ -39,8 +40,10 @@ public abstract class PanelledDialog implements Dialog
 	
 	public PanelledDialog(Composite parent)
 	{
-		panels = new HashMap<Integer, DialogPanel>();
-		ids    = new HashMap<DialogPanel, Integer>();
+		this.parent = parent;
+		
+		panels      = new HashMap<Integer, DialogPanel>();
+		ids         = new HashMap<DialogPanel, Integer>();
 		
 		createWindow();
 		
@@ -89,10 +92,27 @@ public abstract class PanelledDialog implements Dialog
 		return thisDialog;
 	}
 	
+	private Rectangle getParentBounds()
+	{
+		Rectangle bounds = parent.getBounds();
+		
+		bounds.x += parent.getShell().getLocation().x;
+		bounds.y += parent.getShell().getLocation().y;
+		bounds.x += parent.getLocation().x;
+		bounds.y += parent.getLocation().y;
+		
+		return bounds;
+	}
+	
+	private void centerWindow()
+	{
+		Rectangle bounds = getParentBounds();
+		
+		window.setLocation(bounds.width / 2 - window.getSize().x / 2 + bounds.x, bounds.height / 2 - window.getSize().y / 2 + bounds.y);
+	}
+	
 	private void createWindow()
 	{
-		Rectangle bounds = Display.getDefault().getPrimaryMonitor().getBounds();
-		
 		boolean custom = false;
 		
 		if (CONFIG_DATA.containsKey("window.custom"))
@@ -110,7 +130,7 @@ public abstract class PanelledDialog implements Dialog
 		}
 		
 		window.setSize(750, 540);
-		window.setLocation(bounds.width / 2 - window.getSize().x / 2, bounds.height / 2 - window.getSize().y / 2);
+		centerWindow();
 		
 		int titleBarHeight = 0;
 		
@@ -272,6 +292,8 @@ public abstract class PanelledDialog implements Dialog
 		{
 			setActivePanel(currentPanelId);
 		}
+		
+		centerWindow();
 		
 		window.open();
 		

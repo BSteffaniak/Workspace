@@ -106,15 +106,15 @@ public class Language
 		}
 		else if (language == ASSEMBLY)
 		{
-			return AssemblyLanguage.run(fileLocation, stream);
+			return AssemblyLanguage.run(fileLocation, stream, listener);
 		}
 		else if (language == CPP)
 		{
-			return CppLanguage.run(fileLocation, stream);
+			return CppLanguage.run(fileLocation, stream, listener);
 		}
 		else if (language == PYTHON)
 		{
-			return PythonLanguage.run(fileLocation, stream);
+			return PythonLanguage.run(fileLocation, stream, listener);
 		}
 		else
 		{
@@ -127,6 +127,16 @@ public class Language
 	public static boolean canCompile(int fileType)
 	{
 		return fileType == JAVA || fileType == GLSL || fileType == ASSEMBLY || fileType == CPP;
+	}
+	
+	public static String getCompileError(int fileType)
+	{
+		if (fileType == PYTHON)
+		{
+			return "Python is an interpreted language, use the run button instead.";
+		}
+		
+		return "Arrow IDE does not support compiling the specified file type.";
 	}
 	
 	public static CommentProperties getCommentProperties(int language)
