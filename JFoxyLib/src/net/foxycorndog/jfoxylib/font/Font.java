@@ -20,8 +20,8 @@ import net.foxycorndog.jfoxylib.opengl.texture.SpriteSheet;
 import net.foxycorndog.jfoxylib.util.Bounds;
 import net.foxycorndog.jfoxylib.util.Bounds2f;
 import net.foxycorndog.jfoxylib.util.ImageData;
+import net.foxycorndog.jfoxylib.util.Queue;
 import net.foxycorndog.jfoxylib.util.ResourceLocator;
-import net.foxycorndog.jfoxyutil.Queue;
 
 /**
  * Class used to load an image full of glyphs and bring them to

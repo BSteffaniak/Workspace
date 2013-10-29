@@ -50,7 +50,7 @@ import java.awt.image.BufferedImage;
 import net.foxycorndog.jfoxylib.Color;
 import net.foxycorndog.jfoxylib.components.Image;
 import net.foxycorndog.jfoxylib.opengl.texture.Texture;
-import net.foxycorndog.jfoxyutil.Stack;
+import net.foxycorndog.jfoxylib.util.Stack;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;

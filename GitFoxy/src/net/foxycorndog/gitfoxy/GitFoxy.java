@@ -43,7 +43,7 @@ import net.foxycorndog.gitfoxy.dialog.CommitMessageDialog;
 import net.foxycorndog.gitfoxy.event.CommandEvent;
 import net.foxycorndog.gitfoxy.event.CommandListener;
 import net.foxycorndog.gitfoxy.util.ConfigReader;
-import net.foxycorndog.jfoxyutil.Queue;
+import net.foxycorndog.jfoxylib.util.Queue;
 
 public class GitFoxy implements ActionListener, CommandListener
 {
