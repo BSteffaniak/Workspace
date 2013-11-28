@@ -1,5 +1,6 @@
 package net.foxycorndog.arrowide.language.cpp;
 
+import static net.foxycorndog.arrowide.language.Language.C;
 import static net.foxycorndog.arrowide.language.Language.CPP;
 import static net.foxycorndog.arrowide.language.cpp.CppLanguage.INCLUDE_COLOR;
 import static net.foxycorndog.arrowide.language.cpp.CppLanguage.KEYWORD_COLOR;
@@ -9,7 +10,7 @@ public class CppKeyword
 {
 	public static Keyword
 			ABSTRACT, ASSERT, BOOLEAN, BREAK, BYTE, CASE, CATCH, CHAR,
-			CLASS, CONST, CONTINUE, DEFAULT, DO, DOUBLE, ELSE,
+			CLASS, CONST, CONTINUE, DEFAULT, DEFINE, DO, DOUBLE, ELSE,
 			ENUM, EXTENDS, FALSE, FINAL, FINALLY, FLOAT, FOR,
 			GOTO, IF, IMPLEMENTS, IMPORT, INCLUDE, INSTANCEOF, INT,
 			INTERFACE, LONG, NAMESPACE, NATIVE, NEW, PACKAGE, PRIVATE,
@@ -31,6 +32,7 @@ public class CppKeyword
 		CONST        = new Keyword(CPP, "const", KEYWORD_COLOR);
 		CONTINUE     = new Keyword(CPP, "continue", KEYWORD_COLOR);
 		DEFAULT      = new Keyword(CPP, "default", KEYWORD_COLOR);
+		DEFINE       = new Keyword(CPP, "#define", INCLUDE_COLOR);
 		DO           = new Keyword(CPP, "do", KEYWORD_COLOR);
 		DOUBLE       = new Keyword(CPP, "double", KEYWORD_COLOR);
 		ELSE         = new Keyword(CPP, "else", KEYWORD_COLOR);

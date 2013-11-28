@@ -9,7 +9,7 @@ public class CKeyword
 {
 	public static Keyword
 			ABSTRACT, ASSERT, BOOLEAN, BREAK, BYTE, CASE, CATCH, CHAR,
-			CLASS, CONST, CONTINUE, DEFAULT, DO, DOUBLE, ELSE,
+			CLASS, CONST, CONTINUE, DEFAULT, DEFINE,  DO, DOUBLE, ELSE,
 			ENUM, EXTENDS, FALSE, FINAL, FINALLY, FLOAT, FOR,
 			GOTO, IF, IMPLEMENTS, IMPORT, INCLUDE, INSTANCEOF, INT,
 			INTERFACE, LONG, NAMESPACE, NATIVE, NEW, PACKAGE, PRIVATE,
@@ -31,6 +31,7 @@ public class CKeyword
 		CONST        = new Keyword(C, "const", KEYWORD_COLOR);
 		CONTINUE     = new Keyword(C, "continue", KEYWORD_COLOR);
 		DEFAULT      = new Keyword(C, "default", KEYWORD_COLOR);
+		DEFINE       = new Keyword(C, "#define", INCLUDE_COLOR);
 		DO           = new Keyword(C, "do", KEYWORD_COLOR);
 		DOUBLE       = new Keyword(C, "double", KEYWORD_COLOR);
 		ELSE         = new Keyword(C, "else", KEYWORD_COLOR);

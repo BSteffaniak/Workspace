@@ -18,6 +18,15 @@ import net.foxycorndog.arrowide.event.ProgramListener;
 
 import org.eclipse.swt.widgets.Display;
 
+/**
+ * Class that is used to issue a command to the Operating System.
+ * 
+ * @author	Braden Steffaniak
+ * @since	Nov 23, 2013 at 5:32:00 PM
+ * @since	v0.7.5
+ * @version Nov 23, 2013 at 5:32:00 PM
+ * @version	v0.7.6
+ */
 public class Command
 {
 	private String                      directory;
@@ -32,6 +41,15 @@ public class Command
 
 	private ArrayList<CommandListener>	listeners;
 	
+    /**
+     * Create a command with the specified Display instance, command,
+     * and directory to issue the command in.
+     * 
+     * @param display The Display instance to use while issuing the
+     *         Command.
+     * @param command The shell command to issue to the Operating System.
+     * @param directory The directory to issue the command in.
+     */
 	public Command(Display display, String command, String directory)
 	{
 		List<String> list = new ArrayList<String>();
@@ -49,10 +67,20 @@ public class Command
 		init(display, list.toArray(new String[0]), directory);
 	}
 	
-	public Command(Display display, String command[], String directory)
+    /**
+     * Create a command with the specified Display instance, commands,
+     * and directory to issue the commands in.
+     * 
+     * @param display The Display instance to use while issuing the
+     *         Commands.
+     * @param commands The list of shell commands to issue to the
+     *         Operating System.
+     * @param directory The directory to issue the commands in.
+     */
+	public Command(Display display, String commands[], String directory)
 	{
-//		this.command = command;
-		init(display, command, directory);
+//		this.commands = commands;
+		init(display, commands, directory);
 	}
 	
 	private void init(Display display, String command[], String directory)

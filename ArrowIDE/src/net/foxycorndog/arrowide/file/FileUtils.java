@@ -13,6 +13,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
+
 /**
  * 
  * 
@@ -449,22 +451,15 @@ public class FileUtils
 		return font;
 	}
 	
-	public static void writeFile(String location, String text)
+	public static void writeFile(String location, String text) throws IOException
 	{
 		File file = new File(location);
 		
-		try
-		{
-			PrintWriter writer = new PrintWriter(new FileWriter(file));
-			
-			writer.print(text);
-			
-			writer.close();
-		}
-		catch (IOException e)
-		{
-			e.printStackTrace();
-		}
+		PrintWriter writer = new PrintWriter(new FileWriter(file));
+		
+		writer.print(text);
+		
+		writer.close();
 	}
 	
 	public static String getAbsolutePath(String location) throws IOException
@@ -533,5 +528,37 @@ public class FileUtils
 	public static String[] listChildFiles(String parent, String extension)
 	{
 		return listChildFilesList(parent, parent, extension).toArray(new String[0]);
+	}
+	
+	public static String getExecutablePrefix()
+	{
+		String osName = (String)PROPERTIES.get("os.name");
+		
+		if (osName.equals("linux"))
+		{
+			return "sh ";
+		}
+
+		return "";
+	}
+	
+	public static String getExecutableExtension()
+	{
+		String osName = (String)PROPERTIES.get("os.name");
+		
+		if (osName.equals("windows"))
+		{
+			return ".exe";
+		}
+		else if (osName.equals("linux"))
+		{
+			return ".sh";
+		}
+		else if (osName.equals("macosx"))
+		{
+			return ".app";
+		}
+
+		return "";
 	}
 }

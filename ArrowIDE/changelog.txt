@@ -1,3 +1,22 @@
+v1.0.0
+* Fixed other stability bugs.
+
+v0.9.0
+ + Added capability to create custom file syntax highlighting with XML.
+* Fixed other stability bugs.
+
+v0.8.0
++ Added support for file associations.
++ Created installer for Windows.
++ Added ability to drag and drop text and files.
++ Added an icon to the executable.
++ Now opens files in a current instance of the IDE instead of creating a new one.
++ Added ability to force open a new window of the IDE by passing the argument '-nw'
+ + Added ability to split a specific tab into its own window.
+* Fixed unpredictability of the double-click tab to enlarge/shrink the CodeField.
+ * Improved the performance when editing large files.
+* Fixed other stability bugs.
+
 v0.7.5
 + Added support for C language syntax highlighting.
 + Added background color for the console depicting the state (running/stopped).
@@ -14,4 +33,4 @@ v0.7.5
 * Different method for console-program output.
 * Fixed the "Save as..." feature.
 * Different MenuBar header font size.
-* Fixed other minute bugs.
+* Fixed other stability bugs.

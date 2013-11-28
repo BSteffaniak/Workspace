@@ -1,5 +1,7 @@
 package net.foxycorndog.arrowide;
 
+import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
+
 import java.awt.Toolkit;
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,10 +14,13 @@ import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
 import net.foxycorndog.arrowide.color.ColorUtils;
+import net.foxycorndog.arrowide.command.Command;
+import net.foxycorndog.arrowide.command.CommandListener;
 import net.foxycorndog.arrowide.components.CodeField;
 import net.foxycorndog.arrowide.components.CodeFieldEvent;
 import net.foxycorndog.arrowide.components.CodeFieldListener;
@@ -26,6 +31,7 @@ import net.foxycorndog.arrowide.components.ContentListener;
 import net.foxycorndog.arrowide.components.SizerListener;
 import net.foxycorndog.arrowide.components.SplashScreen;
 import net.foxycorndog.arrowide.components.TitleBar;
+import net.foxycorndog.arrowide.components.menubar.DropdownMenu;
 import net.foxycorndog.arrowide.components.menubar.Menubar;
 import net.foxycorndog.arrowide.components.menubar.MenubarListener;
 import net.foxycorndog.arrowide.components.tabmenu.TabMenu;
@@ -53,8 +59,11 @@ import net.foxycorndog.arrowide.dialog.preferencesdialogpanel.JavaPanel;
 import net.foxycorndog.arrowide.dialog.preferencesdialogpanel.PythonPanel;
 import net.foxycorndog.arrowide.event.CompilerEvent;
 import net.foxycorndog.arrowide.event.CompilerListener;
+import net.foxycorndog.arrowide.event.DropEvent;
+import net.foxycorndog.arrowide.event.DropListener;
 import net.foxycorndog.arrowide.event.ProgramListener;
 import net.foxycorndog.arrowide.file.ConfigReader;
+import net.foxycorndog.arrowide.file.FileStreamReader;
 import net.foxycorndog.arrowide.file.FileUtils;
 import net.foxycorndog.arrowide.language.CompileOutput;
 import net.foxycorndog.arrowide.language.Language;
@@ -98,18 +107,19 @@ import org.lwjgl.opengl.GLContext;
  * 
  * @author	Braden Steffaniak
  * @since	Feb 13, 2013 at 4:46:00 PM
- * @since	v0.7.5
+ * @since	v0.1.0
  * @version	Feb 13, 2013 at 4:46:00 PM
- * @version	v0.7.5
+ * @version	v0.8.0
  */
-public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuListener, ProgramListener
+public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuListener, ProgramListener, DropListener
 {
 	private boolean								filesNeedRefresh;
 	private boolean								custom;
+	private boolean								toggleCodeField, codeFieldToggled;
 	
 	private int									curId;
 	private int									titleBarHeight;
-	private int									oldTabId;
+	private int									oldTabId, oldTabId2;
 	
 	private double								oldCodeFieldHorizontalPercentage, oldCodeFieldVerticalPercentage;
 
@@ -144,6 +154,8 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	
 	private Menu								treeMenuItemMenu;
 
+	private DropdownMenu						tabMenu;
+	
 	private ConsoleStream						consoleStream;
 
 	private Dialog								newFolderDialog, newFileDialog,
@@ -167,14 +179,21 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	private static boolean						restarting;
 	private static boolean						exiting;
 	private static boolean						libsLoaded;
+	private static boolean						rememberSetup;
 	
 	private static int							untitledNumber;
+	
+	private static FileStreamReader				fileReader;
+	private static Thread						fileReaderThread;
+	
+	private static File							lockFile;
 	
 	private static Window						window;
 	
 	private static SplashScreen					splash;
 
 	private static String						configLocation;
+	private static String						dataLocation, resourcesLocation;
 
 	public static final Display					DISPLAY;
 
@@ -194,11 +213,6 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	private static ArrayList<Thread>			fileViewerThreadsStop;
 
 	public native boolean cpuSupports64();
-	
-//	static
-//	{
-//		System.setProperty("java.library.path", "org.eclipse.swt;" + System.getProperty("java.library.path"));
-//	}
 	
 	/**
 	 * Instantiate the {@link #DISPLAY display}, and the color palette.
@@ -249,9 +263,9 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		PROPERTIES              = new HashMap<String, Object>();
 		
-		String osName = System.getProperty("os.name");
+		String osName = System.getProperty("os.name").toLowerCase();
 		
-		if (osName.toLowerCase().contains("mac"))
+		if (osName.contains("mac"))
 		{
 			PROPERTIES.put("os.name", "macosx");
 			PROPERTIES.put("composite.modifiers", SWT.BORDER);
@@ -259,7 +273,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			PROPERTIES.put("os.executable.extension", "");
 			PROPERTIES.put("colon", ';');
 		}
-		else if (osName.toLowerCase().contains("win"))
+		else if (osName.contains("win"))
 		{
 			PROPERTIES.put("os.name", "windows");
 			PROPERTIES.put("composite.modifiers", SWT.NONE);
@@ -267,7 +281,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			PROPERTIES.put("os.executable.extension", ".exe");
 			PROPERTIES.put("colon", ';');
 		}
-		else if (osName.toLowerCase().contains("lin"))
+		else if (osName.contains("lin"))
 		{
 			PROPERTIES.put("os.name", "linux");
 			PROPERTIES.put("composite.modifiers", SWT.NONE);
@@ -277,6 +291,75 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		}
 	}
 	
+	/**
+	 * Set up the data location variable.
+	 */
+	static
+	{
+		if (PROPERTIES.get("os.name").equals("windows"))
+		{
+			dataLocation = System.getenv("AppData").replace('\\', '/') + "/.ArrowIDE/";
+		}
+		else if (PROPERTIES.get("os.name").equals("macosx"))
+		{
+			dataLocation = System.getProperty("user.home") + "/Library/Application Support/ArrowIDE/";
+		}
+		else if (PROPERTIES.get("os.name").equals("linux"))
+		{
+			dataLocation = "/opt/ArrowIDE/";
+		}
+		
+		File f = new File(dataLocation);
+		
+		if (!f.isDirectory())
+		{
+			f.mkdirs();
+		}
+		
+		PROPERTIES.put("data.location", dataLocation);
+	}
+	
+	/**
+	 * Set up the resources location variable.
+	 */
+	static
+	{
+		if (PROPERTIES.get("os.name").equals("windows"))
+		{
+			String programFiles = System.getenv("ProgramFiles");
+			
+			resourcesLocation = programFiles + " (x86)";
+			
+			if (new File(resourcesLocation).isDirectory())
+			{
+				resourcesLocation += "/ArrowIDE/";
+			}
+			else
+			{
+				resourcesLocation = programFiles + "/ArrowIDE/";
+			}
+			
+			if (new File(resourcesLocation).isDirectory() == false)
+			{
+				resourcesLocation = "";
+			}
+		}
+		else if (PROPERTIES.get("os.name").equals("macosx"))
+		{
+//			resourcesLocation = System.getProperty("user.home") + "/Library/Application Support/ArrowIDE/";
+		}
+		else if (PROPERTIES.get("os.name").equals("linux"))
+		{
+//			resourcesLocation = "/opt/ArrowIDE/";
+		}
+		
+		PROPERTIES.put("resources.location", resourcesLocation);
+	}
+	
+    /**
+     * Load the necessary libraries needed for finding out the
+     * System architecture.
+     */
 	private static void loadLibs()
 	{
 		if (libsLoaded)
@@ -341,20 +424,132 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	 */
 	public static void main(String args[])
 	{
-		start();
+		rememberSetup       = true;
+		
+		boolean newWindow   = false;
+		
+		ArrayList<String> args2 = new ArrayList<String>();
+		
+		for (int i = 0; i < args.length; i++)
+		{
+			if (args[i].toLowerCase().equals("-nw"))
+			{
+				newWindow = true;
+			}
+			else if (args[i].toLowerCase().equals("-noremember"))
+			{
+				rememberSetup = false;
+			}
+			else
+			{
+				args2.add(args[i]);
+			}
+		}
+		
+		args = args2.toArray(new String[0]);
+		
+		if (newWindow)
+		{
+			start(args);
+			
+			return;
+		}
+		
+		lockFile = new File(dataLocation + "lock");
+		
+		if (lockFile.isFile())
+		{
+			try
+			{
+				PrintWriter p = new PrintWriter(lockFile);
+				
+				for (int i = 0; i < args.length; i++)
+				{
+					p.println(args[i]);
+				}
+				
+				p.close();
+				
+				lockFile.delete();
+			}
+			catch (FileNotFoundException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		if (!lockFile.isFile())
+		{
+			try
+			{
+				lockFile.createNewFile();
+				lockFile.deleteOnExit();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+				System.exit(1);
+			}
+			
+			start(args);
+		}
 	}
 	
 	/**
 	 * The constructor for this class. Initializes the window that is
 	 * used for programming.
 	 * 
-	 * @param display The display to use.
+	 * @param display The Display instance to use.
+	 * @param args The files to load on start up.
 	 */
-	public ArrowIDE(final Display display)
+	public ArrowIDE(final Display display, String args[])
 	{
 		setArchitecture();
 		
 		final ArrowIDE thisIDE = this;
+		
+		if (lockFile != null)
+		{
+			try
+			{
+				fileReader = new FileStreamReader(lockFile)
+				{
+					public void dataReceived(final String data)
+					{
+						display.syncExec(new Runnable()
+						{
+							public void run()
+							{
+								try
+								{
+									openFile(data);
+								}
+								catch (FileNotFoundException e)
+								{
+									e.printStackTrace();
+								}
+								catch (IOException e)
+								{
+									e.printStackTrace();
+								}
+							}
+						});
+					}
+				};
+			}
+			catch (FileNotFoundException e1)
+			{
+				e1.printStackTrace();
+			}
+			catch (IOException e1)
+			{
+				e1.printStackTrace();
+			}
+		}
+		
+		fileReaderThread = new Thread(fileReader);
+		
+		fileReaderThread.start();
 		
 		if (CONFIG_DATA.containsKey("window.custom"))
 		{
@@ -372,6 +567,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		window = new Window(DISPLAY, custom);//, SWT.SHELL_TRIM & (~SWT.RESIZE));
 		window.setSize(width, height);
+		window.addDropListener(this);
 		
 		final Rectangle shellBounds = window.getBounds();
 		 
@@ -392,7 +588,9 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			}
 		});
 		
-		PROPERTIES.put("arrowide.location", FileUtils.getParentFolder(configLocation));
+		String currentLocation = new File(resourcesLocation).getAbsolutePath();
+		
+		PROPERTIES.put("arrowide.location", currentLocation);
 		
 		/**
 		 * Set up the OpenGL (lwjgl) capabilities for the program.
@@ -529,7 +727,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		try
 		{
-			consoleStream = new ConsoleStream("consoleLog.txt");
+			consoleStream = new ConsoleStream(dataLocation + "consoleLog.txt");
 		}
 		catch (FileNotFoundException e)
 		{
@@ -538,17 +736,17 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		try
 		{
-			folderImage       = new Image(display, new FileInputStream("res/images/folderimage.png"));
-			fileImage         = new Image(display, new FileInputStream("res/images/fileimage.png"));
-			javaFileImage     = new Image(display, new FileInputStream("res/images/javafileimage.png"));
-			classFileImage    = new Image(display, new FileInputStream("res/images/classfileimage.png"));
-			glslFileImage     = new Image(display, new FileInputStream("res/images/glslfileimage.png"));
-			txtFileImage      = new Image(display, new FileInputStream("res/images/txtfileimage.png"));
-			rtfFileImage      = new Image(display, new FileInputStream("res/images/rtffileimage.png"));
-			exeFileImage      = new Image(display, new FileInputStream("res/images/exefileimage.png"));
-			asmFileImage      = new Image(display, new FileInputStream("res/images/asmfileimage.png"));
-			cppFileImage      = new Image(display, new FileInputStream("res/images/cppfileimage.png"));
-			hFileImage        = new Image(display, new FileInputStream("res/images/hfileimage.png"));
+			folderImage       = new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/folderimage.png"));
+			fileImage         = new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/fileimage.png"));
+			javaFileImage     = new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/javafileimage.png"));
+			classFileImage    = new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/classfileimage.png"));
+			glslFileImage     = new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/glslfileimage.png"));
+			txtFileImage      = new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/txtfileimage.png"));
+			rtfFileImage      = new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/rtffileimage.png"));
+			exeFileImage      = new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/exefileimage.png"));
+			asmFileImage      = new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/asmfileimage.png"));
+			cppFileImage      = new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/cppfileimage.png"));
+			hFileImage        = new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/hfileimage.png"));
 		}
 		catch (FileNotFoundException e)
 		{
@@ -633,7 +831,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 					{
 						openFile();
 					}
-					catch (FileNotFoundException e)
+					catch (IOException e)
 					{
 						e.printStackTrace();
 					}
@@ -693,11 +891,11 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			
 			toolbar.setBackground(window.getBackground());
 
-			toolbar.addToolItem("Save", new Image(display, new FileInputStream("res/images/savebutton.png")));
+			toolbar.addToolItem("Save", new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/savebutton.png")));
 			toolbar.addSeparator();
-			toolbar.addToolItem("Compile", new Image(display, new FileInputStream("res/images/compilebutton.png")));
+			toolbar.addToolItem("Compile", new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/compilebutton.png")));
 			toolbar.addSeparator();
-			toolbar.addToolItem("Run", new Image(display, new FileInputStream("res/images/runbutton.png")));
+			toolbar.addToolItem("Run", new Image(display, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/runbutton.png")));
 		}
 		catch (FileNotFoundException e)
 		{
@@ -720,9 +918,9 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 						{
 							openFile();
 						}
-						catch (FileNotFoundException e)
+						catch (IOException e)
 						{
-							
+							System.err.println("Compilation failed.");
 						}
 					}
 					else
@@ -1229,7 +1427,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 					{
 						openFile(location);
 					}
-					catch (FileNotFoundException e)
+					catch (IOException e)
 					{
 						e.printStackTrace();
 					}
@@ -1305,7 +1503,10 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			}
 		});
 		
-		if (CONFIG_DATA.containsKey("last.tabs"))
+		tabMenu = new DropdownMenu(null);
+		tabMenu.addMenuItem("Open in New Window", "Open in New Window");
+		
+		if (CONFIG_DATA.containsKey("last.tabs") && rememberSetup)
 		{
 			String lastTabs[] = CONFIG_DATA.get("last.tabs").split(";");
 			
@@ -1353,7 +1554,14 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 				}
 				catch (IOException e)
 				{
-					System.err.println("Could not find the file at '" + location + "'");
+					if (e instanceof FileNotFoundException)
+					{
+						printFileNotFoundError(location);
+					}
+					else
+					{
+						e.printStackTrace();
+					}
 					// If file wasnt found.. or something else.
 				}
 			}
@@ -1372,6 +1580,28 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 					int id = tabFileIds.get(lastTab);
 					
 					fileTabs.setSelection(id);
+				}
+			}
+		}
+		
+		// Load up the files passed through the command-line arguments.
+		for (int i = 0; i < args.length; i++)
+		{
+			String location = args[i];
+			
+			try
+			{
+				openFile(location);
+			}
+			catch (IOException e)
+			{
+				if (e instanceof FileNotFoundException)
+				{
+					printFileNotFoundError(location);
+				}
+				else
+				{
+					e.printStackTrace();
 				}
 			}
 		}
@@ -1419,8 +1649,10 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	/**
 	 * The start method that is used to start up the whole ArrowIDE
 	 * program. Creates the window and puts the stuff in it.
+	 * 
+	 * @param args The files to load on start up.
 	 */
-	public static void start()
+	public static void start(String args[])
 	{
 //		splash = new Shell(display, SWT.ON_TOP);
 //		splash.setSize(largeIcon.getBounds().width, largeIcon.getBounds().height);
@@ -1438,7 +1670,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		ArrowIDE ide    = null;
 
-		File configFile = new File("arrow.config");
+		File configFile = new File(dataLocation + "arrow.config");
 		
 		if (!configFile.isFile())
 		{
@@ -1448,7 +1680,9 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			}
 			catch (IOException e)
 			{
-				e.printStackTrace();
+				System.err.println("An error has occurred while starting ArrowIDE. You can try running ArrowIDE as an Administrator. If that fails, reinstall ArrowIDE and try again.");
+				
+				//e.printStackTrace();
 				System.exit(1);
 			}
 		}
@@ -1464,7 +1698,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			chooseWorkspace();
 		}
 			
-		ide = openIDE();
+		ide = openIDE(args);
 		
 //		System.out.println(OS.SendMessage(shell.handle, OS.EM_SETSEL, 5, 9));//new TCHAR(0, "2dasdf", true)));
 		
@@ -1515,24 +1749,21 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			
 			restarting = false;
 			
-			start();
+			start(new String[0]);
 		}
 		else
 		{
 			exit(window);
 		}
-		
-		DISPLAY.close();
-		
-		System.exit(0);
 	}
 	
 	/**
 	 * Create a new ArrowIDE and then open it.
 	 * 
+	 * @param args The files to load on start up.
 	 * @return The created ArrowIDE object.
 	 */
-	public static ArrowIDE openIDE()
+	public static ArrowIDE openIDE(String args[])
 	{
 		String location = CONFIG_DATA.get("workspace.location.relative");
 		
@@ -1548,7 +1779,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		CONFIG_DATA.put("workspace.location", location);
 		
-		ArrowIDE ide = new ArrowIDE(DISPLAY);
+		ArrowIDE ide = new ArrowIDE(DISPLAY, args);
 		
 		window.open();
 		
@@ -1558,11 +1789,11 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		{
 			if (PROPERTIES.get("os.name").equals("windows") || PROPERTIES.get("os.name").equals("macosx"))
 			{
-				icon = new Image(DISPLAY, new FileInputStream("res/images/iconlarge.png"));
+				icon = new Image(DISPLAY, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/iconlarge.png"));
 			}
 			else if (PROPERTIES.get("os.name").equals("linux"))
 			{
-				icon = new Image(DISPLAY, new FileInputStream("res/images/iconmedium.png"));
+				icon = new Image(DISPLAY, new FileInputStream(PROPERTIES.get("resources.location") + "res/images/iconmedium.png"));
 			}
 		}
 		catch (FileNotFoundException e)
@@ -1617,12 +1848,41 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			}
 		}
 		
+		DISPLAY.close();
+		
+		if (fileReader != null)
+		{
+			try
+			{
+				fileReader.close();
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+			
+			try
+			{
+				fileReaderThread.join(1);
+			}
+			catch (InterruptedException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		
+		System.exit(0);
+		
 //		if (shell != null && !shell.isDisposed())
 //		{
 //			shell.dispose();
 //		}
 	}
 	
+    /**
+     * Update the tabs in the configuration file (arrow.config).
+     * Save the current tabs for the next session after closing.
+     */
 	private void updateTabsConfig()
 	{
 		if (fileLocation != null)
@@ -1752,6 +2012,11 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	 */
 	public static synchronized void setConfigDataValue(String key, String value)
 	{
+		if (!rememberSetup)
+		{
+			return;
+		}
+		
 		boolean added = false;
 		
 		CONFIG_DATA.put(key, value);
@@ -1974,7 +2239,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	 * Opens a FileDialog to search for a file to open, then opens
 	 * the result.
 	 */
-	public void openFile() throws FileNotFoundException
+	public void openFile() throws IOException
 	{
 		FileDialog dialog = openFileBrowseDialog();
 		
@@ -2004,19 +2269,9 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	 * 
 	 * @param location The location of the file to open.
 	 */
-	public void openFile(String location) throws FileNotFoundException
+	public void openFile(String location) throws FileNotFoundException, IOException
 	{
-		try
-		{
-			openFile(location, true, true);
-		}
-		catch (IOException e)
-		{
-			if (e instanceof FileNotFoundException)
-			{
-				throw (FileNotFoundException)e;
-			}
-		}
+		openFile(location, true, true);
 	}
 	
 	/**
@@ -2081,6 +2336,12 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			
 			if (file.isDirectory())
 			{
+				return;
+			}
+			else if (!file.canRead())
+			{
+				System.err.println("The specified file at '" + location + "' cannot be read.");
+				
 				return;
 			}
 			
@@ -2208,7 +2469,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			{
 				openFile();
 			}
-			catch (FileNotFoundException e)
+			catch (IOException e)
 			{
 				e.printStackTrace();
 			}
@@ -2302,7 +2563,23 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		boolean currentFile = location.equals(fileLocation);
 		
-		FileUtils.writeFile(location, codeField.getWritableText());
+		File f = new File(location);
+		
+		if (f.canWrite())
+		{
+			try
+			{
+				FileUtils.writeFile(location, codeField.getWritableText());
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			System.err.println("The specified file at '" + location + "' is read only.");
+		}
 		
 		fileLocation = location;
 		
@@ -2944,7 +3221,14 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		if (event.getSource() == fileTabs)
 		{
-			int newId		= fileTabs.getSelected();
+			if (tabId == oldTabId2)
+			{
+				toggleCodeField = false;
+			}
+			
+			oldTabId2 = 0;
+			
+			int newId		= fileTabs.getSelection();
 			
 			String location = tabFileLocations.get(tabId);
 			String result	= null;
@@ -2973,24 +3257,6 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 				result = saveDialog.open();
 			}
 			
-			if (!askSave || (result != null && (result.equals("yes") || result.equals("no"))))
-			{
-				String lastTabs = CONFIG_DATA.get("last.tabs");
-				
-				int start = lastTabs.indexOf(tabFileLocations.get(tabId));
-				int end   = lastTabs.indexOf(';', start) + 1;
-				
-				String data = lastTabs.substring(start, end);
-				
-				String files = lastTabs.replace(data, "");
-				setConfigDataValue("last.tabs", files);
-				
-				tabFileLocations.remove(tabId);
-				tabFileIds.remove(location);
-				tabTopPixels.remove(tabId);
-				tabSelections.remove(tabId);
-			}
-			
 			if (result != null)
 			{
 				if (result.equals("yes"))
@@ -3010,45 +3276,6 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			{
 				cancel = askSave;
 			}
-			
-			if (cancel)
-			{
-				
-			}
-			else
-			{
-				fileCache.remove(location);
-				fileCacheSaved.remove(location);
-				
-				if (tabId == oldTabId)
-				{
-					oldTabId = newId;
-				}
-				
-				if (tabId != newId)
-				{
-					String loc = tabFileLocations.get(newId);
-	
-					try
-					{
-						openFile(loc);
-					}
-					catch (FileNotFoundException e)
-					{
-						e.printStackTrace();
-					}
-				}
-				else
-				{
-					fileLocation = null;
-					codeField.setText("");
-				}
-			}
-			
-			if (fileTabs.getNumTabs() <= 1 && !cancel)
-			{
-				setCodeFieldExpanded(false);
-			}
 		}
 		else if (event.getSource() == consoleTabs)
 		{
@@ -3067,6 +3294,64 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		return !cancel;
 	}
 	
+	public void tabClosed(TabMenuEvent event)
+	{
+		int tabId = event.getTabId();
+		
+		int newId = fileTabs.getSelection();
+		
+		String location = tabFileLocations.get(tabId);
+		
+		String lastTabs = CONFIG_DATA.get("last.tabs");
+		
+		int start = lastTabs.indexOf(tabFileLocations.get(tabId));
+		int end   = lastTabs.indexOf(';', start) + 1;
+		
+		String data = lastTabs.substring(start, end);
+		
+		String files = lastTabs.replace(data, "");
+		setConfigDataValue("last.tabs", files);
+		
+		tabFileLocations.remove(tabId);
+		tabFileIds.remove(location);
+		tabTopPixels.remove(tabId);
+		tabSelections.remove(tabId);
+		
+		fileCache.remove(location);
+		fileCacheSaved.remove(location);
+		tabFileIds.remove(location);
+		tabFileLocations.remove(tabId);
+		
+		if (tabId == oldTabId)
+		{
+			oldTabId = newId;
+		}
+		
+		if (tabId != newId)
+		{
+			String loc = tabFileLocations.get(newId);
+
+			try
+			{
+				openFile(loc);
+			}
+			catch (IOException e)
+			{
+				e.printStackTrace();
+			}
+		}
+		else
+		{
+			fileLocation = null;
+			codeField.setText("");
+		}
+		
+		if (fileTabs.getNumTabs() <= 0)
+		{
+			setCodeFieldExpanded(false);
+		}
+	}
+	
 	/**
 	 * Implemented method that is called whenever a tab is selected
 	 * in a TabMenu. It then opens the file.
@@ -3075,32 +3360,61 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	 */
 	public void tabSelected(TabMenuEvent event)
 	{
-		int tabId = event.getTabId();
+		boolean down = event.wasDown();
+		
+		int tabId    = event.getTabId();
+		int button   = event.getButton();
 		
 		if (event.getSource() == fileTabs)
 		{
 			String location = tabFileLocations.get(tabId);
 			
-			if (location.equals(fileLocation))
+			if (button == 1 && event.wasClicked())
 			{
-				return;
+				if (!location.equals(fileLocation))
+				{
+					if (location != null)
+					{
+						try
+						{
+							openFile(location);
+						
+							codeField.setSelection(tabSelections.get(tabId));
+							codeField.setTopPixel(tabTopPixels.get(tabId));
+						
+							// Did not select the current tab content...
+							//codeField.select();
+						}
+						catch (IOException e)
+						{
+							e.printStackTrace();
+						}
+					}
+				}
 			}
-			
-			if (location != null)
+			else if (button == 2 && event.wasClicked())
 			{
+				String args[] = new String[] { "-nw", "-noRemember", '"' + location + '"' };
+				
 				try
 				{
-					openFile(location);
-				
-					codeField.setSelection(tabSelections.get(tabId));
-					codeField.setTopPixel(tabTopPixels.get(tabId));
-				
-					// Did not select the current tab content...
-					//codeField.select();
+					openNewIDE(args);
 				}
-				catch (FileNotFoundException e)
+				catch (IOException e)
 				{
 					e.printStackTrace();
+				}
+			}
+			else if (button == 3 && event.wasClicked())
+			{
+				if (!down)
+				{
+					Point loc = event.getLocation();
+					
+					loc = DISPLAY.map(fileTabs.getControl(), null, loc);
+					
+					tabMenu.setLocation(loc.x, loc.y);
+					tabMenu.open();
 				}
 			}
 		}
@@ -3118,14 +3432,37 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 	 */
 	public void tabDoubleClicked(TabMenuEvent event)
 	{
-		setCodeFieldExpanded(!isCodeFieldExpanded());
+		int button = event.getButton();
+		
+		if (event.getSource() == fileTabs)
+		{
+			if (button == 1)
+			{
+				oldTabId2 = event.getTabId();
+				
+				toggleCodeField = true;
+			}
+		}
 	}
-	
+    
+    /**
+     * Get whether or not the CodeField is expanded to fill the
+     * full screen space.
+     * 
+     * @return Whether or not the CodeField is expanded.
+     */
 	private boolean isCodeFieldExpanded()
 	{
 		return oldCodeFieldHorizontalPercentage != -1;
 	}
 	
+    /**
+     * Set whether or not to expand the CodeField to fill, or release
+     * the remaining space.
+     * 
+     * @param expand If true, expand the CodeField to fill the remaining
+     *         space. If false, release the remaining space.
+     */
 	private void setCodeFieldExpanded(boolean expand)
 	{
 		Point contentSize = window.getContentPanel().getSize();
@@ -3174,9 +3511,84 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		codeField.setFocus();
 	}
 	
+	/**
+	 * Open a new instance of the IDE.
+	 * 
+	 * @param args The command-line args to pass to the new instance.
+	 * @throws IOException 
+	 */
+	private void openNewIDE(String args[]) throws IOException
+	{
+		String args2[] = new String[args.length + 1];
+		
+		args2[0] = '"' + FileUtils.getExecutablePrefix() + "ArrowIDE" + FileUtils.getExecutableExtension() + '"';
+		
+		for (int i = 0; i < args.length; i++)
+		{
+			args2[i + 1] = args[i];
+		}
+		
+		args = args2;
+		
+		Command c = new Command(DISPLAY, args, resourcesLocation);
+		
+		c.addCommandListener(new CommandListener()
+		{
+			@Override
+			public void resultReceived(int result)
+			{
+				if (result != 0)
+				{
+					System.err.println("Error (" + result + ") occurred while trying to open a new instance of the IDE.");
+				}
+			}
+			
+			@Override
+			public void commandExecuted()
+			{
+				
+			}
+		});
+		
+		ProgramListener listener = new ProgramListener()
+		{
+			@Override
+			public void programTerminated(Program program)
+			{
+				
+			}
+			
+			@Override
+			public void programStarted(Program program)
+			{
+			}
+			
+			@Override
+			public void messageReceived(String message)
+			{
+				System.out.println(message);
+			}
+			
+			@Override
+			public void errorMessageReceived(String message)
+			{
+				System.err.println(message);
+			}
+		};
+		
+		c.execute("ArrowIDE (New instance)", listener);
+	}
+
+    /**
+     * Reset the main Program that is running to the next best
+     * candidate from the tab that is given.
+     * 
+     * @param tabId The id of the tab to get the next best Program
+     *         from.
+     */
 	private void resetMainProgram(int tabId)
 	{
-		int newId = consoleTabs.getSelected();
+		int newId = consoleTabs.getSelection();
 		
 		if (newId <= 0 || newId == tabId)
 		{
@@ -3194,6 +3606,12 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		updateLayout();
 	}
 	
+    /**
+     * Set the Main Program that is running to the Program that is
+     * under the specified tabId.
+     * 
+     * @param tabId The id of the tab to set the main Program to.
+     */
 	private void setMainProgram(int tabId)
 	{
 		if (consoleTabPrograms.containsKey(tabId))
@@ -3306,6 +3724,16 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 				consoleField.setText(mainProgram.getText());
 			}
 		}
+		
+		codeFieldToggled = false;
+		
+		if (toggleCodeField)
+		{
+			setCodeFieldExpanded(!isCodeFieldExpanded());
+			
+			toggleCodeField  = false;
+			codeFieldToggled = true;
+		}
 	}
 
 	/**
@@ -3355,5 +3783,59 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 				resetMainProgram(program.getId());
 			}
 		}
+	}
+	
+	/**
+	 * Print an error telling that the file at the specified location
+	 * could not be found.
+	 * 
+	 * @param location The location of the file that could not be found.
+	 */
+	private static void printFileNotFoundError(String location)
+	{
+		System.err.println("Could not find the file at '" + location + "'");
+	}
+
+	/**
+	 * @see net.foxycorndog.arrowide.event.DropListener#itemDropped(net.foxycorndog.arrowide.event.DropEvent)
+	 */
+	public void itemDropped(DropEvent event)
+	{
+		int    type = event.getType();
+		
+		Object data = event.getData();
+		
+		if (type == DropEvent.FILES)
+		{
+			String strs[] = (String[])data;
+			
+			for (int i = 0; i < strs.length; i++)
+			{
+				try
+				{
+					openFile(strs[i]);
+				}
+				catch (FileNotFoundException e)
+				{
+					e.printStackTrace();
+				}
+				catch (IOException e)
+				{
+					e.printStackTrace();
+				}
+			}
+		}
+		else if (type == DropEvent.TEXT)
+		{
+			String str = (String)data;
+			
+			codeField.insert(str);
+		}
+		
+		window.setFocus();
+		window.setActive();
+		
+		window.getShell().forceFocus();
+		window.getShell().forceActive();
 	}
 }

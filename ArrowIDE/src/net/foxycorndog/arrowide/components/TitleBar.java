@@ -52,10 +52,10 @@ public class TitleBar
 	
 	static
 	{
-		closeImage    = new Image(Display.getCurrent(), "res/images/closeimage.png");
-		restoreImage  = new Image(Display.getCurrent(), "res/images/restoreimage.png");
-		maximizeImage = new Image(Display.getCurrent(), "res/images/maximizeimage.png");
-		minimizeImage = new Image(Display.getCurrent(), "res/images/minimizeimage.png");
+		closeImage    = new Image(Display.getCurrent(), PROPERTIES.get("resources.location") + "res/images/closeimage.png");
+		restoreImage  = new Image(Display.getCurrent(), PROPERTIES.get("resources.location") + "res/images/restoreimage.png");
+		maximizeImage = new Image(Display.getCurrent(), PROPERTIES.get("resources.location") + "res/images/maximizeimage.png");
+		minimizeImage = new Image(Display.getCurrent(), PROPERTIES.get("resources.location") + "res/images/minimizeimage.png");
 	}
 	
 	public TitleBar(final Window parent, final int size, int flags)

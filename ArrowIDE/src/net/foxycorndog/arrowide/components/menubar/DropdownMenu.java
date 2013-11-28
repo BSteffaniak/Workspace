@@ -119,7 +119,7 @@ public class DropdownMenu
 					return;
 				}
 				
-				if (event.type == SWT.MouseDown)
+				if (event.type == SWT.MouseUp)
 				{
 					for (int i = listeners.size() - 1; i >= 0; i--)
 					{
@@ -140,12 +140,21 @@ public class DropdownMenu
 				}
 			}
 		};
+		
+		shell.getDisplay().addFilter(SWT.MouseUp, new Listener()
+		{
+			public void handleEvent(Event event)
+			{
+				if (isOpen())
+				{
+					close();
+				}
+			}
+		});
 	}
 	
 	public void addMenuItem(String text, String id)
 	{
-
-		
 		contentPanel.setSize(contentPanel.getSize().x, contentPanel.getSize().y + textMargin);
 		
 		Point extent = gc.stringExtent(text);
@@ -264,6 +273,11 @@ public class DropdownMenu
 	public Point getSize()
 	{
 		return shell.getSize();
+	}
+	
+	public boolean isOpen()
+	{
+		return shell.isVisible();
 	}
 	
 	public void open()

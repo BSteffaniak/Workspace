@@ -414,7 +414,7 @@ public class CodeField extends StyledText
 	    	fontSize = 15;
 	    }
 	    
-	    Font f = FileUtils.loadMonospacedFont(Display.getDefault(), "courier new", "res/fonts/CECOUR.ttf", fontSize, SWT.NORMAL);
+	    Font f = FileUtils.loadMonospacedFont(Display.getDefault(), "courier new", PROPERTIES.get("resources.location") + "res/fonts/CECOUR.ttf", fontSize, SWT.NORMAL);
 	    setFont(f);
 	    
 //	    tabs = new ArrayList<ArrayList<Boolean>>();

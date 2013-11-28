@@ -14,6 +14,8 @@ public interface TabMenuListener
 {
 	public boolean tabClosing(TabMenuEvent event);
 	
+	public void tabClosed(TabMenuEvent event);
+	
 	public void tabSelected(TabMenuEvent event);
 	
 	public void tabDoubleClicked(TabMenuEvent event);

@@ -1,6 +1,7 @@
 package net.foxycorndog.arrowide.components.tabmenu;
 
 //import java.awt.Toolkit;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -14,14 +15,18 @@ import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
 public class TabMenu
 {
 	private int							maxCharacters, maxWidth;
 	
-//	private long						oldTime;
+	private long						oldTime;
 
 	private Composite					composite;
 
@@ -39,7 +44,7 @@ public class TabMenu
 
 	private static int					staticId;
 	
-//	private static final int			doubleClickDelay = (Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
+	private static final int			doubleClickDelay = (Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
 	
 	public TabMenu(Composite composite)
 	{
@@ -69,25 +74,41 @@ public class TabMenu
 		
 		thisObject    = this;
 		
+		tabFolder.addListener(SWT.MouseDown, new Listener()
+		{
+			public void handleEvent(Event event)
+			{
+				tabSelected(event, true);
+			}
+		});
+		
+		tabFolder.addListener(SWT.MouseUp, new Listener()
+		{
+			public void handleEvent(Event event)
+			{
+				tabSelected(event, false);
+			}
+		});
+		
 		tabFolder.addSelectionListener(new SelectionListener()
 		{
 			public void widgetSelected(SelectionEvent e)
 			{
-				CTabItem item = (CTabItem)e.item;
-				
-				tabSelected(item);
-				
-				if (item == oldItem)
-				{
-					int id = tabIds.get(item);
-					
-					for (int i = listeners.size() - 1; i >= 0; i--)
-					{
-						listeners.get(i).tabDoubleClicked(new TabMenuEvent(thisObject, id));
-					}
-				}
-				
-				oldItem = item;
+//				CTabItem item = (CTabItem)e.item;
+//				
+//				if (item == oldItem)
+//				{
+//					int id = tabIds.get(item);
+//					
+//					TabMenuEvent event = new TabMenuEvent(thisObject, id, 1);
+//					
+//					for (int i = listeners.size() - 1; i >= 0; i--)
+//					{
+//						listeners.get(i).tabDoubleClicked(event);
+//					}
+//				}
+//				
+//				oldItem = item;
 			}
 
 			public void widgetDefaultSelected(SelectionEvent e)
@@ -104,9 +125,11 @@ public class TabMenu
 			{
 				int id = tabIds.get(e.item);
 				
+				TabMenuEvent event = new TabMenuEvent(thisObject, new Point(e.x, e.y), id, 1, false, true);
+				
 				for (int i = listeners.size() - 1; i >= 0; i--)
 				{
-					if (!listeners.get(i).tabClosing(new TabMenuEvent(thisMenu, id)))
+					if (!listeners.get(i).tabClosing(event))
 					{
 						e.doit = false;
 						
@@ -147,34 +170,59 @@ public class TabMenu
 		tabFolder.redraw();
 	}
 	
-	private void tabSelected(CTabItem item)
+	private void tabSelected(Event event, boolean down)
 	{
-		int id = tabIds.get(item);
+		Point point = new Point(event.x, event.y);
+		CTabItem item = tabFolder.getItem(point);
 		
-		for (int i = listeners.size() - 1; i >= 0; i--)
+		if (item != null)
 		{
-			listeners.get(i).tabSelected(new TabMenuEvent(this, id));
+			int id = tabIds.get(item);
+			
+			boolean clicked = oldItem == item;
+			
+			TabMenuEvent e = new TabMenuEvent(thisObject, new Point(event.x, event.y), id, event.button, down, clicked);
+			
+			for (int i = listeners.size() - 1; i >= 0; i--)
+			{
+				listeners.get(i).tabSelected(e);
+			}
+			
+			if (down)
+			{
+				long time = System.currentTimeMillis();
+				
+				if (item == oldItem)
+				{
+					if (time - oldTime < doubleClickDelay)
+					{
+						e = new TabMenuEvent(thisObject, new Point(event.x, event.y), id, event.button, down, clicked);
+						
+						for (int i = listeners.size() - 1; i >= 0; i--)
+						{
+							listeners.get(i).tabDoubleClicked(e);
+						}
+					}
+				}
+				
+				oldTime = time;
+			}
 		}
+			
+		oldItem = item;
 	}
 	
-	public int getSelected()
-	{
-		int index = tabFolder.getSelectionIndex();
-		
-		if (index < 0)
-		{
-			return index;
-		}
-		
-		CTabItem item = tabFolder.getItem(index);
-		
-		if (tabIds.containsKey(item))
-		{
-			return tabIds.get(item);
-		}
-		
-		return -1;
-	}
+//	private void tabSelected(CTabItem item)
+//	{
+//		int id = tabIds.get(item);
+//
+//		TabMenuEvent event = new TabMenuEvent(thisObject, id, 1);
+//		
+//		for (int i = listeners.size() - 1; i >= 0; i--)
+//		{
+//			listeners.get(i).tabSelected(event);
+//		}
+//	}
 	
 	public void setMaxWidth(int maxWidth)
 	{
@@ -239,6 +287,14 @@ public class TabMenu
 		item.setText(text);
 		item.setToolTipText(origText);
 		
+		item.addListener(SWT.MouseDown, new Listener()
+		{
+			public void handleEvent(Event event)
+			{
+				System.out.println("ASDf");
+			}
+		});
+		
 		addWidth(wid.getBounds().width);
 		
 		wid.dispose();
@@ -268,9 +324,28 @@ public class TabMenu
 		tabIds.remove(item);
 		tabsText.remove(id);
 		
+		item.dispose();
+		
 		subtractWidth(item.getBounds().width);
 		
-		item.dispose();
+		TabMenuEvent e = new TabMenuEvent(thisObject, new Point(0, 0), id, 0, false, false);
+		
+		for (int i = listeners.size() - 1; i >= 0; i--)
+		{
+			listeners.get(i).tabClosed(e);
+		}
+	}
+	
+	public int getSelection()
+	{
+		CTabItem item = tabFolder.getSelection();
+		
+		if (tabIds.containsKey(item))
+		{
+			return tabIds.get(item);
+		}
+		
+		return -1;
 	}
 	
 	public void setSelection(int id)
@@ -279,7 +354,17 @@ public class TabMenu
 		
 		tabFolder.setSelection(tab);
 		
-		tabSelected(tab);
+		TabMenuEvent e = new TabMenuEvent(thisObject, new Point(0, 0), id, 0, false, false);
+		
+		for (int i = listeners.size() - 1; i >= 0; i--)
+		{
+			listeners.get(i).tabSelected(e);
+		}
+	}
+	
+	public Control getControl()
+	{
+		return tabFolder;
 	}
 	
 	public Color getBackground()

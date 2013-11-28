@@ -2,7 +2,21 @@ package net.foxycorndog.arrowide.components.window;
 
 import java.util.ArrayList;
 
+import net.foxycorndog.arrowide.event.DropEvent;
+import net.foxycorndog.arrowide.event.DropListener;
+
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.dnd.DND;
+import org.eclipse.swt.dnd.DragSource;
+import org.eclipse.swt.dnd.DragSourceAdapter;
+import org.eclipse.swt.dnd.DragSourceEvent;
+import org.eclipse.swt.dnd.DropTarget;
+import org.eclipse.swt.dnd.DropTargetAdapter;
+import org.eclipse.swt.dnd.DropTargetEvent;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.FileTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.PaintListener;
@@ -18,7 +32,11 @@ import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Tracker;
+
+import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
 
 public class Window
 {
@@ -47,7 +65,8 @@ public class Window
 	
 	private Display						display;
 	
-	private ArrayList<WindowListener>	listeners;
+	private ArrayList<WindowListener>	windowListeners;
+	private ArrayList<DropListener>		dropListeners;
 	
 	private static int					numberOpen;
 	
@@ -75,6 +94,92 @@ public class Window
 			shell = new Shell(display, style);
 		}
 		
+		windowListeners = new ArrayList<WindowListener>();
+		dropListeners   = new ArrayList<DropListener>();
+		
+		Transfer[] types = new Transfer[] { FileTransfer.getInstance(), TextTransfer.getInstance() };
+		
+		DropTarget target = new DropTarget(shell, DND.DROP_MOVE | DND.DROP_COPY | DND.DROP_DEFAULT);
+	    target.setTransfer(types);
+	    target.addDropListener(new DropTargetAdapter()
+	    {
+			public void dragEnter(DropTargetEvent event)
+			{
+				if (event.detail == DND.DROP_DEFAULT)
+				{
+					event.detail = (event.operations & DND.DROP_COPY) != 0 ? DND.DROP_COPY : DND.DROP_NONE;
+				}
+				
+				for (int i = 0, n = event.dataTypes.length; i < n; i++)
+				{
+					if (TextTransfer.getInstance().isSupportedType(event.dataTypes[i]))
+					{
+						event.currentDataType = event.dataTypes[i];
+					}
+				}
+			}
+			
+			public void dragOver(DropTargetEvent event)
+			{
+				event.feedback = DND.FEEDBACK_SELECT | DND.FEEDBACK_SCROLL;
+			}
+			
+			public void drop(DropTargetEvent event)
+			{
+				FileTransfer fileInstance = FileTransfer.getInstance();
+				TextTransfer textInstance = TextTransfer.getInstance();
+				
+				TransferData fileTypes[]  = fileInstance.getSupportedTypes();
+				TransferData textTypes[]  = textInstance.getSupportedTypes();
+				
+				boolean done = false;
+				
+				for (int i = 0; i < fileTypes.length && !done; i++)
+				{
+					if (fileTypes[i].type == event.currentDataType.type)
+					{
+						Object object = fileInstance.nativeToJava(event.currentDataType);
+						
+						if (object instanceof String[])
+						{
+							String strs[] = (String[])object;
+							
+							DropEvent e = new DropEvent(DropEvent.FILES, strs);
+								
+							for (int j = 0; j < dropListeners.size(); j++)
+							{
+								dropListeners.get(j).itemDropped(e);
+							}
+						}
+						
+						done = true;
+					}
+				}
+				
+				for (int i = 0; i < textTypes.length && !done; i++)
+				{
+					if (textTypes[i].type == event.currentDataType.type)
+					{
+						Object object = textInstance.nativeToJava(event.currentDataType);
+						
+						if (object instanceof String)
+						{
+							String str = (String)object;
+							
+							DropEvent e = new DropEvent(DropEvent.TEXT, str);
+							
+							for (int j = 0; j < dropListeners.size(); j++)
+							{
+								dropListeners.get(j).itemDropped(e);
+							}
+						}
+						
+						done = true;
+					}
+				}
+			}
+	    });
+		
 		content = new Composite(shell, SWT.NONE);
 		
 		setCustom(custom);
@@ -84,8 +189,6 @@ public class Window
 		
 		sizeBefore     = new Point(0, 0);
 		locationBefore = new Point(0, 0);
-		
-		listeners = new ArrayList<WindowListener>();
 		
 		setResizable(true);
 		
@@ -198,16 +301,16 @@ public class Window
 			{
 				defaultCursor = shell.getCursor();
 				
-				Image image = new Image(display, "res/images/leftresizecursor.png");
+				Image image = new Image(display, PROPERTIES.get("resources.location") + "res/images/leftresizecursor.png");
 				leftResizeCursor = new Cursor(display, image.getImageData(), image.getBounds().width / 2, image.getBounds().height / 2);
 				
-				image = new Image(display, "res/images/topresizecursor.png");
+				image = new Image(display, PROPERTIES.get("resources.location") + "res/images/topresizecursor.png");
 				topResizeCursor = new Cursor(display, image.getImageData(), image.getBounds().width / 2, image.getBounds().height / 2);
 				
-				image = new Image(display, "res/images/topleftresizecursor.png");
+				image = new Image(display, PROPERTIES.get("resources.location") + "res/images/topleftresizecursor.png");
 				topLeftResizeCursor = new Cursor(display, image.getImageData(), image.getBounds().width / 2, image.getBounds().height / 2);
 				
-				image = new Image(display, "res/images/toprightresizecursor.png");
+				image = new Image(display, PROPERTIES.get("resources.location") + "res/images/toprightresizecursor.png");
 				topRightResizeCursor = new Cursor(display, image.getImageData(), image.getBounds().width / 2, image.getBounds().height / 2);
 				
 				Color bg = shell.getBackground();
@@ -532,9 +635,9 @@ public class Window
 	{
 		boolean doit = true;
 		
-		for (int i = listeners.size() - 1; i >= 0; i--)
+		for (int i = windowListeners.size() - 1; i >= 0; i--)
 		{
-			if (!listeners.get(i).iconChanged(icon))	
+			if (!windowListeners.get(i).iconChanged(icon))	
 			{
 				doit = false;
 			}
@@ -555,9 +658,9 @@ public class Window
 	{
 		boolean doit = true;
 		
-		for (int i = listeners.size() - 1; i >= 0; i--)
+		for (int i = windowListeners.size() - 1; i >= 0; i--)
 		{
-			if (!listeners.get(i).titleChanged(title))	
+			if (!windowListeners.get(i).titleChanged(title))	
 			{
 				doit = false;
 			}
@@ -773,7 +876,22 @@ public class Window
 	
 	public void addWindowListener(WindowListener listener)
 	{
-		listeners.add(listener);
+		windowListeners.add(listener);
+	}
+	
+	public void removeWindowListener(WindowListener listener)
+	{
+		windowListeners.remove(listener);
+	}
+	
+	public void addDropListener(DropListener listener)
+	{
+		dropListeners.add(listener);
+	}
+	
+	public void removeDropListener(DropListener listener)
+	{
+		dropListeners.remove(listener);
 	}
 	
 	private int intersectionArea(int x1, int y1, int width1, int height1, int x2, int y2, int width2, int height2)
