@@ -44,7 +44,7 @@ public class Menubar
 	{
 		this.parent = parent;
 		
-		font        = Display.getDefault().getSystemFont();
+		font = Display.getDefault().getSystemFont();
 		
 		composite = new Composite(parent, SWT.NONE);
 		composite.setSize(parent.getSize().x, 25);
@@ -170,12 +170,12 @@ public class Menubar
 		{
 			public void handleEvent(Event event)
 			{
-				DropdownMenu array[] = menus.values().toArray(new DropdownMenu[0]);
-				
-				for (int i = 0; i < array.length; i++)
-				{
-					array[i].close();
-				}
+//				DropdownMenu array[] = menus.values().toArray(new DropdownMenu[0]);
+//				
+//				for (int i = 0; i < array.length; i++)
+//				{
+//					array[i].close();
+//				}
 			}
 		});
 		

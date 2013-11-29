@@ -22,6 +22,8 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Listener;
 
+import static net.foxycorndog.arrowide.ArrowIDE.PROPERTIES;
+
 public class TabMenu
 {
 	private int							maxCharacters, maxWidth;
@@ -44,7 +46,23 @@ public class TabMenu
 
 	private static int					staticId;
 	
-	private static final int			doubleClickDelay = (Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
+	private static final int			doubleClickDelay = getDoubleClickDelay();
+	
+	private static final int getDoubleClickDelay()
+	{
+		String osName = (String)PROPERTIES.get("os.name");
+		
+		if (osName.equals("windows") || osName.equals("linux"))
+		{
+			return (Integer)Toolkit.getDefaultToolkit().getDesktopProperty("awt.multiClickInterval");
+		}
+		else if (osName.equals("macosx"))
+		{
+			return 200;
+		}
+		
+		return 0;
+	}
 	
 	public TabMenu(Composite composite)
 	{

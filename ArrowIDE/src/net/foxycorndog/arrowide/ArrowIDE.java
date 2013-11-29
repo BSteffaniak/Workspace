@@ -346,7 +346,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		}
 		else if (PROPERTIES.get("os.name").equals("macosx"))
 		{
-//			resourcesLocation = System.getProperty("user.home") + "/Library/Application Support/ArrowIDE/";
+			resourcesLocation = System.getProperty("user.home") + "/Library/Application Support/ArrowIDE/";
 		}
 		else if (PROPERTIES.get("os.name").equals("linux"))
 		{
@@ -2597,10 +2597,10 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 		
 		boolean isInViewer = treeItemLocations.containsKey(location);
 		
-		if (!isInViewer)
-		{
-			addToFileViewer(location);
-		}
+//		if (!isInViewer)
+//		{
+//			addToFileViewer(location);
+//		}
 	}
 	
 	/**
@@ -2648,7 +2648,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			parentId = treeItemIds.get(parentLocation);
 		}
 		
-		int id        = treeMenu.addItem(parentId, name, img);
+		int id = treeMenu.addItem(parentId, name, img);
 		
 		if (fileCacheSaved.containsKey(location))
 		{
@@ -3327,7 +3327,7 @@ public class ArrowIDE implements ContentListener, CodeFieldListener, TabMenuList
 			oldTabId = newId;
 		}
 		
-		if (tabId != newId)
+		if (tabId != newId && newId >= 0)
 		{
 			String loc = tabFileLocations.get(newId);
 

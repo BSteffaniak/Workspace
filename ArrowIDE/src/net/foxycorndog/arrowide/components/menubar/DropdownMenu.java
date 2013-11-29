@@ -17,6 +17,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 
+import static net.foxycorndog.arrowide.ArrowIDE.DISPLAY;
+
 public class DropdownMenu
 {
 	private int								textMargin;
@@ -33,7 +35,8 @@ public class DropdownMenu
 	private Composite						contentPanel;
 	
 	private Listener						selectionListener;
-
+	private Listener						focusListener;
+	
 	private Shell							shell;
 
 	private HashMap<Control, String>		controlIds;
@@ -141,16 +144,33 @@ public class DropdownMenu
 			}
 		};
 		
-		shell.getDisplay().addFilter(SWT.MouseUp, new Listener()
+		focusListener = new Listener()
 		{
+			int times = 0;
+			
 			public void handleEvent(Event event)
 			{
-				if (isOpen())
+				if (event.data instanceof DropdownMenu == false)
 				{
-					close();
+					if (times > 0)
+					{
+						if (isOpen())
+						{
+							close();
+						}
+						
+						times = 0;
+					}
+					else
+					{
+						times++;
+					}
 				}
 			}
-		});
+		};
+		
+		DISPLAY.addFilter(SWT.MouseUp, focusListener);
+//		DISPLAY.addFilter(SWT.MouseDown, focusListener);
 	}
 	
 	public void addMenuItem(String text, String id)
@@ -165,7 +185,7 @@ public class DropdownMenu
 		Composite comp = new Composite(contentPanel, SWT.NONE);
 		comp.setSize(Math.max(Math.max(textWidth, minimumWidth), shell.getSize().x) + leftMargin + rightMargin, textHeight);
 		comp.setLocation(0, contentPanel.getSize().y);
-		comp.addListener(SWT.MouseDown, selectionListener);
+		comp.addListener(SWT.MouseUp, selectionListener);
 		comp.addListener(SWT.MouseEnter, selectionListener);
 		comp.setBackground(defaultColor);
 		comp.setBackgroundMode(SWT.INHERIT_DEFAULT);
@@ -174,7 +194,7 @@ public class DropdownMenu
 		label.setSize(textWidth, textHeight);
 		label.setLocation(leftMargin, 0);
 		label.setText(text);
-		label.addListener(SWT.MouseDown, selectionListener);
+		label.addListener(SWT.MouseUp, selectionListener);
 		label.addListener(SWT.MouseEnter, selectionListener);
 		label.setBackground(defaultColor);
 		
