@@ -1,0 +1,2 @@
+language: nova
+mainClassLocation: my/path/to/Main.nova
